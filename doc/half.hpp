@@ -50,12 +50,7 @@ namespace half_float
 		/// \return single precision value representing expression value
 		operator float() const;
 
-		/// Assignment operator.
-		/// \param rhs half to copy from
-		/// \return reference to this half
-		half& operator=(half rhs);
-
-		/// Assignment operator.
+		/// Single-precision assignment.
 		/// \param rhs single-precision value to copy from
 		/// \return reference to this half
 		half& operator=(float rhs);
@@ -242,11 +237,11 @@ namespace half_float
 	/// \return reference to input stream
 	template<typename charT,typename traits> std::basic_istream<charT,traits>& operator>>(std::basic_istream<charT,traits> &in, half &h);
 
-	/// Half literal.
-	/// For this operator to be present, the preprocessor symbol `HALF_ENABLE_LITERALS` has to be defined when including half.hpp.
-	/// \param d literal value
-	/// \return half with given value (if representable)
-	half operator "" h(long double d);
+	// Half literal.
+	// For this operator to be present, the preprocessor symbol `HALF_ENABLE_LITERALS` has to be defined when including half.hpp.
+	// \param d literal value
+	// \return half with given value (if representable)
+//	half operator "" h(long double d);
 
 	/// \}
 	/// \name Basic mathematical operations

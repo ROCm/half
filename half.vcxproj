@@ -83,8 +83,9 @@
     <ClInclude Include="include\half.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="doc\ProjectWeb.md" />
     <None Include="Doxyfile" />
-    <None Include="PublicDox" />
+    <None Include="ProjectWeb" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

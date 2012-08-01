@@ -28,10 +28,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="PublicDox">
+    <None Include="Doxyfile">
       <Filter>Dokumentationsdateien</Filter>
     </None>
-    <None Include="Doxyfile">
+    <None Include="ProjectWeb">
+      <Filter>Dokumentationsdateien</Filter>
+    </None>
+    <None Include="doc\ProjectWeb.md">
       <Filter>Dokumentationsdateien</Filter>
     </None>
   </ItemGroup>
