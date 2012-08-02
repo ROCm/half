@@ -12,6 +12,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Doxyfile" />
+    <CustomBuild Include="Doxyfile" />
   </ItemGroup>
 </Project>

@@ -78,7 +78,17 @@
     <ClInclude Include="include\half.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Doxyfile" />
+    <CustomBuild Include="Doxyfile">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"C:\Program Files\doxygen\bin\doxygen.exe" $(InputPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"C:\Program Files\doxygen\bin\doxygen.exe" $(InputPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating Documentation</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating Documentation</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">doc</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">doc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)include/half.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)include/half.hpp</AdditionalInputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

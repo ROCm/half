@@ -1,7 +1,7 @@
 Half-precision floating point library						{#mainpage}
 =====================================
 
-This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.org/wiki/IEEE_754-2008) conformant 16-bit half-precision floating point type along with corresponding arithmetic operators, type conversions and common mathematical functions. It aims for both efficiency and ease of use, trying to accurately mimic the behaviour of the builtin floating point types at the best performance possible.
+This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.org/wiki/IEEE_754-2008) conformant 16-bit [half-precision](http://en.wikipedia.org/wiki/Half_precision_floating-point_format) floating point type along with corresponding arithmetic operators, type conversions and common mathematical functions. It aims for both efficiency and ease of use, trying to accurately mimic the behaviour of the builtin floating point types at the best performance possible.
 
 [TOC]
 

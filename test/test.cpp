@@ -16,6 +16,8 @@
 
 #include <half.hpp>
 
+using half_float::half;
+
 int main()
 {
 	return 0;
