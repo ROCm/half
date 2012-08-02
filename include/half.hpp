@@ -1894,6 +1894,8 @@ namespace half_float
 namespace std
 {
 	/// Numeric limits for half-precision floats.
+	/// Because of the underlying single-precision implementation of many operations, it inherits some properties from 
+	/// `std::numeric_limits<float>`.
 	template<> class numeric_limits<half_float::half> : public std::numeric_limits<float>
 	{
 	public:
@@ -1914,6 +1916,9 @@ namespace std
 
 		/// Doesn't provide modulo arithmetic.
 		static const bool is_modulo = false;
+
+		/// IEEE conformant.
+		static const bool is_iec559 = true;
 
 		/// Supports infinity.
 		static const bool has_infinity = true;

@@ -697,6 +697,8 @@ namespace half_float
 namespace std
 {
 	/// Numeric limits for half-precision floats.
+	/// Because of the underlying single-precision implementation of many operations, it inherits some properties from 
+	/// `std::numeric_limits<float>`.
 	template<> class numeric_limits<half_float::half> : public std::numeric_limits<float>
 	{
 	public:

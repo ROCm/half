@@ -1,7 +1,7 @@
 Half-precision floating point library						{#mainpage}
 =====================================
 
-This is a C++ header-only library to provide an IEEE 754 conformant half-precision floating point type along with corresponding arithmetic operators, type conversions and common mathematical functions. It aims for both efficiency and ease of use, trying to accurately mimic the behaviour of the builtin floating point types at the best performance possible.
+This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.org/wiki/IEEE_754-2008) conformant 16-bit half-precision floating point type along with corresponding arithmetic operators, type conversions and common mathematical functions. It aims for both efficiency and ease of use, trying to accurately mimic the behaviour of the builtin floating point types at the best performance possible.
 
 [TOC]
 
@@ -25,7 +25,7 @@ The **half** project has finally been registered on [Sourceforge.net](http://sou
 Download and Installation									{#downloads}
 =========================
 
-The library in its most recent version can be obtained from here:
+The library in its most recent version can be obtained from here, see [Release Notes](ChangeLog.html) for further information:
 
 -	coming soon...
 
@@ -105,7 +105,6 @@ The [half](\ref half_float::half) type uses the standard IEEE representation wit
 -	The implementation does not provide any floating point exceptions, thus arithmetic operations or mathematical functions are not specified to invoke proper floating point exceptions. But due to many functions implemented in single-precision, those may still invoke floating point exceptions of the underlying single-precision implementation.
 
 Some of those points could have been circumvented by controlling the floating point environment (through `<cfenv>`) or implementing a similar exception mechanism. But this would have required excessive runtime checks giving two high an impact on performance for something that is rarely ever needed. If you really need to rely on proper floating point exceptions, it is recommended to explicitly perform computations using the builtin floating point types to be on the safe side.
-
 
 --------------------------------------------------------------------------------
 
