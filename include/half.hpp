@@ -76,9 +76,6 @@ namespace half_float
 	/// \{
 	template<typename charT,typename traits>
 	std::basic_istream<charT,traits>& operator>>(std::basic_istream<charT,traits> &in, half &h);
-#ifdef HALF_ENABLE_LITERALS
-	half operator "" h(long double d);
-#endif
 	/// \}
 
 	/// \name Basic mathematical operations
@@ -134,6 +131,18 @@ namespace half_float
 	bool isunordered(half x, half y);
 	/// \}
 
+/*
+	// User-defined literals.
+	// Import this namespace to enable half-precision floating point literals:
+	// ~~~~{.cpp}
+	// using namespace half_float::literal;
+	// half_float::half = 4.2h;
+	// ~~~~
+	namespace literal
+	{
+		half operator "" h(long double d);
+	}
+*/
 
 	/// \internal
 	/// \brief Implementation details.
@@ -321,7 +330,9 @@ namespace half_float
 	class half : public detail::half_expr<half>
 	{
 		friend class std::numeric_limits<half>;
+#ifdef HALF_ENABLE_HASH
 		friend struct std::hash<half>;
+#endif
 
 		friend bool operator==(half, half);
 		friend bool operator!=(half, half);
@@ -628,16 +639,6 @@ namespace half_float
 		return in;
 	}
 
-#ifdef HALF_ENABLE_LITERALS
-	/// Half literal.
-	/// \param d literal value
-	/// \return half with given value (if representable)
-	inline half operator "" h(long double d)
-	{
-		return half(static_cast<float>(d));
-	}
-#endif
-
 	/// Absolute value.
 	/// \param arg operand
 	/// \return absolute value of \a arg
@@ -913,7 +914,7 @@ namespace half_float
 			return half((to.data_&0x8000)+1, true);
 		bool lt = (signbit(from) ? (static_cast<std::int_fast32_t>(0x8000)-from.data_) : static_cast<std::int_fast32_t>(from.data_)) < 
 			(signbit(to) ? (static_cast<std::int_fast32_t>(0x8000)-to.data_) : static_cast<std::int_fast32_t>(to.data_));
-		return half((from.data_+(((from.data_>>15)^lt)<<1))-1, true);
+		return half((from.data_+(((from.data_>>15)^static_cast<std::uint16_t>(lt))<<1))-1, true);
 	}
 
 	/// Next representable value.
@@ -1065,6 +1066,18 @@ namespace half_float
 		return isnan(x) || isnan(y);
 	}
 
+/*
+	namespace literal
+	{
+		// Half literal.
+		// \param d literal value
+		// \return half with given value (if representable)
+		inline half operator "" h(long double d)
+		{
+			return half(static_cast<float>(d));
+		}
+	}
+*/
 
 	namespace detail
 	{
@@ -1963,7 +1976,9 @@ namespace std
 		static half_float::half denorm_min() { return half_float::half(0x0001, true); }
 	};
 
+#ifdef HALF_ENABLE_HASH
 	/// Hash function for half-precision floats.
+	/// You have to define the preprocessor symbol `HALF_ENABLE_HASHING` for this specialization to be available.
 	template<> struct hash<half_float::half>
 	{
 		/// Type of function argument.
@@ -1980,6 +1995,7 @@ namespace std
 			return std::hash<std::uint16_t>()(-static_cast<std::uint16_t>(arg.data_==0x8000)&arg.data_);
 		}
 	};
+#endif
 }
 
 #endif

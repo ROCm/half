@@ -47,7 +47,7 @@ namespace half_float
 		explicit half(float rhs);
 
 		/// Conversion to single-precision.
-		/// \return single precision value representing expression value
+		/// \return single precision value
 		operator float() const;
 
 		/// Single-precision assignment.
@@ -236,12 +236,6 @@ namespace half_float
 	/// \param h half to read into
 	/// \return reference to input stream
 	template<typename charT,typename traits> std::basic_istream<charT,traits>& operator>>(std::basic_istream<charT,traits> &in, half &h);
-
-	// Half literal.
-	// For this operator to be present, the preprocessor symbol `HALF_ENABLE_LITERALS` has to be defined when including half.hpp.
-	// \param d literal value
-	// \return half with given value (if representable)
-//	half operator "" h(long double d);
 
 	/// \}
 	/// \name Basic mathematical operations
@@ -680,6 +674,22 @@ namespace half_float
 	/// \retval false else
 	bool isunordered(half x, half y);
 	/// \}
+
+/*
+	// User-defined literals.
+	// Import this namespace to enable half-precision floating point literals:
+	// ~~~~{.cpp}
+	// using namespace half_float::literal;
+	// half_float::half = 4.2h;
+	// ~~~~
+	namespace literal
+	{
+		// Half literal.
+		// For this operator to be present, the preprocessor symbol `HALF_ENABLE_LITERALS` has to be defined when including half.hpp.
+		// \param d literal value
+		// \return half with given value (if representable)
+		half operator "" h(long double d);
+	}*/
 }
 
 
@@ -742,34 +752,35 @@ namespace std
 		static const int max_exponent10 = 4;
 
 		/// Smallest positive value.
-		static half_float::half min() { return half_float::half(0x0001, true); }
+		static half_float::half min();
 
 		/// Smallest finite value.
-		static half_float::half lowest() { return half_float::half(0xFBFF, true); }
+		static half_float::half lowest();
 
 		/// Largest finite value.
-		static half_float::half max() { return half_float::half(0x7BFF, true); }
+		static half_float::half max();
 
 		/// Difference between one and next representable value.
-		static half_float::half epsilon() { return half_float::half(0x1400, true); }
+		static half_float::half epsilon();
 
 		/// Maximum rounding error.
-		static half_float::half round_error() { return half_float::half(0x3800, true); }
+		static half_float::half round_error();
 
 		/// Positive infinity.
-		static half_float::half infinity() { return half_float::half(0x7C00, true); }
+		static half_float::half infinity();
 
 		/// Quiet NaN.
-		static half_float::half quiet_NaN() { return half_float::half(0x7FFF, true); }
+		static half_float::half quiet_NaN();
 
 		/// Signalling NaN.
-		static half_float::half signaling_NaN() { return half_float::half(0x7DFF, true); }
+		static half_float::half signaling_NaN();
 
 		/// Smallest positive subnormal value.
-		static half_float::half denorm_min() { return half_float::half(0x0001, true); }
+		static half_float::half denorm_min();
 	};
 
 	/// Hash function for half-precision floats.
+	/// You have to define the preprocessor symbol `HALF_ENABLE_HASHING` for this specialization to be available.
 	template<> struct hash<half_float::half>
 	{
 		/// Type of function argument.
