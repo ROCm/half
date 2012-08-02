@@ -5,13 +5,22 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="Dokumentationsdateien">
+      <UniqueIdentifier>{e31a1aed-8ae0-4fb3-8b17-812dc67ff73e}</UniqueIdentifier>
+      <Extensions>md;txt</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\half.hpp">
+    <None Include="Mainpage.md">
+      <Filter>Dokumentationsdateien</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="half.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Doxyfile" />
+    <CustomBuild Include="Doxyfile" />
   </ItemGroup>
 </Project>
