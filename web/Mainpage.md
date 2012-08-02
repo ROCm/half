@@ -6,7 +6,7 @@ This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.o
 [TOC]
 
 
-News														{#news}
+News														{#new}
 ====
 
 August 1, 2012
@@ -14,10 +14,7 @@ August 1, 2012
 
 The first version of the library has been checked into source control and is thus available to the public through the [SVN repository](http://sourceforge.net/p/half/code/), though still waiting for an explicit file release. Additionally the project web containing the library's documentation went online.
 
-July 30, 2012
--------------
-
-The **half** project has finally been registered on [Sourceforge.net](http://sourceforge.net/projects/half/).
+[more](news.html)
 
 --------------------------------------------------------------------------------
 
