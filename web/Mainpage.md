@@ -25,7 +25,7 @@ The **half** project has finally been registered on [Sourceforge.net](http://sou
 Download and Installation									{#downloads}
 =========================
 
-The library in its most recent version can be obtained from here, see [Release Notes](ChangeLog.html) for further information:
+The library in its most recent version can be obtained from here, see [Release Notes](changelog.html) for further information:
 
 -	coming soon...
 
