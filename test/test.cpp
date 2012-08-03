@@ -33,7 +33,6 @@
 
 using half_float::half;
 
-
 half b2h(std::uint16_t bits)
 {
 	return *reinterpret_cast<half*>(&bits);
@@ -46,7 +45,27 @@ std::uint16_t h2b(half h)
 
 bool comp(half a, half b)
 {
-	return (isnan(a) && isnan(b)) || *reinterpret_cast<std::uint16_t*>(&a) == *reinterpret_cast<std::uint16_t*>(&b);
+	return (isnan(a) && isnan(b)) || h2b(a) == h2b(b);
+}
+
+bool checkmodf(half arg)
+{
+	half h;
+	float f;
+	bool eq = comp(modf(arg, &h), static_cast<half>(std::modf(arg, &f)));
+	return eq && comp(h, static_cast<half>(f));
+}
+
+bool outmodf(half arg)
+{
+	half h;
+	float f, farg = /*-std::numeric_limits<float>::infinity();*/static_cast<float>(arg);
+	std::cout << std::hex << *reinterpret_cast<std::uint32_t*>(&farg) << std::dec << std::endl;
+	float ff = std::modf(farg, &f);
+	half a = modf(arg, &h), b = static_cast<half>(ff);//std::modf(arg, &f));
+	bool eq = comp(a, b);
+	std::cout << "arg: " << farg << " eq: " << eq << " a: " << a << " b: " << b << " ff: " << ff << std::endl;
+	return eq && comp(h, static_cast<half>(f));
 }
 
 
@@ -178,8 +197,9 @@ public:
 		unary_test("floor", [](half arg) { return comp(floor(arg), static_cast<half>(std::floor(arg))); });
 
 		//test float functions
+//		auto checkmodf = [](half arg) -> bool { half h; float f; bool eq = comp(modf(arg, &h), static_cast<half>(std::modf(arg, &f))); return eq && comp(h, static_cast<half>(f)); };
 		unary_test("frexp", [](half arg) -> bool { int eh, ef; bool eq = comp(frexp(arg, &eh), static_cast<half>(std::frexp(arg, &ef))); return eq && eh==ef; });
-		unary_test("modf", [](half arg) -> bool { half h; float f; bool eq = comp(modf(arg, &h), static_cast<half>(std::modf(arg, &f))); return eq && comp(h, static_cast<half>(f)); });
+		unary_test("modf", checkmodf);//[](half arg) -> bool { half h; float f; bool eq = comp(modf(arg, &h), static_cast<half>(std::modf(arg, &f))); return eq && comp(h, static_cast<half>(f)); });
 		binary_test("copysign", [](half a, half b) -> bool { half h = copysign(a, b); return comp(abs(h), abs(a)) && signbit(h)==signbit(b); });
 #ifdef HAVE_CPP11_MATH
 		//test basic functions
@@ -249,6 +269,13 @@ public:
 		float s = std::frexp(std::numeric_limits<float>::infinity(), &e);
 		std::cout << s << " - " << e << std::endl;
 */
+		half hi, hf = modf(b2h(0xFC00), &hi);
+		std::cout << hi << " . " << hf << std::endl;
+		float fi, ff = std::modf(b2h(0xFC00), &fi);
+		std::cout << fi << " . " << ff << std::endl;
+		std::cout << comp(hf, static_cast<half>(ff)) << " - " << comp(hi, static_cast<half>(fi)) << std::endl;
+		std::cout << outmodf(b2h(0xFC00)) << std::endl;
+
 		bool passed = passed_ == tests_;
 		if(passed)
 			log_ << "ALL TESTS PASSED\n";

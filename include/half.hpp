@@ -25,6 +25,7 @@
 #include <functional>
 #include <algorithm>
 #include <cstdint>
+#include <climits>
 #include <cmath>
 
 #ifdef FP_FAST_FMAF
@@ -929,8 +930,8 @@ namespace half_float
 		if(isnan(from))
 			return from;
 		long double lfrom = static_cast<long double>(from);
-//		if(std::isnan(to) || lfrom == to)
-		if(_isnan(to) || lfrom == to)
+		if(std::isnan(to) || lfrom == to)
+//		if(_isnan(to) || lfrom == to)
 			return half(static_cast<float>(to));
 		if(!(from.data_&0x7FFF))
 //			return half((std::signbit(to)<<15)+1, true);
@@ -1806,7 +1807,7 @@ namespace half_float
 		/// \return nearest integer not less than \a arg
 		template<typename E> float_half_expr ceil(const half_expr<E> &arg)
 		{
-			return float_haf_expr(std::ceil(static_cast<float>(arg)));
+			return float_half_expr(std::ceil(static_cast<float>(arg)));
 		}
 
 		/// Nearest integer not greater than half value.
