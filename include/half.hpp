@@ -28,6 +28,8 @@
 #include <climits>
 #include <cmath>
 
+#include <cstring>
+
 #ifdef FP_FAST_FMAF
 	#define FP_FAST_FMAH
 #endif
@@ -53,9 +55,17 @@
 	#define FP_NORMAL		4
 #endif
 
+#ifdef _MSC_VER
+	#define HALF_STD_ISNAN		_isnan
+	#define HALF_STD_SIGNBIT(x)	(x<0.0)
+#else
+	#define HALF_STD_ISNAN		std::isnan
+	#define HALF_STD_SIGNBIT(x)	std::signbit(x)
+#endif
+
 
 /// Main namespace for half precision functionality.
-/// This namespace contain all the functionality provided by the library.
+/// This namespace contains all the functionality provided by the library.
 namespace half_float
 {
 	class half;
@@ -776,16 +786,11 @@ namespace half_float
 	/// \return significant in range [0.5, 1)
 	inline half frexp(half arg, int *exp)
 	{
-		if(!(arg.data_&0x7FFF))
+		int e = arg.data_ & 0x7C00;
+		if(e == 0x7C00 || !(arg.data_&0x7FFF))
 		{
 			*exp = 0;
-			return half(0, true);
-		}
-		int e = arg.data_ & 0x7C00;
-		if(e == 0x7C00)
-		{
-			*exp = -1;
-			return half(arg.data_|0x3FF, true);
+			return arg;
 		}
 		unsigned int m = arg.data_ & 0x3FF;
 		e >>= 10;
@@ -930,12 +935,10 @@ namespace half_float
 		if(isnan(from))
 			return from;
 		long double lfrom = static_cast<long double>(from);
-		if(std::isnan(to) || lfrom == to)
-//		if(_isnan(to) || lfrom == to)
+		if(HALF_STD_ISNAN(to) || lfrom == to)
 			return half(static_cast<float>(to));
 		if(!(from.data_&0x7FFF))
-//			return half((std::signbit(to)<<15)+1, true);
-			return half(((to<0.0)<<15)+1, true);
+			return half((HALF_STD_SIGNBIT(to)<<15)+1, true);
 		return half((from.data_+(((from.data_>>15)^(lfrom<to))<<1))-1, true);
 	}
 
@@ -1147,12 +1150,10 @@ namespace half_float
 /*
 		inline std::uint16_t float2half_impl(float value, std::false_type)
 		{
-//			unsigned int sign = std::signbit(value) << 15;
-			unsigned int sign = (value<0.0f) << 15;
+			unsigned int sign = HALF_STD_SIGNBIT(value) << 15;
 			if(value == 0.0f)
 				return sign;
-//			if(std::isnan(value))
-			if(_isnan(value))
+			if(HALF_STD_ISNAN(value))
 				return sign | 0x7FFF;
 //			if(std::isinf(value))
 //				return sign | 0x7C00;

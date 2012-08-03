@@ -45,9 +45,9 @@ std::uint16_t h2b(half h)
 
 bool comp(half a, half b)
 {
-	return (isnan(a) && isnan(b)) || h2b(a) == h2b(b);
+	return (isnan(a) && isnan(b)) || a == b;
 }
-
+/*
 bool checkmodf(half arg)
 {
 	half h;
@@ -59,7 +59,7 @@ bool checkmodf(half arg)
 bool outmodf(half arg)
 {
 	half h;
-	float f, farg = /*-std::numeric_limits<float>::infinity();*/static_cast<float>(arg);
+	float f, farg = static_cast<float>(arg);
 	std::cout << std::hex << *reinterpret_cast<std::uint32_t*>(&farg) << std::dec << std::endl;
 	float ff = std::modf(farg, &f);
 	half a = modf(arg, &h), b = static_cast<half>(ff);//std::modf(arg, &f));
@@ -67,7 +67,7 @@ bool outmodf(half arg)
 	std::cout << "arg: " << farg << " eq: " << eq << " a: " << a << " b: " << b << " ff: " << ff << std::endl;
 	return eq && comp(h, static_cast<half>(f));
 }
-
+*/
 
 class half_test
 {
@@ -197,9 +197,8 @@ public:
 		unary_test("floor", [](half arg) { return comp(floor(arg), static_cast<half>(std::floor(arg))); });
 
 		//test float functions
-//		auto checkmodf = [](half arg) -> bool { half h; float f; bool eq = comp(modf(arg, &h), static_cast<half>(std::modf(arg, &f))); return eq && comp(h, static_cast<half>(f)); };
 		unary_test("frexp", [](half arg) -> bool { int eh, ef; bool eq = comp(frexp(arg, &eh), static_cast<half>(std::frexp(arg, &ef))); return eq && eh==ef; });
-		unary_test("modf", checkmodf);//[](half arg) -> bool { half h; float f; bool eq = comp(modf(arg, &h), static_cast<half>(std::modf(arg, &f))); return eq && comp(h, static_cast<half>(f)); });
+		unary_test("modf", [](half arg) -> bool { half h; float f; bool eq = comp(modf(arg, &h), static_cast<half>(std::modf(arg, &f))); return eq && comp(h, static_cast<half>(f)); });
 		binary_test("copysign", [](half a, half b) -> bool { half h = copysign(a, b); return comp(abs(h), abs(a)) && signbit(h)==signbit(b); });
 #ifdef HAVE_CPP11_MATH
 		//test basic functions
@@ -233,32 +232,24 @@ public:
 		//test round functions
 		unary_test("trunc", [](half arg) { return comp(trunc(arg), static_cast<half>(std::trunc(arg))); });
 		unary_test("round", [](half arg) { return comp(round(arg), static_cast<half>(std::round(arg))); });
-		unary_test("lround", [](half arg) { return lround(arg) == std::lround(arg); });
-		unary_test("llround", [](half arg) { return llround(arg) == std::llround(arg); });
+//		unary_test("lround", [](half arg) { return lround(arg) == std::lround(arg); });
+//		unary_test("llround", [](half arg) { return llround(arg) == std::llround(arg); });
 		unary_test("nearbyint", [](half arg) { return comp(nearbyint(arg), static_cast<half>(std::nearbyint(arg))); });
 		unary_test("rint", [](half arg) { return comp(rint(arg), static_cast<half>(std::rint(arg))); });
-		unary_test("lrint", [](half arg) { return lrint(arg) == std::lrint(arg); });
-		unary_test("llrint", [](half arg) { return llrint(arg) == std::llrint(arg); });
+//		unary_test("lrint", [](half arg) { return lrint(arg) == std::lrint(arg); });
+//		unary_test("llrint", [](half arg) { return llrint(arg) == std::llrint(arg); });
 
 		//test float functions
-		unary_test("ilogb", [](half arg) { return ilogb(arg) == std::ilogb(arg); });
+//		unary_test("ilogb", [](half arg) { return ilogb(arg) == std::ilogb(arg); });
 		unary_test("logb", [](half arg) { return comp(logb(arg), static_cast<half>(std::logb(arg))); });
 
 		//test comparison functions
-		binary_test("isgreater", [](half a, half b) { return comp(isgreater(a, b), static_cast<half>(std::isgreater(a, b))); });
-		binary_test("isgreaterequal", [](half a, half b) { return comp(isgreaterequal(a, b), static_cast<half>(std::isgreaterequal(a, b))); });
-		binary_test("isless", [](half a, half b) { return comp(isless(a, b), static_cast<half>(std::isless(a, b))); });
-		binary_test("islessequal", [](half a, half b) { return comp(islessequal(a, b), static_cast<half>(std::islessequal(a, b))); });
-		binary_test("islessgreater", [](half a, half b) { return comp(islessgreater(a, b), static_cast<half>(std::islessgreater(a, b))); });
-		binary_test("isunordered", [](half a, half b) { return comp(isunordered(a, b), static_cast<half>(std::isunordered(a, b))); });
-
-		//test classification functions
-		binary_test("fpclassify", [](half a, half b) { return fpclassify(a, b) == std::fpclassify(a, b); });
-		binary_test("isfinite", [](half a, half b) { return isfinite(a, b) == std::isfinite(a, b); });
-		binary_test("isinf", [](half a, half b) { return isinf(a, b) == std::isinf(a, b); });
-		binary_test("isnan", [](half a, half b) { return isnan(a, b) == std::isnan(a, b); });
-		binary_test("isnormal", [](half a, half b) { return isnormal(a, b) == std::isnormal(a, b); });
-		binary_test("signbit", [](half a, half b) { return signbit(a, b) == std::signbit(a, b); });
+		binary_test("isgreater", [](half a, half b) { return isgreater(a, b) == std::isgreater(a, b); });
+		binary_test("isgreaterequal", [](half a, half b) { return isgreaterequal(a, b) == std::isgreaterequal(a, b); });
+		binary_test("isless", [](half a, half b) { return isless(a, b) == std::isless(a, b); });
+		binary_test("islessequal", [](half a, half b) { return islessequal(a, b) == std::islessequal(a, b); });
+		binary_test("islessgreater", [](half a, half b) { return islessgreater(a, b) == std::islessgreater(a, b); });
+		binary_test("isunordered", [](half a, half b) { return isunordered(a, b) == std::isunordered(a, b); });
 #endif
 /*
 		float a = static_cast<float>(halfs_.find("negative quiet NaN")->second.front());
@@ -268,14 +259,14 @@ public:
 		int e;
 		float s = std::frexp(std::numeric_limits<float>::infinity(), &e);
 		std::cout << s << " - " << e << std::endl;
-*/
+
 		half hi, hf = modf(b2h(0xFC00), &hi);
 		std::cout << hi << " . " << hf << std::endl;
 		float fi, ff = std::modf(b2h(0xFC00), &fi);
 		std::cout << fi << " . " << ff << std::endl;
 		std::cout << comp(hf, static_cast<half>(ff)) << " - " << comp(hi, static_cast<half>(fi)) << std::endl;
 		std::cout << outmodf(b2h(0xFC00)) << std::endl;
-
+*/
 		bool passed = passed_ == tests_;
 		if(passed)
 			log_ << "ALL TESTS PASSED\n";
