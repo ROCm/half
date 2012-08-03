@@ -479,7 +479,7 @@ namespace half_float
 	/// Nearest integer not greater in magnitude than half value.
 	/// \param arg half to round
 	/// \return nearest integer not greater in magnitude than \a arg
-	half trunc(half arg)
+	half trunc(half arg);
 
 	/// Nearest integer.
 	/// \param arg half to round
@@ -794,10 +794,7 @@ namespace std
 		/// Compute hash function.
 		/// \param arg half to hash
 		/// \return hash value
-		std::size_t operator()(half_float::half arg) const
-		{
-			return std::hash<std::uint16_t>()(-static_cast<std::uint16_t>(arg.data_==0x8000)&arg.data_);
-		}
+		std::size_t operator()(half_float::half arg) const;
 	};
 }
 

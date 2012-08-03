@@ -88,6 +88,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"C:\Program Files\doxygen\bin\doxygen.exe" $(InputPath)</Command>
     </CustomBuild>
     <None Include="Mainpage.md" />
+    <None Include="News.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="half.hpp" />

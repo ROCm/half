@@ -9,8 +9,8 @@ This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.o
 News														{#new}
 ====
 
-August 1, 2012
---------------
+August 1, 2012 - Code and Project-Web release
+---------------------------------------------
 
 The first version of the library has been checked into source control and is thus available to the public through the [SVN repository](http://sourceforge.net/p/half/code/), though still waiting for an explicit file release. Additionally the project web containing the library's documentation went online.
 
@@ -30,7 +30,7 @@ If you are interested in previous versions of the library, see the [Sourceforge 
 
 Comfortably enough, the library consists of just a single header file containing all the functionality, which can be directly included by your projects, without the neccessity to build anything or link to anything.
 
-The library imposes some requirements on your C++ implementation:
+The library imposes some requirements on your C++ implementation (espcecially regarding C++11 support):
 
 -	IEEE 754 conformant single-precision `float` type.
 -	Support for fixed-width integer types from `<cstdint>`, which comes with C++11.
@@ -84,9 +84,15 @@ For performance reasons (and ease of implementation) many of the mathematical fu
 This approach has two implications. First of all you have to treat the documentation on this site as a simplified version, describing the behaviour of the library as-if implemented this way. The actual argument and return types of functions and operators may involve other internal types (feel free to generate the exact developer documentation from the Doxygen comments in the library's header file if you really need to). But nevertheless the behaviour is exactly like specified in the documentation. The other implication is, that in the presence of rounding errors or over-/underflows arithmetic expressions may produce different results when compared to converting to half-precision after each individual operation:
 
 ~~~~{.cpp}
-half a = (std::numeric_limits<half>::max() + static_cast<half>(1)) - static_cast<half>(1);	// a = MAX
-half b = std::numeric_limits<half>::max() + static_cast<half>(1);							// b = INF
-b -= static_cast<half>(1);																	// b stays INF
+half a, b;
+...
+a = (std::numeric_limits<half>::max() * static_cast<half>(2)) / static_cast<half>(2);	// a = MAX
+b = std::numeric_limits<half>::max() * static_cast<half>(2);							// b = INF
+b /= static_cast<half>(2);																// b stays INF
+...
+a = (std::numeric_limits<half>::max() + static_cast<half>(1)) - static_cast<half>(1);	// a = MAX
+b = std::numeric_limits<half>::max() + static_cast<half>(1);							// b = MAX (truncation)
+b -= static_cast<half>(1);																// b = MAX-32 (truncation)
 ~~~~
 
 But this should only be a problem in very few cases. One last word has to be said when talking about performance. Even with its efforts in reducing conversion overhead as much as possible, the software half-precision implementation can most probably not beat the direct use of single-precision computations. Usually using actual `float` values for all computations and temproraries and using [half](\ref half_float::half)s only for storage is the recommended way. On the one hand this somehow makes the provided mathematical functions obsolete (especially in light of the implicit conversion from [half](\ref half_float::half) to `float`), but nevertheless the goal of this library was to provide a complete and conceptually clean half-precision implementation, to which the standard mathematical functions belong, even if usually not needed.

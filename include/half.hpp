@@ -27,6 +27,9 @@
 #include <cstdint>
 #include <cmath>
 
+#ifdef FP_FAST_FMAF
+	#define FP_FAST_FMAH
+#endif
 #ifndef FP_ILOGB0
 	#define FP_ILOGB0		INT_MIN
 #endif
@@ -775,13 +778,13 @@ namespace half_float
 		if(!(arg.data_&0x7FFF))
 		{
 			*exp = 0;
-			return arg;
+			return half(0, true);
 		}
 		int e = arg.data_ & 0x7C00;
 		if(e == 0x7C00)
 		{
 			*exp = -1;
-			return arg;
+			return half(arg.data_|0x3FF, true);
 		}
 		unsigned int m = arg.data_ & 0x3FF;
 		e >>= 10;
@@ -1997,7 +2000,7 @@ namespace std
 		/// \return hash value
 		std::size_t operator()(half_float::half arg) const
 		{
-			return std::hash<std::uint16_t>()(-static_cast<std::uint16_t>(arg.data_==0x8000)&arg.data_);
+			return std::hash<std::uint16_t>()(-static_cast<std::uint16_t>(arg.data_!=0x8000)&arg.data_);
 		}
 	};
 #endif
