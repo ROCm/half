@@ -32,8 +32,8 @@ Comfortably enough, the library consists of just a single header file containing
 
 The library imposes some requirements on your C++ implementation (espcecially regarding C++11 support):
 
--	IEEE 754 conformant single-precision `float` type.
--	Support for fixed-width integer types from `<cstdint>`, which comes with C++11.
+-	IEEE 754 conformant single-precision `float` type (should be the case on usual desktop platforms).
+-	Support for C++11 fixed-width integer types from `<cstdint>`.
 -	Support for certain C++11 single-precision mathematical functions from `<cmath>` for their half-precision counter-parts to work (**optional**).
 -	Support for C++11's `std::hash` from `<functional>` (**optional**, only if hashing enabled by defining `HALF_ENABLE_HASH`).
 
