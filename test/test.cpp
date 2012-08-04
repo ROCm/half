@@ -396,7 +396,7 @@ private:
 
 int main(int argc, char *argv[])
 {
-	half a, b;
+/*	half a, b;
 	a = (std::numeric_limits<half>::max()*static_cast<half>(2)) / static_cast<half>(2);
 	b = std::numeric_limits<half>::max() * static_cast<half>(2);
 	b /= static_cast<half>(2);
@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
 	b = std::numeric_limits<half>::max() + static_cast<half>(1);
 	b -= static_cast<half>(2);
 	std::cout << a << " - " << b << std::endl;
-
+*/
 	std::unique_ptr<std::ostream> file;
 	if(argc > 1)
 		file.reset(new std::ofstream(argv[1]));

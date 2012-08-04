@@ -27,6 +27,7 @@
 #include <cstdint>
 #include <climits>
 #include <cmath>
+#include <cstring>
 
 #ifdef FP_FAST_FMAF
 	#define FP_FAST_FMAH
@@ -1142,7 +1143,8 @@ namespace half_float
 				24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 
 				24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 
 				24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 13 };
-			std::uint32_t bits = *reinterpret_cast<std::uint32_t*>(&value);
+			std::uint32_t bits;// = *reinterpret_cast<std::uint32_t*>(&value);
+			std::memcpy(&bits, &value, sizeof(float));
 			return base_table[bits>>23] + ((bits&0x7FFFFF)>>shift_table[bits>>23]);
 		}
 /*
@@ -1326,7 +1328,10 @@ namespace half_float
 				   0, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 
 				   0, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024 };
 			std::uint32_t bits = mantissa_table[offset_table[value>>10]+(value&0x3FF)] + exponent_table[value>>10];
-			return *reinterpret_cast<float*>(&bits);
+//			return *reinterpret_cast<float*>(&bits);
+			float out;
+			std::memcpy(&out, &bits, sizeof(float));
+			return out;
 		}
 /*
 		/// Convert half-precision to non-IEEE single-precision.
