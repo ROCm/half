@@ -8,4 +8,3 @@ test: test.cpp ../include/half.hpp
 
 clean:
 	rm -rvf *~
-

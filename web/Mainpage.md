@@ -37,7 +37,7 @@ The library imposes some requirements on your C++ implementation (espcecially re
 -	Support for certain C++11 single-precision mathematical functions from `<cmath>` for their half-precision counter-parts to work (**optional**).
 -	Support for C++11's `std::hash` from `<functional>` (**optional**, only if hashing enabled by defining `HALF_ENABLE_HASH`).
 
-It has been tested successfully with *Visual C++ 2010*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
+It has been tested successfully with *Visual C++ 2010* and *gcc 4.6*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 
 --------------------------------------------------------------------------------
 

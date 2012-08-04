@@ -28,8 +28,6 @@
 #include <climits>
 #include <cmath>
 
-#include <cstring>
-
 #ifdef FP_FAST_FMAF
 	#define FP_FAST_FMAH
 #endif
@@ -56,10 +54,10 @@
 #endif
 
 #ifdef _MSC_VER
-	#define HALF_STD_ISNAN		_isnan
-	#define HALF_STD_SIGNBIT(x)	(x<0.0)
+	#define HALF_STD_ISNAN(x)	_isnan(x)
+	#define HALF_STD_SIGNBIT(x)	((x)<0.0)
 #else
-	#define HALF_STD_ISNAN		std::isnan
+	#define HALF_STD_ISNAN(x)	std::isnan(x)
 	#define HALF_STD_SIGNBIT(x)	std::signbit(x)
 #endif
 
@@ -1088,7 +1086,7 @@ namespace half_float
 
 	namespace detail
 	{
-		/// Convert single-precision to half-precision.
+		/// Convert IEEE single-precision to half-precision.
 		/// \param value single-precision value
 		/// \return binary representation of half-precision value
 		inline std::uint16_t float2half(float value)
@@ -1148,7 +1146,10 @@ namespace half_float
 			return base_table[bits>>23] + ((bits&0x7FFFFF)>>shift_table[bits>>23]);
 		}
 /*
-		inline std::uint16_t float2half_impl(float value, std::false_type)
+		/// Convert non-IEEE single-precision to half-precision.
+		/// \param value single-precision value
+		/// \return binary representation of half-precision value
+		inline std::uint16_t float2half_impl(float value, const std::false_type&)
 		{
 			unsigned int sign = HALF_STD_SIGNBIT(value) << 15;
 			if(value == 0.0f)
@@ -1173,12 +1174,15 @@ namespace half_float
 			return sign | ((exp+14)<<10) | (mant&0x3FF);
 		}
 
+		/// Convert single-precision to half-precision.
+		/// \param value single-precision value
+		/// \return binary representation of half-precision value
 		inline std::uint16_t float2half(float value)
 		{
 			return float2half_impl(value, std::integral_constant<bool,std::numeric_limits<float>::is_iec559>());
 		}
 */
-		/// Convert half-precision to single-precision.
+		/// Convert half-precision to IEEE single-precision.
 		/// \param value binary representation of half-precision value
 		/// \return single-precision value
 		inline float half2float(std::uint16_t value)
@@ -1325,7 +1329,10 @@ namespace half_float
 			return *reinterpret_cast<float*>(&bits);
 		}
 /*
-		inline float half2float_impl(std::uint16_t value, std::false_type)
+		/// Convert half-precision to non-IEEE single-precision.
+		/// \param value binary representation of half-precision value
+		/// \return single-precision value
+		inline float half2float_impl(std::uint16_t value, const std::false_type&)
 		{
 			int exp = value & 0x7C00;
 			bool sign = value & 0x8000;
@@ -1352,6 +1359,9 @@ namespace half_float
 			return sign ? -std::ldexp(static_cast<float>(mant), exp-25) : std::ldexp(static_cast<float>(mant), exp-25);
 		}
 
+		/// Convert half-precision to single-precision.
+		/// \param value binary representation of half-precision value
+		/// \return single-precision value
 		inline float half2float(std::uint16_t value)
 		{
 			return half2float_impl(value, std::integral_constant<bool,std::numeric_limits<float>::is_iec559>());
