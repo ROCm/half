@@ -1340,28 +1340,31 @@ namespace half_float
 		inline float half2float_impl(std::uint16_t value, const std::false_type&)
 		{
 			int exp = value & 0x7C00;
-			bool sign = value & 0x8000;
+			float out;
 			if(exp == 0x7C00)
 			{
-				static const float inf = std::numeric_limits<float>::has_infinity ? 
-					std::numeric_limits<float>::infinity() : std::numeric_limits<float>::max();
-				static const float NaN = std::numeric_limits<float>::has_quiet_NaN ? std::numeric_limits<float>::quiet_NaN() : 0.0f;
 				if(value & 0x3FF)
-					return sign ? -NaN : NaN;
-				return sign ? -inf : inf;
-			}
-			exp >>= 10;
-			unsigned int mant = value & 0x3FF;
-			if(!exp)
-			{
-				if(mant == 0)
-					return sign ? -0.0f : 0.0f;
-				for(mant<<=1; mant<0x400; mant<<=1)
-					--exp;
+					out = std::numeric_limits<float>::has_quiet_NaN ? std::numeric_limits<float>::quiet_NaN() : 0.0f;
+				else
+					out = std::numeric_limits<float>::has_infinity ? std::numeric_limits<float>::infinity() : 
+						std::numeric_limits<float>::max();
 			}
 			else
-				mant |= 0x400;
-			return sign ? -std::ldexp(static_cast<float>(mant), exp-25) : std::ldexp(static_cast<float>(mant), exp-25);
+			{
+				exp >>= 10;
+				unsigned int mant = value & 0x3FF;
+				if(!exp)
+				{
+					if(mant == 0)
+						return sign ? -0.0f : 0.0f;
+					for(mant<<=1; mant<0x400; mant<<=1)
+						--exp;
+				}
+				else
+					mant |= 0x400;
+				out = std::ldexp(static_cast<float>(mant), exp-25);
+			}
+			return (value&0x8000) ? -out : out;
 		}
 
 		/// Convert half-precision to single-precision.
