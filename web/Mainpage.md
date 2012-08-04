@@ -3,16 +3,18 @@ Half-precision floating point library						{#mainpage}
 
 This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.org/wiki/IEEE_754-2008) conformant 16-bit [half-precision](http://en.wikipedia.org/wiki/Half_precision_floating-point_format) floating point type along with corresponding arithmetic operators, type conversions and common mathematical functions. It aims for both efficiency and ease of use, trying to accurately mimic the behaviour of the builtin floating point types at the best performance possible.
 
+For further information see the [official SourceForge project page](http://sourceforge.net/projects/half/).
+
 [TOC]
 
 
 News														{#new}
 ====
 
-August 1, 2012 - Code and Project-Web release
----------------------------------------------
+August 5, 2012 - First release 1.0.0
+------------------------------------
 
-The first version of the library has been checked into source control and is thus available to the public through the [SVN repository](http://sourceforge.net/p/half/code/), though still waiting for an explicit file release. Additionally the project web containing the library's documentation went online.
+The first official release, [version 1.0.0](http://sourceforge.net/projects/half/files/half/1.0.0), of the library is finally out.
 
 [more](news.html)
 
@@ -24,7 +26,7 @@ Download and Installation									{#downloads}
 
 The library in its most recent version can be obtained from here, see [Release Notes](changelog.html) for further information:
 
--	coming soon...
+-	[<b>half 1.0.0</b>](http://sourceforge.net/projects/half/files/latest/download)
 
 If you are interested in previous versions of the library, see the [Sourceforge download page](http://sourceforge.net/projects/half/files/).
 

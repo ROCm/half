@@ -1,7 +1,7 @@
-Release Notes												{#changelog}
+Release Notes											{#changelog}
 =============
 
-0.1.0:
-------
+1.0.0 release (08-05-2012):
+---------------------------
 
--	First release.
+- First release.
