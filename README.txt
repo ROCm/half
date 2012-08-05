@@ -19,7 +19,7 @@ The library imposes some requirements on your C++ implementation (espcecially
 regarding C++11 support):
 
 - IEEE 754 conformant single-precision 'float' type (should be the case on 
-  usual desktop platforms).
+  most modern platforms).
   
 - Support for C++11 fixed-width integer types from <cstdint>.
 
@@ -128,13 +128,13 @@ each individual operation:
 
     half a, b;
     ...
-    a = (std::numeric_limits<half>::max() * static_cast<half>(2)) / static_cast<half>(2);	// a = MAX
-    b = std::numeric_limits<half>::max() * static_cast<half>(2);							// b = INF
-    b /= static_cast<half>(2);																// b stays INF
+    a = (std::numeric_limits<half>::max() * static_cast<half>(2)) / static_cast<half>(2); // a = MAX
+    b = std::numeric_limits<half>::max() * static_cast<half>(2);                          // b = INF
+    b /= static_cast<half>(2);                                                            // b stays INF
     ...
-    a = (std::numeric_limits<half>::max() + static_cast<half>(1)) - static_cast<half>(1);	// a = MAX
-    b = std::numeric_limits<half>::max() + static_cast<half>(1);							// b = MAX (truncation)
-    b -= static_cast<half>(1);																// b = MAX-32 (truncation)
+    a = (std::numeric_limits<half>::max() + static_cast<half>(1)) - static_cast<half>(1); // a = MAX
+    b = std::numeric_limits<half>::max() + static_cast<half>(1);                          // b = MAX (truncation)
+    b -= static_cast<half>(1);                                                            // b = MAX-32 (truncation)
 
 
 But this should only be a problem in very few cases. One last word has to be 
