@@ -44,8 +44,8 @@ It has been tested successfully with *Visual C++ 2010* and *gcc 4.6*. Please [co
 --------------------------------------------------------------------------------
 
 
-Documenation												{#doc}
-============
+Documentation												{#doc}
+=============
 
 Basic usage													{#usage}
 -----------
