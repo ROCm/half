@@ -1,8 +1,8 @@
 Release Notes											{#changelog}
 =============
 
-1.1.1 release ():
------------------
+1.1.1 release (08-06-2012):
+---------------------------
 
 - Fixed `std::numeric_limits::min` to return smallest positive normal number, 
   instead of subnormal number.
