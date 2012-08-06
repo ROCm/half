@@ -1,4 +1,4 @@
-Half-precision floating point library (Version 1.1.1)
+Half-precision floating point library (Version 1.1.2)
 -----------------------------------------------------
 
 This is a C++ header-only library to provide an IEEE 754 conformant 16-bit 

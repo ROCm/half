@@ -205,6 +205,13 @@ public:
 		//test round functions
 		unary_test("ceil", [](half arg) { return comp(ceil(arg), static_cast<half>(std::ceil(static_cast<float>(arg)))); });
 		unary_test("floor", [](half arg) { return comp(floor(arg), static_cast<half>(std::floor(static_cast<float>(arg)))); });
+		unary_test("trunc", [](half arg) { return !isfinite(arg) || comp(trunc(arg), static_cast<half>(static_cast<int>(arg))); });
+		unary_test("round", [](half arg) { return !isfinite(arg) || comp(round(arg), 
+			static_cast<half>(static_cast<int>(static_cast<float>(arg)+(signbit(arg) ? -0.5f : 0.5f)))); });
+		unary_test("lround", [](half arg) { return !isfinite(arg) || lround(arg) == 
+			static_cast<long>(static_cast<float>(arg)+(signbit(arg) ? -0.5f : 0.5f)); });
+		unary_test("llround", [](half arg) { return !isfinite(arg) || llround(arg) == 
+			static_cast<long long>(static_cast<float>(arg)+(signbit(arg) ? -0.5f : 0.5f)); });
 
 		//test float functions
 		unary_test("frexp", [](half arg) -> bool { int eh, ef; bool eq = comp(frexp(arg, &eh), 
@@ -254,16 +261,13 @@ public:
 		unary_test("tgamma", [](half arg) { return comp(tgamma(arg), static_cast<half>(std::tgamma(static_cast<float>(arg)))); });
 
 		//test round functions
-		unary_test("trunc", [](half arg) { return comp(trunc(arg), 
-			static_cast<half>(std::trunc(static_cast<float>(arg)))); });
-		unary_test("round", [](half arg) { return comp(round(arg), 
-			static_cast<half>(std::round(static_cast<float>(arg)))); });
+		unary_test("trunc", [](half arg) { return comp(trunc(arg), static_cast<half>(std::trunc(static_cast<float>(arg)))); });
+		unary_test("round", [](half arg) { return comp(round(arg), static_cast<half>(std::round(static_cast<float>(arg)))); });
 		unary_test("lround", [](half arg) { return lround(arg) == std::lround(static_cast<float>(arg)); });
 		unary_test("llround", [](half arg) { return llround(arg) == std::llround(static_cast<float>(arg)); });
 		unary_test("nearbyint", [](half arg) { return comp(nearbyint(arg), 
 			static_cast<half>(std::nearbyint(static_cast<float>(arg)))); });
-		unary_test("rint", [](half arg) { return comp(rint(arg), 
-			static_cast<half>(std::rint(static_cast<float>(arg)))); });
+		unary_test("rint", [](half arg) { return comp(rint(arg), static_cast<half>(std::rint(static_cast<float>(arg)))); });
 		unary_test("lrint", [](half arg) { return lrint(arg) == std::lrint(static_cast<float>(arg)); });
 		unary_test("llrint", [](half arg) { return llrint(arg) == std::llrint(static_cast<float>(arg)); });
 
@@ -290,14 +294,22 @@ public:
 			std::isunordered(static_cast<float>(a), static_cast<float>(b)); });
 #endif
 		//test numeric limits
-		unary_test("numeric_limits::min", [](half arg) { return !isnormal(arg) || signbit(arg) || arg>=std::numeric_limits<half>::min(); });
+		unary_test("numeric_limits::min", [](half arg) { return !isnormal(arg) || 
+			signbit(arg) || arg>=std::numeric_limits<half>::min(); });
 		unary_test("numeric_limits::lowest", [](half arg) { return !isfinite(arg) || arg>=std::numeric_limits<half>::lowest(); });
 		unary_test("numeric_limits::max", [](half arg) { return !isfinite(arg) || arg<=std::numeric_limits<half>::max(); });
-		unary_test("numeric_limits::denorm_min", [](half arg) { return !isfinite(arg) || signbit(arg) || arg==static_cast<half>(0.0f) || arg>=std::numeric_limits<half>::denorm_min(); });
-		simple_test("numeric_limits::infinity", []() { return isinf(std::numeric_limits<half>::infinity()) && !signbit(std::numeric_limits<half>::infinity()); });
+		unary_test("numeric_limits::denorm_min", [](half arg) { return !isfinite(arg) || 
+			signbit(arg) || arg==static_cast<half>(0.0f) || arg>=std::numeric_limits<half>::denorm_min(); });
+		simple_test("numeric_limits::infinity", []() { return isinf(std::numeric_limits<half>::infinity()) && 
+			!signbit(std::numeric_limits<half>::infinity()); });
 		simple_test("numeric_limits::quiet_NaN", []() { return isnan(std::numeric_limits<half>::quiet_NaN()); });
 		simple_test("numeric_limits::signaling_NaN", []() { return isnan(std::numeric_limits<half>::signaling_NaN()); });
-		simple_test("numeric_limits::epsilon", []() { return nextafter(static_cast<half>(1.0f), std::numeric_limits<half>::infinity())-static_cast<half>(1.0f) == std::numeric_limits<half>::epsilon(); });
+		simple_test("numeric_limits::epsilon", []() { return nextafter(static_cast<half>(1.0f), 
+			std::numeric_limits<half>::infinity())-static_cast<half>(1.0f) == std::numeric_limits<half>::epsilon(); });
+		binary_test("numeric_limits::round_error", [](half a, half b) -> bool { double c = static_cast<double>(a) + 
+			static_cast<double>(b); return !isfinite(a) || !isfinite(b) || std::abs(c-static_cast<double>(
+			static_cast<half>(c)))<=std::ldexp(static_cast<double>(std::numeric_limits<half>::round_error()), 
+			ilogb(static_cast<half>(c))-std::numeric_limits<half>::digits+1); });
 /*
 		float a = static_cast<float>(halfs_.find("negative quiet NaN")->second.front());
 		float b = std::abs(a);

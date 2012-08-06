@@ -11,10 +11,10 @@ For further information see the [official SourceForge project page](http://sourc
 News														{#new}
 ====
 
-August 6, 2012 - Release 1.1.1
+August 6, 2012 - Release 1.1.2
 ------------------------------
 
-[Version 1.1.1](http://sourceforge.net/projects/half/files/half/1.1.1) of the library has been released. It includes a minor fix to the `std::numeric_limits` specialization, which now returns a normalized number for `min()` according to the C++ standard. Additionally the `round_style` is now `std::round_indeterminate` due to the mixture of internal single-precision rounding with float-to-half truncation.
+[Version 1.1.2](http://sourceforge.net/projects/half/files/half/1.1.2) of the library has been released. It fixes the `std::numeric_limits` specialization further, enabling it to return `std::round_toward_zero` instead of `std::round_indeterminate` when possible (though this is very unlikely). Additionally the `round_error()` has been corrected to reflect the worst-case round-toward-zero behaviour.
 
 [more](news.html)
 
