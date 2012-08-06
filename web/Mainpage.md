@@ -28,7 +28,7 @@ The library in its most recent version can be obtained from here, see [Release N
 
 -	[<b>half 1.1.0</b>](http://sourceforge.net/projects/half/files/latest/download)
 
-If you are interested in previous versions of the library, see the [Sourceforge download page](http://sourceforge.net/projects/half/files/).
+If you are interested in previous versions of the library, see the [Sourceforge download page](http://sourceforge.net/projects/half/files/half).
 
 Comfortably enough, the library consists of just a single header file containing all the functionality, which can be directly included by your projects, without the neccessity to build anything or link to anything.
 
