@@ -31,7 +31,12 @@
 namespace half_float
 {
 	/// Half-precision floating point type.
-	/// This class implements an IEEE-conformant half-precision floating point type with the usual arithmetic operators and conversions.
+	/// This class implements an IEEE-conformant half-precision floating point type with the usual arithmetic operators and 
+	/// conversions. It is implicitly convertible to single-precision floating point, which makes artihmetic expressions and 
+	/// functions with mixed-type operands to be of the most precise operand type. Additionally all arithmetic operations 
+	/// (and many mathematical functions) are carried out in single-precision internally. All conversions from single- to 
+	/// half-precision are done using truncation (round towards zero), but temporary results inside chained arithmetic 
+	/// expressions are kept in single-precision as long as possible (while of course still maintaining a strong half-precision type).
 	class half
 	{
 	public:
@@ -60,45 +65,53 @@ namespace half_float
 		/// \{
 
 		/// Arithmetic assignment.
+		/// This operation uses the underlying single-precision implementation.
 		/// \tparam E type of concrete half expression
 		/// \param rhs half to add
 		/// \return reference to this half
 		half& operator+=(half rhs);
 
 		/// Arithmetic assignment.
+		/// This operation uses the underlying single-precision implementation.
 		/// \tparam E type of concrete half expression
 		/// \param rhs half to subtract
 		/// \return reference to this half
 		half& operator-=(half rhs);
 
 		/// Arithmetic assignment.
+		/// This operation uses the underlying single-precision implementation.
 		/// \tparam E type of concrete half expression
 		/// \param rhs half to multiply with
 		/// \return reference to this half
 		half& operator*=(half rhs);
 
 		/// Arithmetic assignment.
+		/// This operation uses the underlying single-precision implementation.
 		/// \tparam E type of concrete half expression
 		/// \param rhs half to divide by
 		/// \return reference to this half
 		half& operator/=(half rhs);
 
 		/// Arithmetic assignment.
+		/// This operation uses the underlying single-precision implementation.
 		/// \param rhs single-precision value to add
 		/// \return reference to this half
 		half& operator+=(float rhs);
 
 		/// Arithmetic assignment.
+		/// This operation uses the underlying single-precision implementation.
 		/// \param rhs single-precision value to subtract
 		/// \return reference to this half
 		half& operator-=(float rhs);
 
 		/// Arithmetic assignment.
+		/// This operation uses the underlying single-precision implementation.
 		/// \param rhs single-precision value to multiply with
 		/// \return reference to this half
 		half& operator*=(float rhs);
 
 		/// Arithmetic assignment.
+		/// This operation uses the underlying single-precision implementation.
 		/// \param rhs single-precision value to divide by
 		/// \return reference to this half
 		half& operator/=(float rhs);
@@ -108,18 +121,22 @@ namespace half_float
 		/// \{
 
 		/// Prefix increment.
+		/// This operation uses the underlying single-precision implementation.
 		/// \return incremented half value
 		half& operator++();
 
 		/// Prefix decrement.
+		/// This operation uses the underlying single-precision implementation.
 		/// \return decremented half value
 		half& operator--();
 
 		/// Postfix increment.
+		/// This operation uses the underlying single-precision implementation.
 		/// \return non-incremented half value
 		half operator++(int);
 
 		/// Postfix decrement.
+		/// This operation uses the underlying single-precision implementation.
 		/// \return non-decremented half value
 		half operator--(int);
 		/// \}
@@ -184,24 +201,28 @@ namespace half_float
 	/// \{
 
 	/// Add halfs.
+	/// This operation uses the underlying single-precision implementation.
 	/// \param a left operand
 	/// \param b right operand
 	/// \return sum of halfs
 	half operator+(half a, half b);
 
 	/// Subtract halfs.
+	/// This operation uses the underlying single-precision implementation.
 	/// \param a left operand
 	/// \param b right operand
 	/// \return difference of halfs
 	half operator-(half a, half b);
 
 	/// Multiply halfs.
+	/// This operation uses the underlying single-precision implementation.
 	/// \param a left operand
 	/// \param b right operand
 	/// \return product of halfs
 	half operator*(half a, half b);
 
 	/// Divide halfs.
+	/// This operation uses the underlying single-precision implementation.
 	/// \param a left operand
 	/// \param b right operand
 	/// \return quotient of halfs
@@ -252,18 +273,21 @@ namespace half_float
 	half fabs(half arg);
 
 	/// Remainder of division.
+	/// This function uses the underlying single-precision implementation.
 	/// \param x first operand
 	/// \param y second operand
 	/// \return remainder of floating point division.
 	half fmod(half x, half y);
 
 	/// Remainder of division.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::remainder`.
 	/// \param x first operand
 	/// \param y second operand
 	/// \return remainder of floating point division.
 	half remainder(half x, half y);
 
 	/// Remainder of division.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::remquo`.
 	/// \param x first operand
 	/// \param y second operand
 	/// \param quo address to store some bits of quotient at
@@ -271,6 +295,7 @@ namespace half_float
 	half remquo(half x, half y, int *quo);
 
 	/// Fused multiply add.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::fma`.
 	/// \param x first operand
 	/// \param y second operand
 	/// \param z third operand
@@ -290,6 +315,7 @@ namespace half_float
 	half fmax(half x, half y);
 
 	/// Positive difference.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::fdim`.
 	/// \param x first operand
 	/// \param y second operand
 	/// \return \a x - \a y or 0 if difference negative
@@ -304,36 +330,43 @@ namespace half_float
 	/// \{
 
 	/// Exponential function.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return e raised to \a arg
 	half exp(half arg);
 
 	/// Binary exponential.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::exp2`.
 	/// \param arg operand
 	/// \return 2 raised to \a arg
 	half exp2(half arg);
 
 	/// Exponential minus one.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::expm1`.
 	/// \param arg operand
 	/// \return e raised to \a arg subtracted by 1
 	half expm1(half arg);
 
 	/// Natural logorithm.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return logarithm of \a arg to base e
 	half log(half arg);
 
 	/// Common logorithm.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return logarithm of \a arg to base 10
 	half log10(half arg);
 
 	/// Natural logorithm.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::log1p`.
 	/// \param arg operand
 	/// \return logarithm of \a arg plus 1 to base e
 	half log1p(half arg);
 
 	/// Binary logorithm.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::log2`.
 	/// \param arg operand
 	/// \return logarithm of \a arg to base 2
 	half log2(half arg);
@@ -343,22 +376,26 @@ namespace half_float
 	/// \{
 
 	/// Square root.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return square root of \a arg
 	half sqrt(half arg);
 
 	/// Cubic root.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::cbrt`.
 	/// \param arg operand
 	/// \return cubic root of \a arg
 	half cbrt(half arg);
 
 	/// Hypotenuse function.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::hypot`.
 	/// \param x first operand
 	/// \param y second operand
 	/// \return square root of sum of squares
 	half hypot(half x, half y);
 
 	/// Power function.
+	/// This function uses the underlying single-precision implementation.
 	/// \param base first operand
 	/// \param exp second operand
 	/// \return \a base raised to \a exp
@@ -369,36 +406,43 @@ namespace half_float
 	/// \{
 
 	/// Sine function.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return sine value of \a arg
 	half sin(half arg);
 
 	/// Cosine function.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return cosine value of \a arg
 	half cos(half arg);
 
 	/// Tangent function.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return tangent value of \a arg
 	half tan(half arg);
 
 	/// Arc sine.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return arc sine value of \a arg
 	half asin(half arg);
 
 	/// Arc cosine function.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return arc cosine value of \a arg
 	half acos(half arg);
 
 	/// Arc tangent function.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return arc tangent value of \a arg
 	half atan(half arg);
 
 	/// Arc tangent function.
+	/// This function uses the underlying single-precision implementation.
 	/// \param x first operand
 	/// \param y second operand
 	/// \return arc tangent value
@@ -409,31 +453,37 @@ namespace half_float
 	/// \{
 
 	/// Hyperbolic sine.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return hyperbolic sine value of \a arg
 	half sinh(half arg);
 
 	/// Hyperbolic cosine.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return hyperbolic cosine value of \a arg
 	half cosh(half arg);
 
 	/// Hyperbolic tangent.
+	/// This function uses the underlying single-precision implementation.
 	/// \param arg operand
 	/// \return hyperbolic tangent value of \a arg
 	half tanh(half arg);
 
 	/// Hyperbolic arc sine.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::asinh`.
 	/// \param arg operand
 	/// \return hyperbolic arc sine value of \a arg
 	half asinh(half arg);
 
 	/// Hyperbolic arc cosine.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::acosh`.
 	/// \param arg operand
 	/// \return hyperbolic arc cosine value of \a arg
 	half acosh(half arg);
 
 	/// Hyperbolic arc tangent.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::atanh`.
 	/// \param arg operand
 	/// \return hyperbolic arc tangent value of \a arg
 	half atanh(half arg);
@@ -443,21 +493,25 @@ namespace half_float
 	/// \{
 
 	/// Error function.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::erf`.
 	/// \param arg operand
 	/// \return error function value of \a arg
 	half erf(half arg);
 
 	/// Complementary error function.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::erfc`.
 	/// \param arg operand
 	/// \return 1 minus error function value of \a arg
 	half erfc(half arg);
 
 	/// Natural logarithm of gamma function.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::lgamma`.
 	/// \param arg operand
 	/// \return natural logarith of gamma function for \a arg
 	half lgamma(half arg);
 
 	/// Gamma function.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::tgamma`.
 	/// \param arg operand
 	/// \return gamma function value of \a arg
 	half tgamma(half arg);
@@ -497,27 +551,31 @@ namespace half_float
 	long long llround(half arg);
 
 	/// Nearest integer.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::nearbyint`.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
-	/// \return nearest integer using current rounding mode
+	/// \return nearest integer using current single-precision rounding mode
 	half nearbyint(half arg);
 
 	/// Nearest integer.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::rint`.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
-	/// \return nearest integer using current rounding mode
+	/// \return nearest integer using current single-precision rounding mode
 	half rint(half arg);
 
 	/// Nearest integer.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::lrint`.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
-	/// \return nearest integer using current rounding mode
+	/// \return nearest integer using current single-precision rounding mode
 	long lrint(half arg);
 
 	/// Nearest integer.
+	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::llrint`.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
-	/// \return nearest integer using current rounding mode
+	/// \return nearest integer using current single-precision rounding mode
 	long long llrint(half arg);
 
 	/// \}
@@ -677,7 +735,8 @@ namespace half_float
 
 
 	/// User-defined literals.
-	/// Import this namespace to enable half-precision floating point literals:
+	/// Import this namespace to enable half-precision floating point literals (of course only on implementations that support 
+	/// C++11 user-defined literals):
 	/// ~~~~{.cpp}
 	/// using namespace half_float::literal;
 	/// half_float::half = 4.2_h;

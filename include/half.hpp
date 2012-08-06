@@ -345,7 +345,12 @@ namespace half_float
 
 
 	/// Half-precision floating point type.
-	/// This class implements an IEEE-conformant half-precision floating point type with the usual arithmetic operators and conversions.
+	/// This class implements an IEEE-conformant half-precision floating point type with the usual arithmetic operators and 
+	/// conversions. It is implicitly convertible to single-precision floating point, which makes artihmetic expressions and 
+	/// functions with mixed-type operands to be of the most precise operand type. Additionally all arithmetic operations 
+	/// (and many mathematical functions) are carried out in single-precision internally. All conversions from single- to 
+	/// half-precision are done using truncation (round towards zero), but temporary results inside chained arithmetic 
+	/// expressions are kept in single-precision as long as possible (while of course still maintaining a strong half-precision type).
 	class half : public detail::half_expr<half>
 	{
 		friend class std::numeric_limits<half>;

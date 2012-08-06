@@ -125,16 +125,15 @@ directly on halfs is the actual conversion done (or never, when further
 converting the result to float.
 
 This approach has two implications. First of all you have to treat the 
-documentation on this site as a simplified version, describing the behaviour of 
-the library as-if implemented this way. The actual argument and return types of 
-functions and operators may involve other internal types (feel free to generate 
-the exact developer documentation from the Doxygen comments in the library's 
-header file if you really need to). But nevertheless the behaviour is exactly 
-like specified in the documentation. The other implication is, that in the 
-presence of rounding errors or over-/underflows arithmetic expressions may 
-produce different results when compared to converting to half-precision after 
-each individual operation:
-
+library's documentation at http://half.sourceforge.net as a simplified version, 
+describing the behaviour of the library as if implemented this way. The actual 
+argument and return types of functions and operators may involve other internal 
+types (feel free to generate the exact developer documentation from the Doxygen 
+comments in the library's header file if you really need to). But nevertheless 
+the behaviour is exactly like specified in the documentation. The other 
+implication is, that in the presence of rounding errors or over-/underflows 
+arithmetic expressions may produce different results when compared to 
+converting to half-precision after each individual operation:
 
     half a, b;
     ...
@@ -145,7 +144,6 @@ each individual operation:
     a = (std::numeric_limits<half>::max() + 1.0_h) - 1.0_h; // a = MAX
     b = std::numeric_limits<half>::max() + 1.0_h;           // b = MAX (truncation)
     b -= 1.0_h;                                             // b = MAX-32 (truncation)
-
 
 But this should only be a problem in very few cases. One last word has to be 
 said when talking about performance. Even with its efforts in reducing 
@@ -172,8 +170,8 @@ are some limitations to the complete conformance to the IEEE 754 standard:
   
 - Though arithmetic operations are internally rounded to single-precision using 
   the underlying single-precision implementation's current rounding mode, those 
-  values are then converted to half-precision using simple truncation. This 
-  mixture of rounding modes is also the reason why 
+  values are then converted to half-precision using truncation (round towards 
+  zero). This mixture of rounding modes is also the reason why 
   'std::numeric_limits<half_float::half>::round_style' returns 
   'std::round_indeterminate'.
   
