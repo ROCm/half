@@ -231,10 +231,10 @@ public:
 			static_cast<half>(std::remainder(static_cast<float>(a), static_cast<float>(b)))); });
 		binary_test("remquo", [](half a, half b) -> bool { int qh, qf; bool eq = comp(remquo(a, b, &qh), 
 			static_cast<half>(std::remquo(static_cast<float>(a), static_cast<float>(b), &qf))); return eq && qh==qf; });
-		binary_test("fmin", [](half a, half b) { return comp(fmin(a, b), static_cast<half>(
-			std::fmin(static_cast<float>(a), static_cast<float>(b)))); });
-		binary_test("fmax", [](half a, half b) { return comp(fmax(a, b), static_cast<half>(
-			std::fmax(static_cast<float>(a), static_cast<float>(b)))); });
+		binary_test("fmin", [](half a, half b) -> bool { half c = fmin(a, b); return ((isnan(a) || isnan(b)) && isnan(c)) || 
+			comp(c, static_cast<half>(std::fmin(static_cast<float>(a), static_cast<float>(b)))); });
+		binary_test("fmax", [](half a, half b) -> bool { half c = fmax(a, b); return ((isnan(a) || isnan(b)) && isnan(c)) || 
+			comp(c, static_cast<half>(std::fmax(static_cast<float>(a), static_cast<float>(b)))); });
 		binary_test("fdim", [](half a, half b) { return comp(fdim(a, b), static_cast<half>(
 			std::fdim(static_cast<float>(a), static_cast<float>(b)))); });
 
