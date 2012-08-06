@@ -37,9 +37,10 @@ The library imposes some requirements on your C++ implementation (espcecially re
 -	IEEE 754 conformant single-precision `float` type (should be the case on most modern platforms).
 -	Support for C++11 fixed-width integer types from `<cstdint>`.
 -	Support for certain C++11 single-precision mathematical functions from `<cmath>` for their half-precision counter-parts to work (**optional**).
+-	Support for C++11's user-defined literals for half-precision literals to work (**optional**).
 -	Support for C++11's `std::hash` from `<functional>` (**optional**, only if hashing enabled by defining `HALF_ENABLE_HASH`).
 
-It has been tested successfully with *Visual C++ 2010* and *gcc 4.6*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
+It has been tested successfully with *Visual C++ 2010* and *gcc 4.6-4.7*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 
 --------------------------------------------------------------------------------
 
@@ -78,6 +79,13 @@ The [half](\ref half_float::half) is explicitly constructible/convertible from a
 
 In contrast to the float-to-half conversion, which reduces precision, the conversion from [half](\ref half_float::half) to `float` (and thus to any other type implicitly convertible to `float`) is implicit, because all values represetable with half-precision are also representable with single-precision. This way the half-to-float conversion behaves similar to the builtin float-to-double conversion and all arithmetic expressions involving both half-precision and single-precision arguments will be of single-precision type. This way you can also directly use the mathematical functions of the C++ standard library, though in this case you will invoke the single-precision versions which will also return single-precision values, which is (even if maybe performing the exact same computation, see below) not as conceptually clean when working in a half-precision environment.
 
+You may also specificy explicit half-precision literals, since the library provides a user-defined literal inside the half_float::literal namespace, which you just need to import (assuming your implementation supports user-defined literals, which is the case for *gcc 4.7+* and *clang 3.1+*):
+
+~~~~{.cpp}
+using namespace half_float::literal;
+half x = 1.0_h;
+~~~~
+
 Implementation												{#implementation}
 --------------
 
@@ -88,13 +96,13 @@ This approach has two implications. First of all you have to treat the documenta
 ~~~~{.cpp}
 half a, b;
 ...
-a = (std::numeric_limits<half>::max() * static_cast<half>(2)) / static_cast<half>(2);	// a = MAX
-b = std::numeric_limits<half>::max() * static_cast<half>(2);							// b = INF
-b /= static_cast<half>(2);																// b stays INF
+a = (std::numeric_limits<half>::max() * 2.0_h) / 2.0_h;		// a = MAX
+b = std::numeric_limits<half>::max() * 2.0_h;				// b = INF
+b /= 2.0_h;													// b stays INF
 ...
-a = (std::numeric_limits<half>::max() + static_cast<half>(1)) - static_cast<half>(1);	// a = MAX
-b = std::numeric_limits<half>::max() + static_cast<half>(1);							// b = MAX (truncation)
-b -= static_cast<half>(1);																// b = MAX-32 (truncation)
+a = (std::numeric_limits<half>::max() + 1.0_h) - 1.0_h;		// a = MAX
+b = std::numeric_limits<half>::max() + 1.0_h;				// b = MAX (truncation)
+b -= 1.0_h;													// b = MAX-32 (truncation)
 ~~~~
 
 But this should only be a problem in very few cases. One last word has to be said when talking about performance. Even with its efforts in reducing conversion overhead as much as possible, the software half-precision implementation can most probably not beat the direct use of single-precision computations. Usually using actual `float` values for all computations and temproraries and using [half](\ref half_float::half)s only for storage is the recommended way. On the one hand this somehow makes the provided mathematical functions obsolete (especially in light of the implicit conversion from [half](\ref half_float::half) to `float`), but nevertheless the goal of this library was to provide a complete and conceptually clean half-precision implementation, to which the standard mathematical functions belong, even if usually not needed.

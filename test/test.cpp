@@ -434,14 +434,15 @@ private:
 
 int main(int argc, char *argv[])
 {
-/*	half a, b;
-	a = (std::numeric_limits<half>::max()*static_cast<half>(2)) / static_cast<half>(2);
-	b = std::numeric_limits<half>::max() * static_cast<half>(2);
-	b /= static_cast<half>(2);
+/*	using namespace half_float::literal;
+	half a, b;
+	a = (std::numeric_limits<half>::max()*2.0_h) / 2.0_h;
+	b = std::numeric_limits<half>::max() * 2.0_h;
+	b /= 2.0_h;
 	std::cout << a << " - " << b << std::endl;
-	a = (std::numeric_limits<half>::max()+static_cast<half>(1)) - static_cast<half>(1);
-	b = std::numeric_limits<half>::max() + static_cast<half>(1);
-	b -= static_cast<half>(2);
+	a = (std::numeric_limits<half>::max()+1.0_h) - 1.0_h;
+	b = std::numeric_limits<half>::max() + 1.0_h;
+	b -= 1.0_h;
 	std::cout << a << " - " << b << std::endl;
 */
 	std::unique_ptr<std::ostream> file;

@@ -62,6 +62,10 @@
 	#define HALF_STD_SIGNBIT(x)	std::signbit(x)
 #endif
 
+#if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
+	#define HALF_HAVE_CPP11_LITERALS
+#endif
+
 
 /// Main namespace for half precision functionality.
 /// This namespace contains all the functionality provided by the library.
@@ -144,18 +148,18 @@ namespace half_float
 	bool isunordered(half x, half y);
 	/// \}
 
-/*
-	// User-defined literals.
-	// Import this namespace to enable half-precision floating point literals:
-	// ~~~~{.cpp}
-	// using namespace half_float::literal;
-	// half_float::half = 4.2h;
-	// ~~~~
+#ifdef HALF_HAVE_CPP11_LITERALS
+	/// User-defined literals.
+	/// Import this namespace to enable half-precision floating point literals:
+	/// ~~~~{.cpp}
+	/// using namespace half_float::literal;
+	/// half_float::half = 4.2_h;
+	/// ~~~~
 	namespace literal
 	{
-		half operator "" h(long double d);
+		half operator "" _h(long double d);
 	}
-*/
+#endif
 
 	/// \internal
 	/// \brief Implementation details.
@@ -1072,18 +1076,18 @@ namespace half_float
 		return isnan(x) || isnan(y);
 	}
 
-/*
+#ifdef HALF_HAVE_CPP11_LITERALS
 	namespace literal
 	{
-		// Half literal.
-		// \param d literal value
-		// \return half with given value (if representable)
-		inline half operator "" h(long double d)
+		/// Half literal.
+		/// \param d literal value
+		/// \return half with given value (if representable)
+		inline half operator "" _h(long double d)
 		{
 			return half(static_cast<float>(d));
 		}
 	}
-*/
+#endif
 
 	namespace detail
 	{

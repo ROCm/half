@@ -675,21 +675,20 @@ namespace half_float
 	bool isunordered(half x, half y);
 	/// \}
 
-/*
-	// User-defined literals.
-	// Import this namespace to enable half-precision floating point literals:
-	// ~~~~{.cpp}
-	// using namespace half_float::literal;
-	// half_float::half = 4.2h;
-	// ~~~~
+
+	/// User-defined literals.
+	/// Import this namespace to enable half-precision floating point literals:
+	/// ~~~~{.cpp}
+	/// using namespace half_float::literal;
+	/// half_float::half = 4.2_h;
+	/// ~~~~
 	namespace literal
 	{
-		// Half literal.
-		// For this operator to be present, the preprocessor symbol `HALF_ENABLE_LITERALS` has to be defined when including half.hpp.
-		// \param d literal value
-		// \return half with given value (if representable)
-		half operator "" h(long double d);
-	}*/
+		/// Half literal.
+		/// \param d literal value
+		/// \return half with given value (if representable)
+		half operator "" _h(long double d);
+	}
 }
 
 
