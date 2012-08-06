@@ -26,10 +26,10 @@ regarding C++11 support):
 - Support for certain C++11 single-precision mathematical functions from 
   <cmath> for their half-precision counter-parts to work (optional).
 
-- Support for C++11's user-defined literals for half-precision literals to 
+- Support for C++11 user-defined literals for half-precision literals to 
   work (optional).
   
-- Support for C++11's 'std::hash' from <functional> (optional, only if hashing 
+- Support for C++11 'std::hash' from <functional> (optional, only if hashing 
   enabled by defining 'HALF_ENABLE_HASH').
 
 It has been tested successfully with Visual C++ 2010 and gcc 4.6. Please 

@@ -11,10 +11,10 @@ For further information see the [official SourceForge project page](http://sourc
 News														{#new}
 ====
 
-August 5, 2012 - First release 1.0.0
-------------------------------------
+August 6, 2012 - Release 1.1.0
+------------------------------
 
-The first official release, [version 1.0.0](http://sourceforge.net/projects/half/files/half/1.0.0), of the library is finally out.
+[Version 1.1.0](http://sourceforge.net/projects/half/files/half/1.1.0) of the library has been released. It provides support for explicit half-precision literals using C++11's user-defined literals. It has been tested successfully with *gcc 4.7*.
 
 [more](news.html)
 
@@ -26,7 +26,7 @@ Download and Installation									{#downloads}
 
 The library in its most recent version can be obtained from here, see [Release Notes](changelog.html) for further information:
 
--	[<b>half 1.0.0</b>](http://sourceforge.net/projects/half/files/latest/download)
+-	[<b>half 1.1.0</b>](http://sourceforge.net/projects/half/files/latest/download)
 
 If you are interested in previous versions of the library, see the [Sourceforge download page](http://sourceforge.net/projects/half/files/).
 
@@ -37,8 +37,8 @@ The library imposes some requirements on your C++ implementation (espcecially re
 -	IEEE 754 conformant single-precision `float` type (should be the case on most modern platforms).
 -	Support for C++11 fixed-width integer types from `<cstdint>`.
 -	Support for certain C++11 single-precision mathematical functions from `<cmath>` for their half-precision counter-parts to work (**optional**).
--	Support for C++11's user-defined literals for half-precision literals to work (**optional**).
--	Support for C++11's `std::hash` from `<functional>` (**optional**, only if hashing enabled by defining `HALF_ENABLE_HASH`).
+-	Support for C++11 user-defined literals for half-precision literals to work (**optional**).
+-	Support for C++11 `std::hash` from `<functional>` (**optional**, only if hashing enabled by defining `HALF_ENABLE_HASH`).
 
 It has been tested successfully with *Visual C++ 2010* and *gcc 4.6-4.7*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 
