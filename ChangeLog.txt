@@ -1,6 +1,16 @@
 Release Notes											{#changelog}
 =============
 
+1.1.1 release ():
+-----------------
+
+- Fixed 'std::numeric_limits::min' to return smallest positive normal number, 
+  instead of subnormal number.
+- Fixed 'std::numeric_limits::round_style' to return 'std::round_indeterminate' 
+  due to mixture of separately rounded single-precision arithmetics with 
+  truncating single-to-half conversions.
+
+
 1.1.0 release (08-06-2012):
 ---------------------------
 
