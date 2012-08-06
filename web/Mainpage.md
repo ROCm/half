@@ -70,7 +70,7 @@ half s = sin(abs(a));
 long l = lround(s);
 ~~~~
 
-Furthermore the library provides proper specializations for `std::numeric_limits`, defining various implementation properties, and `std::hash` for hashing half-precision numbers (the latter only if the preprocessor symbol `HALF_ENABLE_HASH` is defined when including half.hpp.
+Furthermore the library provides proper specializations for `std::numeric_limits`, defining various implementation properties, and `std::hash` for hashing half-precision numbers (the latter only if the preprocessor symbol `HALF_ENABLE_HASH` is defined when including half.hpp).
 
 Conversions													{#conversions}
 -----------
@@ -113,7 +113,7 @@ IEEE conformance											{#ieee}
 The [half](\ref half_float::half) type uses the standard IEEE representation with 1 sign bit, 5 exponent bits and 10 mantissa bits (11 when counting the hidden bit). It supports all types of special values, like subnormal values, infinity and NaNs. But there are some limitations to the complete conformance to the IEEE 754 standard:
 
 -	The implementation does not differentiate between signalling and quiet NaNs, this means operations on [half](\ref half_float::half)s are not specified to trap on signalling NaNs (though they may, see last point).
--	Though arithmetic operations are internally rounded to single-precision using the current rounding mode, those values are then converted to half-precision using simple truncation.
+-	Though arithmetic operations are internally rounded to single-precision using the underlying single-precision implementation's current rounding mode, those values are then converted to half-precision using simple truncation. This mixture of rounding modes is also the reason why `std::numeric_limits<half_float::half>::round_style` returns `std::round_indeterminate`.
 -	Because of this truncation it may also be that certain single-precision NaNs will be wrongly converted to half-precision infinity, though this is very unlikely to happen, since most single-precision implementations don't tend to only set the lowest bits of a NaN mantissa.
 -	The implementation does not provide any floating point exceptions, thus arithmetic operations or mathematical functions are not specified to invoke proper floating point exceptions. But due to many functions implemented in single-precision, those may still invoke floating point exceptions of the underlying single-precision implementation.
 

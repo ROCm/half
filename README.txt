@@ -104,8 +104,8 @@ exact same computation, see below) not as conceptually clean when working in a
 half-precision environment.
 
 You may also specificy explicit half-precision literals, since the library 
-provides a user-defined literal inside the half_float::literal namespace, which 
-you just need to import:
+provides a user-defined literal inside the 'half_float::literal' namespace, 
+which you just need to import:
 
     using namespace half_float::literal;
     half x = 1.0_h;
@@ -171,8 +171,11 @@ are some limitations to the complete conformance to the IEEE 754 standard:
   trap on signalling NaNs (though they may, see last point).
   
 - Though arithmetic operations are internally rounded to single-precision using 
-  the current rounding mode, those values are then converted to half-precision 
-  using simple truncation.
+  the underlying single-precision implementation's current rounding mode, those 
+  values are then converted to half-precision using simple truncation. This 
+  mixture of rounding modes is also the reason why 
+  'std::numeric_limits<half_float::half>::round_style' returns 
+  'std::round_indeterminate'.
   
 - Because of this truncation it may also be that certain single-precision NaNs 
   will be wrongly converted to half-precision infinity, though this is very 

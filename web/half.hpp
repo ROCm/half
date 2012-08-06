@@ -701,23 +701,17 @@ namespace std
 	template<> class numeric_limits<half_float::half> : public std::numeric_limits<float>
 	{
 	public:
-		/// Specializes numeric limit values.
-		static const bool is_specialized = true;
-
 		/// Supports signed values.
 		static const bool is_signed = true;
-
-		/// Is not integral.
-		static const bool is_integer = false;
 
 		/// Is not exact.
 		static const bool is_exact = false;
 
-		/// Is clearly bounded.
-		static const bool is_bounded = true;
-
 		/// Doesn't provide modulo arithmetic.
 		static const bool is_modulo = false;
+
+		/// IEEE conformant.
+		static const bool is_iec559 = true;
 
 		/// Supports infinity.
 		static const bool has_infinity = true;
@@ -727,6 +721,11 @@ namespace std
 
 		/// Supports subnormal values.
 		static const std::float_denorm_style has_denorm = std::denorm_present;
+
+		/// Indeterminate rounding.
+		/// The rounding style is indeterminate, due to the mix of internal single-precision computations (using the rounding 
+		/// mode of the underlying single-precision implementation) with explicit truncation of the single-to-half conversions.
+		static const std::float_round_style round_style = std::round_indeterminate;
 
 		/// Significant digits.
 		static const int digits = 11;
@@ -752,7 +751,7 @@ namespace std
 		/// Largest finitely representable power of 10.
 		static const int max_exponent10 = 4;
 
-		/// Smallest positive value.
+		/// Smallest positive normal value.
 		static half_float::half min();
 
 		/// Smallest finite value.

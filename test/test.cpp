@@ -289,6 +289,15 @@ public:
 		binary_test("isunordered", [](half a, half b) { return isunordered(a, b) == 
 			std::isunordered(static_cast<float>(a), static_cast<float>(b)); });
 #endif
+		//test numeric limits
+		unary_test("numeric_limits::min", [](half arg) { return !isnormal(arg) || signbit(arg) || arg>=std::numeric_limits<half>::min(); });
+		unary_test("numeric_limits::lowest", [](half arg) { return !isfinite(arg) || arg>=std::numeric_limits<half>::lowest(); });
+		unary_test("numeric_limits::max", [](half arg) { return !isfinite(arg) || arg<=std::numeric_limits<half>::max(); });
+		unary_test("numeric_limits::denorm_min", [](half arg) { return !isfinite(arg) || signbit(arg) || arg==static_cast<half>(0.0f) || arg>=std::numeric_limits<half>::denorm_min(); });
+		simple_test("numeric_limits::infinity", []() { return isinf(std::numeric_limits<half>::infinity()) && !signbit(std::numeric_limits<half>::infinity()); });
+		simple_test("numeric_limits::quiet_NaN", []() { return isnan(std::numeric_limits<half>::quiet_NaN()); });
+		simple_test("numeric_limits::signaling_NaN", []() { return isnan(std::numeric_limits<half>::signaling_NaN()); });
+		simple_test("numeric_limits::epsilon", []() { return nextafter(static_cast<half>(1.0f), std::numeric_limits<half>::infinity())-static_cast<half>(1.0f) == std::numeric_limits<half>::epsilon(); });
 /*
 		float a = static_cast<float>(halfs_.find("negative quiet NaN")->second.front());
 		float b = std::abs(a);
@@ -422,6 +431,17 @@ private:
 			log_ << (tests-count) << " of " << tests << " failed\n\n";
 		++tests_;
 		passed_ += passed;		
+		return passed;
+	}
+
+	template<typename F>
+	bool simple_test(const std::string &name, F test)
+	{
+		log_ << "testing " << name << ": ";
+		bool passed = test();
+		log_ << (passed ? "passed" : "failed") << "\n\n";
+		++tests_;
+		passed_ += passed;
 		return passed;
 	}
 
