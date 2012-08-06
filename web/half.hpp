@@ -14,6 +14,8 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+// This is a dummy header file to provide a clean interface documentation to Doxygen, without any ugly internals.
+
 /// \file
 /// Main header file of the library.
 
@@ -781,10 +783,13 @@ namespace std
 		/// Supports subnormal values.
 		static const std::float_denorm_style has_denorm = std::denorm_present;
 
-		/// Indeterminate rounding.
-		/// The rounding style is indeterminate, due to the mix of internal single-precision computations (using the rounding 
-		/// mode of the underlying single-precision implementation) with explicit truncation of the single-to-half conversions.
-		static const std::float_round_style round_style = std::round_indeterminate;
+		/// Rounding mode.
+		/// Due to the mix of internal single-precision computations (using the rounding mode of the underlying 
+		/// single-precision implementation) with explicit truncation of the single-to-half conversions, the rounding mode is 
+		/// only round-toward-zero if the single-precision rounding mode is also round-toward-zero (which is very unlikely). In 
+		/// all other cases the half-precision rounding mode is indeterminate.
+		static const std::float_round_style round_style = (std::numeric_limits<float>::round_style==std::round_toward_zero) ? 
+			std::round_toward_zero : std::round_indeterminate;
 
 		/// Significant digits.
 		static const int digits = 11;

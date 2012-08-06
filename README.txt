@@ -18,19 +18,19 @@ projects, without the neccessity to build anything or link to anything.
 The library imposes some requirements on your C++ implementation (espcecially 
 regarding C++11 support):
 
-- IEEE 754 conformant single-precision 'float' type (should be the case on 
-  most modern platforms).
+  - IEEE 754 conformant single-precision 'float' type (should be the case on 
+    most modern platforms).
   
-- Support for C++11 fixed-width integer types from <cstdint>.
+  - Support for C++11 fixed-width integer types from <cstdint>.
 
-- Support for certain C++11 single-precision mathematical functions from 
-  <cmath> for their half-precision counter-parts to work (optional).
+  - Support for certain C++11 single-precision mathematical functions from 
+    <cmath> for their half-precision counter-parts to work (optional).
 
-- Support for C++11 user-defined literals for half-precision literals to 
-  work (optional).
+  - Support for C++11 user-defined literals for half-precision literals to 
+    work (optional).
   
-- Support for C++11 'std::hash' from <functional> (optional, only if hashing 
-  enabled by defining 'HALF_ENABLE_HASH').
+  - Support for C++11 'std::hash' from <functional> (optional, only if hashing 
+    enabled by defining 'HALF_ENABLE_HASH').
 
 It has been tested successfully with Visual C++ 2010 and gcc 4.6. Please 
 contact me if you have any problems, suggestions or even just success testing 
@@ -164,27 +164,28 @@ bits and 10 mantissa bits (11 when counting the hidden bit). It supports all
 types of special values, like subnormal values, infinity and NaNs. But there 
 are some limitations to the complete conformance to the IEEE 754 standard:
 
-- The implementation does not differentiate between signalling and quiet NaNs, 
-  this means operations on [half](\ref half_float::half)s are not specified to 
-  trap on signalling NaNs (though they may, see last point).
+  - The implementation does not differentiate between signalling and quiet 
+    NaNs, this means operations on [half](\ref half_float::half)s are not 
+	specified to trap on signalling NaNs (though they may, see last point).
   
-- Though arithmetic operations are internally rounded to single-precision using 
-  the underlying single-precision implementation's current rounding mode, those 
-  values are then converted to half-precision using truncation (round towards 
-  zero). This mixture of rounding modes is also the reason why 
-  'std::numeric_limits<half_float::half>::round_style' returns 
-  'std::round_indeterminate'.
+  - Though arithmetic operations are internally rounded to single-precision 
+    using the underlying single-precision implementation's current rounding 
+	mode, those values are then converted to half-precision using truncation 
+	(round toward zero). This mixture of rounding modes is also the reason why 
+    'std::numeric_limits<half_float::half>::round_style' only returns 
+    'std::round_toward_zero' if the float specialization also does(which is 
+	very unlikely) and 'std::round_indeterminate' otherwise.
   
-- Because of this truncation it may also be that certain single-precision NaNs 
-  will be wrongly converted to half-precision infinity, though this is very 
-  unlikely to happen, since most single-precision implementations don't tend to 
-  only set the lowest bits of a NaN mantissa.
+  - Because of this truncation it may also be that certain single-precision 
+    NaNs will be wrongly converted to half-precision infinity, though this is 
+	very unlikely to happen, since most single-precision implementations don't 
+	tend to only set the lowest bits of a NaN mantissa.
   
-- The implementation does not provide any floating point exceptions, thus 
-  arithmetic operations or mathematical functions are not specified to invoke 
-  proper floating point exceptions. But due to many functions implemented in 
-  single-precision, those may still invoke floating point exceptions of the 
-  underlying single-precision implementation.
+  - The implementation does not provide any floating point exceptions, thus 
+    arithmetic operations or mathematical functions are not specified to invoke 
+    proper floating point exceptions. But due to many functions implemented in 
+    single-precision, those may still invoke floating point exceptions of the 
+    underlying single-precision implementation.
 
 Some of those points could have been circumvented by controlling the floating 
 point environment (through <cfenv>) or implementing a similar exception 

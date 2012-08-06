@@ -1954,10 +1954,13 @@ namespace std
 		/// Supports subnormal values.
 		static const std::float_denorm_style has_denorm = std::denorm_present;
 
-		/// Indeterminate rounding.
-		/// The rounding style is indeterminate, due to the mix of internal single-precision computations (using the rounding 
-		/// mode of the underlying single-precision implementation) with explicit truncation of the single-to-half conversions.
-		static const std::float_round_style round_style = std::round_indeterminate;
+		/// Rounding mode.
+		/// Due to the mix of internal single-precision computations (using the rounding mode of the underlying 
+		/// single-precision implementation) with explicit truncation of the single-to-half conversions, the rounding mode is 
+		/// only round-toward-zero if the single-precision rounding mode is also round-toward-zero (which is very unlikely). In 
+		/// all other cases the half-precision rounding mode is indeterminate.
+		static const std::float_round_style round_style = (std::numeric_limits<float>::round_style==std::round_toward_zero) ? 
+			std::round_toward_zero : std::round_indeterminate;
 
 		/// Significant digits.
 		static const int digits = 11;
@@ -1996,7 +1999,7 @@ namespace std
 		static half_float::half epsilon() { return half_float::half(0x1400, true); }
 
 		/// Maximum rounding error.
-		static half_float::half round_error() { return half_float::half(0x3800, true); }
+		static half_float::half round_error() { return half_float::half(0x3C00, true); }
 
 		/// Positive infinity.
 		static half_float::half infinity() { return half_float::half(0x7C00, true); }

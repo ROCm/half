@@ -1,6 +1,15 @@
 Release Notes											{#changelog}
 =============
 
+X.X.X release (XX-XX-2012):
+---------------------------
+
+- Revised `std::numeric_limits::round_style` to return `std::round_toward_zero` 
+  if the `float` version also does and `std::round_indeterminate` otherwise.
+- Fixed `std::numeric_limits::round_error` to reflect worst-case round toward 
+  zero behaviour.
+
+
 1.1.1 release (08-06-2012):
 ---------------------------
 
