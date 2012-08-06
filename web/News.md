@@ -1,10 +1,10 @@
 News														{#news}
 ====
 
-August 6, 2012 - Release 1.1.2
+August 7, 2012 - Release 1.1.2
 ------------------------------
 
-[Version 1.1.2](http://sourceforge.net/projects/half/files/half/1.1.2) of the library has been released. It fixes the `std::numeric_limits` specialization further, enabling it to return `std::round_toward_zero` instead of `std::round_indeterminate` when possible (though this is very unlikely). Additionally the `round_error()` has been corrected to reflect the worst-case round-toward-zero behaviour.
+[Version 1.1.2](http://sourceforge.net/projects/half/files/half/1.1.2) of the library has been released. It fixes the `std::numeric_limits` specialization further, enabling it to return `std::round_toward_zero` instead of `std::round_indeterminate` when possible (though this is very unlikely). Additionally the `round_error()` has been corrected to reflect the worst-case round-toward-zero behaviour. Furthermore, the library has been tested successfully with *gcc 4.5*.
 
 ------------------------------
 August 6, 2012 - Release 1.1.1

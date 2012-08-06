@@ -32,7 +32,7 @@ regarding C++11 support):
   - Support for C++11 'std::hash' from <functional> (optional, only if hashing 
     enabled by defining 'HALF_ENABLE_HASH').
 
-It has been tested successfully with Visual C++ 2010 and gcc 4.6. Please 
+It has been tested successfully with Visual C++ 2010 and gcc 4.5-4.7. Please 
 contact me if you have any problems, suggestions or even just success testing 
 it on other platforms.
 

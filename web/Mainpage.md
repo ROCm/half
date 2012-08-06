@@ -11,10 +11,10 @@ For further information see the [official SourceForge project page](http://sourc
 News														{#new}
 ====
 
-August 6, 2012 - Release 1.1.2
+August 7, 2012 - Release 1.1.2
 ------------------------------
 
-[Version 1.1.2](http://sourceforge.net/projects/half/files/half/1.1.2) of the library has been released. It fixes the `std::numeric_limits` specialization further, enabling it to return `std::round_toward_zero` instead of `std::round_indeterminate` when possible (though this is very unlikely). Additionally the `round_error()` has been corrected to reflect the worst-case round-toward-zero behaviour.
+[Version 1.1.2](http://sourceforge.net/projects/half/files/half/1.1.2) of the library has been released. It fixes the `std::numeric_limits` specialization further, enabling it to return `std::round_toward_zero` instead of `std::round_indeterminate` when possible (though this is very unlikely). Additionally the `round_error()` has been corrected to reflect the worst-case round-toward-zero behaviour. Furthermore, the library has been tested successfully with *gcc 4.5*.
 
 [more](news.html)
 
@@ -40,7 +40,7 @@ The library imposes some requirements on your C++ implementation (espcecially re
 -	Support for C++11 user-defined literals for half-precision literals to work (**optional**).
 -	Support for C++11 `std::hash` from `<functional>` (**optional**, only if hashing enabled by defining `HALF_ENABLE_HASH`).
 
-It has been tested successfully with *Visual C++ 2010* and *gcc 4.6-4.7*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
+It has been tested successfully with *Visual C++ 2010* and *gcc 4.5-4.7*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 
 --------------------------------------------------------------------------------
 
