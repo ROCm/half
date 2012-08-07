@@ -1,6 +1,12 @@
 Release Notes											{#changelog}
 =============
 
+X.X.X release (XX-XX-2012):
+---------------------------
+
+- Fixed internal preprocessor macros to be properly undefined after use.
+
+
 1.1.2 release (08-07-2012):
 ---------------------------
 

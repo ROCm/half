@@ -79,7 +79,7 @@ The [half](\ref half_float::half) is explicitly constructible/convertible from a
 
 In contrast to the float-to-half conversion, which reduces precision, the conversion from [half](\ref half_float::half) to `float` (and thus to any other type implicitly convertible to `float`) is implicit, because all values represetable with half-precision are also representable with single-precision. This way the half-to-float conversion behaves similar to the builtin float-to-double conversion and all arithmetic expressions involving both half-precision and single-precision arguments will be of single-precision type. This way you can also directly use the mathematical functions of the C++ standard library, though in this case you will invoke the single-precision versions which will also return single-precision values, which is (even if maybe performing the exact same computation, see below) not as conceptually clean when working in a half-precision environment.
 
-You may also specificy explicit half-precision literals, since the library provides a user-defined literal inside the half_float::literal namespace, which you just need to import (assuming your implementation supports C++11 user-defined literals, which is the case for *gcc 4.7+* and *clang 3.1+*):
+You may also specificy explicit half-precision literals, since the library provides a user-defined literal inside the half_float::literal namespace, which you just need to import (assuming your implementation supports C++11 user-defined literals, which is the case since *gcc 4.7* and *clang 3.1*):
 
 ~~~~{.cpp}
 using namespace half_float::literal;
@@ -125,6 +125,6 @@ Some of those points could have been circumvented by controlling the floating po
 Credits and Contact											{#contact}
 ===================
 
-This library is developed by [Christian Rau](http://sourceforge.net/users/rauy) and released under the [MIT License](LICENSE.txt). If you have any questions or problems with it, feel free to contact me at **rauy at users.sourceforge.net**.
+This library is developed by [Christian Rau](http://sourceforge.net/users/rauy) and released under the [MIT License](LICENSE.txt). If you have any questions or problems with it, feel free to contact me at **rauy AT users.sourceforge.net**.
 
 Additional credit goes to **Jeroen van der Zijp** for his paper on [Fast Half Float Conversions](ftp://ftp.fox-toolkit.org/pub/fasthalffloatconversion.pdf), whose algorithms have been used in the library for converting between half-precision and single-precision values.

@@ -568,7 +568,7 @@ namespace half_float
 	/// \retval false else
 	inline bool operator==(half a, half b)
 	{
-		return (a.data_==b.data_ || (a.data_|b.data_|0x8000)==0x8000) && !isnan(a);
+		return (a.data_==b.data_ || !((a.data_|b.data_)&0x7FFF)) && !isnan(a);
 	}
 
 	/// Comparison for inequality.
@@ -578,7 +578,7 @@ namespace half_float
 	/// \retval false else
 	inline bool operator!=(half a, half b)
 	{
-		return (a.data_!=b.data_ && (a.data_|b.data_|0x8000)!=0x8000) || isnan(a);
+		return (a.data_!=b.data_ && ((a.data_|b.data_)&0x7FFF)) || isnan(a);
 	}
 
 	/// Comparison for less than.
@@ -925,11 +925,12 @@ namespace half_float
 	/// \return next representable value after \a from in direction towards \a to
 	inline half nextafter(half from, half to)
 	{
-		if(isnan(from))
+		std::uint16_t fabs = from.data_ & 0x7FFF, tabs = to.data_ & 0x7FFF;
+		if(fabs > 0x7C00)
 			return from;
-		if(isnan(to) || from.data_==to.data_ || (from.data_|to.data_|0x8000)==0x8000)
+		if(tabs > 0x7C00 || from.data_==to.data_ || !(fabs|tabs))
 			return to;
-		if(!(from.data_&0x7FFF))
+		if(!fabs)
 			return half((to.data_&0x8000)+1, true);
 		bool lt = (signbit(from) ? (static_cast<std::int_fast32_t>(0x8000)-from.data_) : static_cast<std::int_fast32_t>(from.data_)) < 
 			(signbit(to) ? (static_cast<std::int_fast32_t>(0x8000)-to.data_) : static_cast<std::int_fast32_t>(to.data_));
@@ -2035,5 +2036,9 @@ namespace std
 	};
 #endif
 }
+
+
+#undef HALF_STD_ISNAN
+#undef HALF_STD_SIGNBIT
 
 #endif

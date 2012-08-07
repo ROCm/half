@@ -1,4 +1,4 @@
-Half-precision floating point library (Version 1.1.2)
+HALF-PRECISION FLOATING POINT LIBRARY (Version 1.1.2)
 -----------------------------------------------------
 
 This is a C++ header-only library to provide an IEEE 754 conformant 16-bit 
@@ -8,7 +8,7 @@ efficiency and ease of use, trying to accurately mimic the behaviour of the
 builtin floating point types at the best performance possible.
 
 
-Installation and Requirements
+INSTALLATION AND REQUIREMENTS
 -----------------------------
 
 Comfortably enough, the library consists of just a single header file 
@@ -37,8 +37,8 @@ contact me if you have any problems, suggestions or even just success testing
 it on other platforms.
 
 
-Documenation
-------------
+DOCUMENTATION
+-------------
 
 Here follow some general words about the usage of the library and its 
 implementation. For a complete documentation of its iterface look at the 
@@ -47,7 +47,7 @@ complete developer documentation from the library's only include file's doxygen
 comments, but this is more relevant to developers rather than mere users (for 
 reasons described below).
 
-Basic usage
+BASIC USAGE
 
 To make use of the library just include its only header file half.hpp, which 
 defines all half-precision functionality inside the 'half_float' namespace. The 
@@ -76,7 +76,7 @@ Furthermore the library provides proper specializations for
 'std::hash' for hashing half-precision numbers (the latter only if the 
 preprocessor symbol 'HALF_ENABLE_HASH' is defined when including half.hpp.
 
-Conversions
+CONVERSIONS
 
 The half is explicitly constructible/convertible from a single-precision float 
 argument. Thus it is also explicitly constructible/convertible from any type 
@@ -110,7 +110,7 @@ which you just need to import:
     using namespace half_float::literal;
     half x = 1.0_h;
 
-Implementation
+IMPLEMENTATION
 
 For performance reasons (and ease of implementation) many of the mathematical 
 functions provided by the library as well as all arithmetic operations are 
@@ -157,7 +157,7 @@ nevertheless the goal of this library was to provide a complete and
 conceptually clean half-precision implementation, to which the standard 
 mathematical functions belong, even if usually not needed.
 
-IEEE conformance
+IEEE CONFORMANCE
 
 The half type uses the standard IEEE representation with 1 sign bit, 5 exponent 
 bits and 10 mantissa bits (11 when counting the hidden bit). It supports all 
@@ -196,7 +196,7 @@ explicitly perform computations using the builtin floating point types to be on
 the safe side.
 
 
-Credits and Contact
+CREDITS AND CONTACT
 -------------------
 
 This library is developed by CHRISTIAN RAU and released under the MIT License 
