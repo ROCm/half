@@ -24,7 +24,7 @@ regarding C++11 support):
   - Support for C++11 fixed-width integer types from <cstdint>.
 
   - Support for certain C++11 single-precision mathematical functions from 
-    <cmath> for their half-precision counter-parts to work (optional).
+    <cmath> for their half-precision counterparts to work (optional).
 
   - Support for C++11 user-defined literals for half-precision literals to 
     work (optional).
@@ -74,7 +74,9 @@ directly through ADL:
 Furthermore the library provides proper specializations for 
 'std::numeric_limits', defining various implementation properties, and 
 'std::hash' for hashing half-precision numbers (the latter only if the 
-preprocessor symbol 'HALF_ENABLE_HASH' is defined when including half.hpp.
+preprocessor symbol 'HALF_ENABLE_HASH' is defined when including half.hpp. 
+Similar to the corresponding preprocessor symbols from <cmath> the library also 
+defines the HUGE_VALH constant and maybe the FP_FAST_FMAH symbol.
 
 CONVERSIONS
 

@@ -28,6 +28,18 @@
 #include <cstdint>
 
 
+/// Value signaling overflow.
+/// In correspondence with `HUGE_VAL[F|L]` from `<cmath>` this symbol expands to a positive value signaling the overflow of an 
+/// operation, in particular it just evaluates to positive infinity.
+#define HUGE_VALH		std::numeric_limits<half_float::half>::infinity()
+
+/// Fast half-precision fma function.
+/// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate half-precision 
+/// multiplication followed by an addition. Due to the internal single-precision implementation of this function, it is only 
+/// defined if the corresponding `FP_FAST_FMAF` symbol from `<cmath>` is defined, too.
+#define FP_FAST_FMAH	1
+
+
 /// Main namespace for half precision functionality.
 /// This namespace contain all the functionality provided by the library.
 namespace half_float

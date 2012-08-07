@@ -1510,7 +1510,8 @@ PREDEFINED             = FP_ILOGB0 \
                          FP_INFINITE \
                          FP_NORMAL \
                          HALF_ENABLE_HASH \
-                         HALF_HAVE_CPP11_LITERALS
+                         HALF_HAVE_CPP11_LITERALS \
+                         FP_FAST_FMAH
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 

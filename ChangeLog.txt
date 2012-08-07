@@ -4,6 +4,8 @@ Release Notes											{#changelog}
 X.X.X release (XX-XX-2012):
 ---------------------------
 
+- Added proper preprocessor definitions for HUGE_VALH and FP_FAST_FMAH in 
+  correspondence with their single-precision counterparts from <cmath>.
 - Fixed internal preprocessor macros to be properly undefined after use.
 
 

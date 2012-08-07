@@ -31,14 +31,25 @@
 #include <cmath>
 #include <cstring>
 
+
+/// Value signaling overflow.
+/// In correspondence with `HUGE_VAL[F|L]` from `<cmath>` this symbol expands to a positive value signaling the overflow of an 
+/// operation, in particular it just evaluates to positive infinity.
+#define HUGE_VALH	std::numeric_limits<half_float::half>::infinity()
+
 #ifdef FP_FAST_FMAF
-	#define FP_FAST_FMAH
+	/// Fast half-precision fma function.
+	/// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate 
+	/// half-precision multiplication followed by an addition. Due to the internal single-precision implementation of this 
+	/// function, it is only defined if the corresponding `FP_FAST_FMAF` symbol from `cmath` is defined, too.
+	#define FP_FAST_FMAH	1
 #endif
+
 #ifndef FP_ILOGB0
 	#define FP_ILOGB0		INT_MIN
 #endif
 #ifndef FP_ILOGBNAN
-	#define FP_ILOGBNAN		INT_MAX-1
+	#define FP_ILOGBNAN		INT_MAX
 #endif
 #ifndef FP_SUBNORMAL
 	#define FP_SUBNORMAL	0
@@ -65,7 +76,7 @@
 #endif
 
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-	#define HALF_HAVE_CPP11_LITERALS
+	#define HALF_HAVE_CPP11_LITERALS 1
 #endif
 
 
