@@ -22,6 +22,27 @@
 #ifndef HALF_HALF_H
 #define HALF_HALF_H
 
+#ifdef _MSC_VER
+	#define HALF_STD_ISNAN(x)	_isnan(x)
+	#define HALF_STD_SIGNBIT(x)	((x)<0.0)
+#else
+	#define HALF_STD_ISNAN(x)	std::isnan(x)
+	#define HALF_STD_SIGNBIT(x)	std::signbit(x)
+#endif
+#ifdef __GNUC__
+	#if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
+		#define HALF_HAVE_CPP11_LITERALS 1
+	#endif
+#endif
+#ifdef __clang__
+	#if !__has_include(<cstdint>) || !__has_feature(cxx_static_assert)
+		#error "unsupported C++ implementation"
+	#endif
+	#if __has_feature(cxx_user_literals)
+		#define HALF_HAVE_CPP11_LITERALS 1
+	#endif
+#endif
+
 #include <iostream>
 #include <limits>
 #include <functional>
@@ -65,18 +86,6 @@
 #endif
 #ifndef FP_NORMAL
 	#define FP_NORMAL		4
-#endif
-
-#ifdef _MSC_VER
-	#define HALF_STD_ISNAN(x)	_isnan(x)
-	#define HALF_STD_SIGNBIT(x)	((x)<0.0)
-#else
-	#define HALF_STD_ISNAN(x)	std::isnan(x)
-	#define HALF_STD_SIGNBIT(x)	std::signbit(x)
-#endif
-
-#if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-	#define HALF_HAVE_CPP11_LITERALS 1
 #endif
 
 

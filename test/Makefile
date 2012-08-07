@@ -1,7 +1,7 @@
 CC       = /usr/bin/g++
-CFLAGS	 = -std=c++0x -Wall -g -O2
+CFLAGS	 = -std=c++0x -Wall -pedantic -g -O2
 CPPFLAGS = -I../include -DHALF_ENABLE_HASH -DHAVE_CPP11_MATH
-LDFLAGS  = -lm
+LDFLAGS  = 
 
 test: test.cpp ../include/half.hpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o bin/test test.cpp
