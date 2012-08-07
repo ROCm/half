@@ -1,4 +1,4 @@
-HALF-PRECISION FLOATING POINT LIBRARY (Version 1.1.2)
+HALF-PRECISION FLOATING POINT LIBRARY (Version 1.2.0)
 -----------------------------------------------------
 
 This is a C++ header-only library to provide an IEEE 754 conformant 16-bit 
@@ -32,9 +32,9 @@ regarding C++11 support):
   - Support for C++11 'std::hash' from <functional> (optional, only if hashing 
     enabled by defining 'HALF_ENABLE_HASH').
 
-It has been tested successfully with Visual C++ 2010 and gcc 4.5-4.7. Please 
-contact me if you have any problems, suggestions or even just success testing 
-it on other platforms.
+It has been tested successfully with Visual C++ 2010, gcc 4.5-4.7 and 
+clang 3.1. Please contact me if you have any problems, suggestions or even just 
+success testing it on other platforms.
 
 
 DOCUMENTATION

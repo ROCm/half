@@ -1,6 +1,12 @@
 News														{#news}
 ====
 
+August 7, 2012 - Release 1.2.0
+------------------------------
+
+[Version 1.2.0](http://sourceforge.net/projects/half/files/half/1.2.0) of the library has been released. It adds preprocessor definitions for [HUGE_VALH](\ref HUGE_VALH) and (maybe) [FP_FAST_FMAH](\ref FP_FAST_FMAH) in correspondence with their respective single-precision counterparts from `<cmath>`. It also fixes the preprocessor symbols it uses internally to be undefined properly after their use. Furthermore, the library has been tested successfully with *clang 3.1*.
+
+------------------------------
 August 7, 2012 - Release 1.1.2
 ------------------------------
 

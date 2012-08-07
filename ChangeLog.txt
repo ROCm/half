@@ -1,12 +1,13 @@
 Release Notes											{#changelog}
 =============
 
-1.2.0 release (XX-XX-2012):
+1.2.0 release (08-07-2012):
 ---------------------------
 
 - Added proper preprocessor definitions for `HUGE_VALH` and `FP_FAST_FMAH` in 
   correspondence with their single-precision counterparts from `<cmath>`.
 - Fixed internal preprocessor macros to be properly undefined after use.
+- Tested successfully with clang 3.1.
 
 
 1.1.2 release (08-07-2012):
