@@ -1,6 +1,12 @@
 Release Notes											{#changelog}
 =============
 
+1.2.1 release (XX-XX-2012):
+---------------------------
+
+- Made requirement for C++11 `static_assert` optional.
+
+
 1.2.0 release (08-07-2012):
 ---------------------------
 

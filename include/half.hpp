@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Version 1.2.0
+// Version 1.2.1
 
 /// \file
 /// Main header file for half precision functionality.
@@ -22,33 +22,40 @@
 #ifndef HALF_HALF_H
 #define HALF_HALF_H
 
-#ifdef _MSC_VER
-	#define HALF_STD_ISNAN(x)	_isnan(x)
-	#define HALF_STD_SIGNBIT(x)	((x)<0.0)
-#else
-	#define HALF_STD_ISNAN(x)	std::isnan(x)
-	#define HALF_STD_SIGNBIT(x)	std::signbit(x)
-#endif
-#ifdef __GNUC__
-	#if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-		#define HALF_HAVE_CPP11_LITERALS 1
+#if defined(_MSC_VER)
+	#if _MSC_VER >= 1600
+		#define HALF_HAVE_CPP11_STATIC_ASSERT 1
 	#endif
-#endif
-#ifdef __clang__
-	#if !__has_include(<cstdint>) || !__has_feature(cxx_static_assert)
+#elif defined(__INTEL_COMPILER)
+	#if __INTEL_COMPILER >= 1100
+		#define HALF_HAVE_CPP11_STATIC_ASSERT 1
+	#endif
+#elif defined(__clang__)
+	#if !__has_include(<cstdint>)
 		#error "unsupported C++ implementation"
 	#endif
+	#if __has_feature(cxx_static_assert)
+		#define HALF_HAVE_CPP11_STATIC_ASSERT 1
+	#endif
 	#if __has_feature(cxx_user_literals)
-		#define HALF_HAVE_CPP11_LITERALS 1
+		#define HALF_HAVE_CPP11_USER_LITERALS 1
+	#endif
+#elif defined(__GNUC__)
+	#define __GNUC_VERSION__ (__GNUC__*100+__GNUC_MINOR__)
+	#if __GNUC_VERSION__ >= 403
+		#define HALF_HAVE_CPP11_STATIC_ASSERT 1
+	#endif
+	#if __GNUC_VERSION__ >= 407
+		#define HALF_HAVE_CPP11_USER_LITERALS 1
 	#endif
 #endif
 
 #include <iostream>
 #include <limits>
 #include <functional>
-#include <algorithm>
 #include <cstdint>
 #include <climits>
+#include <cfloat>
 #include <cmath>
 #include <cstring>
 
@@ -212,6 +219,12 @@ namespace half_float
 			/// Internal expression value stored in single-precision.
 			float value;
 		};
+
+		/// \name Classification helpers
+		/// \{
+		bool isnan(long double arg);
+		bool signbit(long double arg);
+		/// \}
 
 		/// \name Conversion
 		/// \{
@@ -818,10 +831,7 @@ namespace half_float
 	{
 		int e = arg.data_ & 0x7C00;
 		if(e == 0x7C00 || !(arg.data_&0x7FFF))
-		{
-			*exp = 0;
-			return arg;
-		}
+			return *exp = 0, arg;
 		unsigned int m = arg.data_ & 0x3FF;
 		e >>= 10;
 		if(!e)
@@ -854,10 +864,7 @@ namespace half_float
 		if(e > 0x6000)
 			return (e==0x7C00&&(x.data_&0x3FF)) ? x : half(x.data_&0x8000, true);
 		if(e < 0x3C00)
-		{
-			iptr->data_ &= 0x8000;
-			return x;
-		}
+			return iptr->data_ &= 0x8000, x;
 		e >>= 10;
 		unsigned int mask = (1<<(25-e)) - 1;
 		unsigned int m = x.data_ & mask;
@@ -966,10 +973,10 @@ namespace half_float
 		if(isnan(from))
 			return from;
 		long double lfrom = static_cast<long double>(from);
-		if(HALF_STD_ISNAN(to) || lfrom == to)
+		if(detail::isnan(to) || lfrom == to)
 			return half(static_cast<float>(to));
 		if(!(from.data_&0x7FFF))
-			return half((HALF_STD_SIGNBIT(to)<<15)+1, true);
+			return half((static_cast<std::uint16_t>(detail::signbit(to))<<15)+1, true);
 		return half((from.data_+(((from.data_>>15)^(lfrom<to))<<1))-1, true);
 	}
 
@@ -1104,7 +1111,7 @@ namespace half_float
 		return isnan(x) || isnan(y);
 	}
 
-#ifdef HALF_HAVE_CPP11_LITERALS
+#ifdef HALF_HAVE_CPP11_USER_LITERALS
 	namespace literal
 	{
 		/// Half literal.
@@ -1119,12 +1126,40 @@ namespace half_float
 
 	namespace detail
 	{
+		/// Check for NaN.
+		/// \param arg value to query
+		/// \retval true if not a number
+		/// \retval false else
+		inline bool isnan(long double arg)
+		{
+		#ifdef _MSC_VER
+			return _isnan(arg) != 0;
+		#else
+			return std::isnan(arg);
+		#endif
+		}
+
+		/// Check sign.
+		/// \param arg value to query
+		/// \retval true if signbit set
+		/// \retval false else
+		inline bool signbit(long double arg)
+		{
+		#ifdef _MSC_VER
+			return arg < 0.0L;
+		#else
+			return std::signbit(arg);
+		#endif
+		}
+
 		/// Convert IEEE single-precision to half-precision.
 		/// \param value single-precision value
 		/// \return binary representation of half-precision value
 		inline std::uint16_t float2half(float value)
 		{
+		#ifdef HALF_HAVE_CPP11_STATIC_ASSERT
 			static_assert(std::numeric_limits<float>::is_iec559, "float to half conversion needs IEEE 754 conformant 'float' type");
+		#endif
 			static const std::uint16_t base_table[512] = { 
 				0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
 				0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
@@ -1185,10 +1220,10 @@ namespace half_float
 		/// \return binary representation of half-precision value
 		inline std::uint16_t float2half_impl(float value, const std::false_type&)
 		{
-			unsigned int sign = HALF_STD_SIGNBIT(value) << 15;
+			unsigned int sign = signbit(value) << 15;
 			if(value == 0.0f)
 				return sign;
-			if(HALF_STD_ISNAN(value))
+			if(isnan(value))
 				return sign | 0x7FFF;
 //			if(std::isinf(value))
 //				return sign | 0x7C00;
@@ -1221,7 +1256,9 @@ namespace half_float
 		/// \return single-precision value
 		inline float half2float(std::uint16_t value)
 		{
+		#ifdef HALF_HAVE_CPP11_STATIC_ASSERT
 			static_assert(std::numeric_limits<float>::is_iec559, "half to float conversion needs IEEE 754 conformant 'float' type");
+		#endif
 			static const std::uint32_t mantissa_table[2048] = { 
 				0x00000000, 0x33800000, 0x34000000, 0x34400000, 0x34800000, 0x34A00000, 0x34C00000, 0x34E00000, 0x35000000, 0x35100000, 0x35200000, 0x35300000, 0x35400000, 0x35500000, 0x35600000, 0x35700000, 
 				0x35800000, 0x35880000, 0x35900000, 0x35980000, 0x35A00000, 0x35A80000, 0x35B00000, 0x35B80000, 0x35C00000, 0x35C80000, 0x35D00000, 0x35D80000, 0x35E00000, 0x35E80000, 0x35F00000, 0x35F80000, 
@@ -2058,7 +2095,6 @@ namespace std
 }
 
 
-#undef HALF_STD_ISNAN
-#undef HALF_STD_SIGNBIT
+#undef HALF_HAVE_CPP11_STATIC_ASSERT
 
 #endif
