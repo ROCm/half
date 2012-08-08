@@ -278,6 +278,8 @@ public:
 			comp(scalbln(arg, i), static_cast<half>(std::scalbln(static_cast<float>(arg), i))); return passed==100; });
 		unary_test("ilogb", [](half arg) { return ilogb(arg) == std::ilogb(static_cast<float>(arg)); });
 		unary_test("logb", [](half arg) { return comp(logb(arg), static_cast<half>(std::logb(static_cast<float>(arg)))); });
+		binary_test("copysign", [](half a, half b) { return comp(copysign(a, b), 
+			static_cast<half>(std::copysign(static_cast<float>(a), static_cast<float>(b)))); });
 
 		//test comparison functions
 		binary_test("isgreater", [](half a, half b) { return isgreater(a, b) == 
@@ -311,14 +313,6 @@ public:
 			static_cast<half>(c)))<=std::ldexp(static_cast<double>(std::numeric_limits<half>::round_error()), 
 			ilogb(static_cast<half>(c))-std::numeric_limits<half>::digits+1); });
 /*
-		float a = static_cast<float>(halfs_.find("negative quiet NaN")->second.front());
-		float b = std::abs(a);
-		std::cout << std::hex << *reinterpret_cast<std::uint32_t*>(&a) << '\n' << *reinterpret_cast<std::uint32_t*>(&b) << std::endl;
-
-		int e;
-		float s = std::frexp(std::numeric_limits<float>::infinity(), &e);
-		std::cout << s << " - " << e << std::endl;
-
 		half hi, hf = modf(b2h(0xFC00), &hi);
 		std::cout << hi << " . " << hf << std::endl;
 		float fi, ff = std::modf(b2h(0xFC00), &fi);
@@ -419,7 +413,7 @@ private:
 	template<typename F>
 	bool binary_test(const std::string &name, F test)
 	{
-		static std::function<std::size_t()> rand = std::bind(std::uniform_int_distribution<std::size_t>(0, 63), std::mt19937());
+		auto rand = std::bind(std::uniform_int_distribution<std::size_t>(0, 63), std::minstd_rand());
 		unsigned int tests = 0, count = 0;
 		log_ << "testing " << name << ": ";
 		for(auto iterB1=halfs_.begin(); iterB1!=halfs_.end(); ++iterB1)
@@ -471,11 +465,11 @@ int main(int argc, char *argv[])
 	a = (std::numeric_limits<half>::max()*2.0_h) / 2.0_h;
 	b = std::numeric_limits<half>::max() * 2.0_h;
 	b /= 2.0_h;
-	std::cout << a << " - " << b << std::endl;
+	std::cout << std::hex << a << " - " << b << std::endl;
 	a = (std::numeric_limits<half>::max()+1.0_h) - 1.0_h;
 	b = std::numeric_limits<half>::max() + 1.0_h;
 	b -= 1.0_h;
-	std::cout << a << " - " << b << std::endl;
+	std::cout << a << " - " << b << std::dec << std::endl;
 */
 	std::unique_ptr<std::ostream> file;
 	if(argc > 1)

@@ -1,9 +1,7 @@
 Half-precision floating point library						{#mainpage}
 =====================================
 
-This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.org/wiki/IEEE_754-2008) conformant 16-bit [half-precision](http://en.wikipedia.org/wiki/Half_precision_floating-point_format) floating point type along with corresponding arithmetic operators, type conversions and common mathematical functions. It aims for both efficiency and ease of use, trying to accurately mimic the behaviour of the builtin floating point types at the best performance possible.
-
-For further information see the [official SourceForge project page](http://sourceforge.net/projects/half/).
+This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.org/wiki/IEEE_754-2008) conformant 16-bit [half-precision](http://en.wikipedia.org/wiki/Half_precision_floating-point_format) floating point type along with corresponding arithmetic operators, type conversions and common mathematical functions. It aims for both efficiency and ease of use, trying to accurately mimic the behaviour of the builtin floating point types at the best performance possible. It is hosted on [SourceForge.net](http://sourceforge.net/projects/half/).
 
 [TOC]
 
@@ -26,9 +24,9 @@ Download and Installation									{#downloads}
 
 The library in its most recent version can be obtained from here, see [Release Notes](changelog.html) for further information:
 
--	[<b>half 1.2.0</b>](http://sourceforge.net/projects/half/files/latest/download)
+-	[<b>half 1.2.0 (.zip)</b>](http://sourceforge.net/projects/half/files/latest/download)
 
-If you are interested in previous versions of the library, see the [Sourceforge download page](http://sourceforge.net/projects/half/files/half).
+If you are interested in previous versions of the library, see the [SourceForge download page](http://sourceforge.net/projects/half/files/half).
 
 Comfortably enough, the library consists of just a single header file containing all the functionality, which can be directly included by your projects, without the neccessity to build anything or link to anything.
 

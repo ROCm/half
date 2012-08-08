@@ -986,7 +986,7 @@ namespace half_float
 	/// \return value equal to \a x in magnitude and to \a y in sign
 	inline half copysign(half x, half y)
 	{
-		return half((x.data_&0x7FFF)|(y.data_&0x8000), true);
+		return half(x.data_^((x.data_^y.data_)&0x8000), true);
 	}
 
 	/// Classify floating point value.
@@ -1397,6 +1397,7 @@ namespace half_float
 				   0, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 
 				   0, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024 };
 			std::uint32_t bits = mantissa_table[offset_table[value>>10]+(value&0x3FF)] + exponent_table[value>>10];
+//			std::uint32_t bits = mantissa_table[(((value&0x7C00)!=0)<<10)+(value&0x3FF)] + exponent_table[value>>10];
 //			return *reinterpret_cast<float*>(&bits);
 			float out;
 			std::memcpy(&out, &bits, sizeof(float));
