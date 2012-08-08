@@ -1,13 +1,13 @@
 Release Notes											{#changelog}
 =============
 
-1.2.1 release (XX-XX-2012):
+1.2.1 release (2012-XX-XX):
 ---------------------------
 
 - Made requirement for C++11 `static_assert` optional.
 
 
-1.2.0 release (08-07-2012):
+1.2.0 release (2012-08-07):
 ---------------------------
 
 - Added proper preprocessor definitions for `HUGE_VALH` and `FP_FAST_FMAH` in 
@@ -16,7 +16,7 @@ Release Notes											{#changelog}
 - Tested successfully with clang 3.1.
 
 
-1.1.2 release (08-07-2012):
+1.1.2 release (2012-08-07):
 ---------------------------
 
 - Revised `std::numeric_limits::round_style` to return `std::round_toward_zero` 
@@ -25,7 +25,7 @@ Release Notes											{#changelog}
   zero behaviour.
 
 
-1.1.1 release (08-06-2012):
+1.1.1 release (2012-08-06):
 ---------------------------
 
 - Fixed `std::numeric_limits::min` to return smallest positive normal number, 
@@ -35,13 +35,13 @@ Release Notes											{#changelog}
   truncating single-to-half conversions.
 
 
-1.1.0 release (08-06-2012):
+1.1.0 release (2012-08-06):
 ---------------------------
 
 - Added half-precision literals.
 
 
-1.0.0 release (08-05-2012):
+1.0.0 release (2012-08-05):
 ---------------------------
 
 - First release.
