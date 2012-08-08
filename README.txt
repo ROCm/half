@@ -20,7 +20,7 @@ regarding C++11 support):
 
   - IEEE 754 conformant single-precision 'float' type (should be the case on 
     most modern platforms).
-  
+
   - Support for C++11 fixed-width integer types from <cstdint>.
 
   - Support for certain C++11 single-precision mathematical functions from 
@@ -28,7 +28,7 @@ regarding C++11 support):
 
   - Support for C++11 user-defined literals for half-precision literals to 
     work (optional).
-  
+
   - Support for C++11 'std::hash' from <functional> (optional, only if hashing 
     enabled by defining 'HALF_ENABLE_HASH').
 
@@ -74,7 +74,7 @@ directly through ADL:
 Furthermore the library provides proper specializations for 
 'std::numeric_limits', defining various implementation properties, and 
 'std::hash' for hashing half-precision numbers (the latter only if the 
-preprocessor symbol 'HALF_ENABLE_HASH' is defined when including half.hpp. 
+preprocessor symbol 'HALF_ENABLE_HASH' is defined when including half.hpp). 
 Similar to the corresponding preprocessor symbols from <cmath> the library also 
 defines the HUGE_VALH constant and maybe the FP_FAST_FMAH symbol.
 
@@ -105,9 +105,10 @@ also return single-precision values, which is (even if maybe performing the
 exact same computation, see below) not as conceptually clean when working in a 
 half-precision environment.
 
-You may also specificy explicit half-precision literals, since the library 
+You may also specify explicit half-precision literals, since the library 
 provides a user-defined literal inside the 'half_float::literal' namespace, 
-which you just need to import:
+which you just need to import (assuming your implementation supports C++11 
+user-defined literals, which is the case since gcc 4.7+ and clang 3.1+):
 
     using namespace half_float::literal;
     half x = 1.0_h;
@@ -167,22 +168,22 @@ types of special values, like subnormal values, infinity and NaNs. But there
 are some limitations to the complete conformance to the IEEE 754 standard:
 
   - The implementation does not differentiate between signalling and quiet 
-    NaNs, this means operations on [half](\ref half_float::half)s are not 
-	specified to trap on signalling NaNs (though they may, see last point).
-  
+    NaNs, this means operations on halfs are not specified to trap on 
+	signalling NaNs (though they may, see last point).
+
   - Though arithmetic operations are internally rounded to single-precision 
     using the underlying single-precision implementation's current rounding 
-	mode, those values are then converted to half-precision using truncation 
-	(round toward zero). This mixture of rounding modes is also the reason why 
+    mode, those values are then converted to half-precision using truncation 
+    (round toward zero). This mixture of rounding modes is also the reason why 
     'std::numeric_limits<half_float::half>::round_style' only returns 
     'std::round_toward_zero' if the float specialization also does(which is 
 	very unlikely) and 'std::round_indeterminate' otherwise.
-  
+
   - Because of this truncation it may also be that certain single-precision 
     NaNs will be wrongly converted to half-precision infinity, though this is 
-	very unlikely to happen, since most single-precision implementations don't 
-	tend to only set the lowest bits of a NaN mantissa.
-  
+    very unlikely to happen, since most single-precision implementations don't 
+    tend to only set the lowest bits of a NaN mantissa.
+
   - The implementation does not provide any floating point exceptions, thus 
     arithmetic operations or mathematical functions are not specified to invoke 
     proper floating point exceptions. But due to many functions implemented in 
@@ -190,12 +191,12 @@ are some limitations to the complete conformance to the IEEE 754 standard:
     underlying single-precision implementation.
 
 Some of those points could have been circumvented by controlling the floating 
-point environment (through <cfenv>) or implementing a similar exception 
-mechanism. But this would have required excessive runtime checks giving two 
-high an impact on performance for something that is rarely ever needed. If you 
-really need to rely on proper floating point exceptions, it is recommended to 
-explicitly perform computations using the builtin floating point types to be on 
-the safe side.
+point environment using <cfenv> or implementing a similar exception mechanism. 
+But this would have required excessive runtime checks giving two high an impact 
+on performance for something that is rarely ever needed. If you really need to 
+rely on proper floating point exceptions, it is recommended to explicitly 
+perform computations using the builtin floating point types to be on the safe 
+side.
 
 
 CREDITS AND CONTACT
