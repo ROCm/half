@@ -113,7 +113,21 @@ public:
 		for(; u!=0; ++u)
 			batch.push_back(b2h(u));
 		halfs_.insert(std::make_pair("negative qNaN", std::move(batch)));
-		
+
+		//set classes
+		classes_["positive zero"] = FP_ZERO;
+		classes_["positive subn"] = FP_SUBNORMAL;
+		classes_["positive norm"] = FP_NORMAL;
+		classes_["positive inft"] = FP_INFINITE;
+		classes_["positive sNaN"] = FP_NAN;
+		classes_["positive qNaN"] = FP_NAN;
+		classes_["negative zero"] = FP_ZERO;
+		classes_["negative subn"] = FP_SUBNORMAL;
+		classes_["negative norm"] = FP_NORMAL;
+		classes_["negative inft"] = FP_INFINITE;
+		classes_["negative sNaN"] = FP_NAN;
+		classes_["negative qNaN"] = FP_NAN;
+
 		//write halfs
 		std::ofstream out("halfs.log");
 		for(auto iterB=halfs_.begin(); iterB!=halfs_.end(); ++iterB)
@@ -126,28 +140,16 @@ public:
 
 	bool test()
 	{
-		//test classfication
-		class_test("fpclassify", []() -> std::map<std::string,int> { std::map<std::string,int> out; 
-			out["positive zero"] = FP_ZERO; out["positive subn"] = FP_SUBNORMAL; out["positive norm"] = FP_NORMAL; 
-			out["positive inft"] = FP_INFINITE; out["positive qNaN"] = FP_NAN; out["positive sNaN"] = FP_NAN; 
-			out["negative zero"] = FP_ZERO; out["negative subn"] = FP_SUBNORMAL; out["negative norm"] = FP_NORMAL; 
-			out["negative inft"] = FP_INFINITE; out["negative qNaN"] = FP_NAN; out["negative sNaN"] = FP_NAN; 
-			return out; }(), half_float::fpclassify);
-		class_test("isfinite", []() -> std::vector<std::string> { std::vector<std::string> out; 
-			out.push_back("positive zero"); out.push_back("positive subn"); out.push_back("positive norm"); 
-			out.push_back("negative zero"); out.push_back("negative subn"); out.push_back("negative norm"); 
-			return out; }(), half_float::isfinite);
-		class_test("isinf", []() -> std::vector<std::string> { std::vector<std::string> out; 
-			out.push_back("positive inft"); out.push_back("negative inft"); return out; }(), half_float::isinf);
-		class_test("isnan", []() -> std::vector<std::string> { std::vector<std::string> out; 
-			out.push_back("positive qNaN"); out.push_back("positive sNaN"); out.push_back("negative qNaN"); 
-			out.push_back("negative sNaN"); return out; }(), half_float::isnan);
-		class_test("isnormal", []() -> std::vector<std::string> {
-			std::vector<std::string> out; out.push_back("positive norm"); out.push_back("negative norm"); 
-			return out; }(), half_float::isnormal);
-
 		//test conversion
 		unary_test("conversion", [](half arg) { return comp(static_cast<half>(static_cast<float>(arg)), arg); });
+
+		//test classification
+		class_test("fpclassify", [](half arg, int cls) { return fpclassify(arg) == cls; });
+		class_test("isfinite", [](half arg, int cls) { return isfinite(arg) == (cls!=FP_INFINITE&&cls!=FP_NAN); });
+		class_test("isinf", [](half arg, int cls) { return isinf(arg) == (cls==FP_INFINITE); });
+		class_test("isnan", [](half arg, int cls) { return isnan(arg) == (cls==FP_NAN); });
+		class_test("isnormal", [](half arg, int cls) { return isnormal(arg) == (cls==FP_NORMAL); });
+		unary_test("signbit", [](half arg) -> bool { float f = arg; return isnan(arg) || f==0.0f || (signbit(arg)==(f<0.0f)); });
 
 		//test operators
 		unary_test("prefix increment", [](half arg) -> bool { float f = static_cast<float>(arg); 
@@ -281,6 +283,16 @@ public:
 		binary_test("copysign", [](half a, half b) { return comp(copysign(a, b), 
 			static_cast<half>(std::copysign(static_cast<float>(a), static_cast<float>(b)))); });
 
+		//test classification functions
+		unary_test("fpclassify", [](half arg) -> bool { int ch=fpclassify(arg), cf=std::fpclassify(
+			static_cast<float>(arg)); return ch==cf || (ch==FP_SUBNORMAL && cf==FP_NORMAL); });
+		unary_test("isfinite", [](half arg) { return isfinite(arg) == std::isfinite(static_cast<float>(arg)); });
+		unary_test("isinf", [](half arg) { return isinf(arg) == std::isinf(static_cast<float>(arg)); });
+		unary_test("isnan", [](half arg) { return isnan(arg) == std::isnan(static_cast<float>(arg)); });
+		unary_test("isnormal", [](half arg) { return isnormal(arg) == std::isnormal(static_cast<float>(arg)) || 
+			(!isnormal(arg) && fpclassify(arg)==FP_SUBNORMAL); });
+		unary_test("signbit", [](half arg) { return signbit(arg) == std::signbit(static_cast<float>(arg)); });
+
 		//test comparison functions
 		binary_test("isgreater", [](half a, half b) { return isgreater(a, b) == 
 			std::isgreater(static_cast<float>(a), static_cast<float>(b)); });
@@ -331,17 +343,19 @@ public:
 private:
 	typedef std::vector<half> half_vector;
 	typedef std::map<std::string,half_vector> test_map;
+	typedef std::map<std::string,int> class_map;
 
 	template<typename F>
-	bool class_test(const std::string &name, const std::map<std::string,int> &classes, F test)
+	bool class_test(const std::string &name, F test)
 	{
 		unsigned int count = 0;
 		log_ << "testing " << name << ":\n";
 		for(auto iterB=halfs_.begin(); iterB!=halfs_.end(); ++iterB)
 		{
 			unsigned int passed = 0;
+			int fpclass = classes_[iterB->first];
 			for(auto iterH=iterB->second.begin(); iterH!=iterB->second.end(); ++iterH)
-				passed += test(*iterH) == classes.at(iterB->first);
+				passed += test(*iterH, fpclass);
 			log_ << "    " << iterB->first << ": ";
 			if(passed == iterB->second.size())
 			{
@@ -381,6 +395,17 @@ private:
 		bool passed = count == halfs_.size();
 		++tests_;
 		passed_ += passed;		
+		return passed;
+	}
+
+	template<typename F>
+	bool simple_test(const std::string &name, F test)
+	{
+		log_ << "testing " << name << ": ";
+		bool passed = test();
+		log_ << (passed ? "passed" : "failed") << "\n\n";
+		++tests_;
+		passed_ += passed;
 		return passed;
 	}
 
@@ -440,18 +465,8 @@ private:
 		return passed;
 	}
 
-	template<typename F>
-	bool simple_test(const std::string &name, F test)
-	{
-		log_ << "testing " << name << ": ";
-		bool passed = test();
-		log_ << (passed ? "passed" : "failed") << "\n\n";
-		++tests_;
-		passed_ += passed;
-		return passed;
-	}
-
 	test_map halfs_;
+	class_map classes_;
 	unsigned int tests_;
 	unsigned int passed_;
 	std::ostream &log_;
