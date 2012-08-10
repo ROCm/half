@@ -1,10 +1,15 @@
 Release Notes											{#changelog}
 =============
 
-1.2.1 release (2012-XX-XX):
+1.3.0 release (2012-08-10):
 ---------------------------
 
-- Made requirement for C++11 `static_assert` optional.
+- Made requirement for `<cstdint>` and `static_assert` optional and thus made 
+  the library C++98-compatible.
+- Made support for C++11 features user-overridable through explicit definition 
+  of corresponding preprocessor symbols to either 0 or 1.
+- Renamed `HALF_ENABLE_HASH` to `HALF_ENABLE_CPP11_HASH` in correspondence with 
+  other C++11 preprocessor symbols.
 
 
 1.2.0 release (2012-08-07):

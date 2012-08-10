@@ -1,4 +1,4 @@
-HALF-PRECISION FLOATING POINT LIBRARY (Version 1.2.0)
+HALF-PRECISION FLOATING POINT LIBRARY (Version 1.3.0)
 -----------------------------------------------------
 
 This is a C++ header-only library to provide an IEEE 754 conformant 16-bit 
@@ -15,24 +15,32 @@ Comfortably enough, the library consists of just a single header file
 containing all the functionality, which can be directly included by your 
 projects, without the neccessity to build anything or link to anything.
 
-The library imposes some requirements on your C++ implementation (espcecially 
-regarding C++11 support):
+The library needs an IEEE-754-conformant single-precision 'float' type, but 
+this should be the case on most modern platforms. Whereas the library is fully 
+C++98-compatible, it can profit from certain C++11 features. Support for those 
+features is checked by the library at compile (or rather preprocessing) time 
+automatically, but can be explicitly enabled or disabled by defining the 
+corresponding preprocessor symbols to either 1 or 0 yourself. This is useful 
+when the automatic detection fails (for more exotic implementations) or when a 
+feature should be explicitly disabled:
 
-  - IEEE 754 conformant single-precision 'float' type (should be the case on 
-    most modern platforms).
+  - Static assertions for extended compile-time checks (enabled for VC++ 2010, 
+    gcc 4.3, clang 2.9 and newer, overridable with 'HALF_ENABLE_CPP11_STATIC_ASSERT').
 
-  - Support for C++11 fixed-width integer types from <cstdint>.
+  - User-defined literals for half-precision literals to work (enabled for 
+    gcc 4.7, clang 3.1 and newer, overridable with 'HALF_ENABLE_CPP11_USER_LITERALS').
 
-  - Support for certain C++11 single-precision mathematical functions from 
-    <cmath> for their half-precision counterparts to work (optional).
+  - Special integer types from <cstdint> (enabled for VC++ 2010, libstdc++ 4.3, 
+    libc++ and newer, overridable with 'HALF_ENABLE_CPP11_CSTDINT').
 
-  - Support for C++11 user-defined literals for half-precision literals to 
-    work (optional).
+  - Certain C++11 single-precision mathematical functions from <cmath> for 
+    their half-precision counterparts to work (enabled for libstdc++ 4.3, 
+    libc++ and newer, overridable with 'HALF_ENABLE_CPP11_CMATH').
 
-  - Support for C++11 'std::hash' from <functional> (optional, only if hashing 
-    enabled by defining 'HALF_ENABLE_HASH').
+  - Hash functor 'std::hash' from <functional> (enabled for VC++ 2010, 
+    libstdc++ 4.3, libc++ and newer, overridable with 'HALF_ENABLE_CPP11_HASH').
 
-It has been tested successfully with Visual C++ 2010, gcc 4.5-4.7 and 
+The library has been tested successfully with Visual C++ 2010, gcc 4.4-4.7 and 
 clang 3.1. Please contact me if you have any problems, suggestions or even just 
 success testing it on other platforms.
 
@@ -73,10 +81,10 @@ directly through ADL:
 
 Furthermore the library provides proper specializations for 
 'std::numeric_limits', defining various implementation properties, and 
-'std::hash' for hashing half-precision numbers (the latter only if the 
-preprocessor symbol 'HALF_ENABLE_HASH' is defined when including half.hpp). 
-Similar to the corresponding preprocessor symbols from <cmath> the library also 
-defines the HUGE_VALH constant and maybe the FP_FAST_FMAH symbol.
+'std::hash' for hashing half-precision numbers (assuming support for C++11 
+'std::hash'). Similar to the corresponding preprocessor symbols from <cmath> 
+the library also defines the 'HUGE_VALH' constant and maybe the 'FP_FAST_FMAH' 
+symbol.
 
 CONVERSIONS
 
@@ -107,8 +115,7 @@ half-precision environment.
 
 You may also specify explicit half-precision literals, since the library 
 provides a user-defined literal inside the 'half_float::literal' namespace, 
-which you just need to import (assuming your implementation supports C++11 
-user-defined literals, which is the case since gcc 4.7+ and clang 3.1+):
+which you just need to import (assuming support for C++11 user-defined literals):
 
     using namespace half_float::literal;
     half x = 1.0_h;

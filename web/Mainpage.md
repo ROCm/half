@@ -9,10 +9,10 @@ This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.o
 News														{#new}
 ====
 
-August 7, 2012 - Release 1.2.0
-------------------------------
+August 10, 2012 - Release 1.3.0
+-------------------------------
 
-[Version 1.2.0](http://sourceforge.net/projects/half/files/half/1.2.0) of the library has been released. It adds preprocessor definitions for [HUGE_VALH](\ref HUGE_VALH) and (maybe) [FP_FAST_FMAH](\ref FP_FAST_FMAH) in correspondence with their respective single-precision counterparts from `<cmath>`. It also fixes the preprocessor symbols it uses internally to be undefined properly after their use. Furthermore, the library has been tested successfully with *clang 3.1*.
+[Version 1.3.0](http://sourceforge.net/projects/half/files/half/1.3.0) of the library has been released. It makes the requirement for C++11's `<cstdint>` and `static_assert` optional and thus is now comletely C++98-compatible. Furthermore, all the C++11 features used by the library and detected automatically are now overridable by the user, by just defining the corresponding preprocessor symbols to 0 or 1, which is useful in cases where the automatic detection fails or where the support for a feature should be explicitly disabled.
 
 [more](news.html)
 
@@ -24,21 +24,23 @@ Download and Installation									{#downloads}
 
 The library in its most recent version can be obtained from here, see [Release Notes](changelog.html) for further information:
 
--	[<b>half 1.2.0 (.zip)</b>](http://sourceforge.net/projects/half/files/latest/download)
+-	[<b>half 1.3.0 (.zip)</b>](http://sourceforge.net/projects/half/files/latest/download)
 
 If you are interested in previous versions of the library, see the [SourceForge download page](http://sourceforge.net/projects/half/files/half).
 
 Comfortably enough, the library consists of just a single header file containing all the functionality, which can be directly included by your projects, without the neccessity to build anything or link to anything.
 
-The library imposes some requirements on your C++ implementation (espcecially regarding C++11 support):
+The library needs an IEEE-754-conformant single-precision `float` type, but this should be the case on most modern platforms. Whereas the library is fully C++98-compatible, it can profit from certain C++11 features. Support for those features is checked and enabled by the library automatically, but can be explicitly enabled or disabled by defining the corresponding preprocessor symbols to either 1 or 0 yourself. This is useful when the automatic detection fails (for more exotic implementations) or when a feature should be explicitly disabled:
 
--	IEEE 754 conformant single-precision `float` type (should be the case on most modern platforms).
--	Support for C++11 fixed-width integer types from `<cstdint>`.
--	Support for certain C++11 single-precision mathematical functions from `<cmath>` for their half-precision counterparts to work (**optional**).
--	Support for C++11 user-defined literals for half-precision literals to work (**optional**).
--	Support for C++11 `std::hash` from `<functional>` (**optional**, only if hashing enabled by defining `HALF_ENABLE_HASH`).
+C++11 feature                        | Used for                     | Enabled for (and newer)                     | Override with
+-------------------------------------|------------------------------|---------------------------------------------|----------------------------------
+static assertions                    | extended compile-time checks | *VC++ 2010*, *gcc 4.3*, *clang 2.9*         | `HALF_ENABLE_CPP11_STATIC_ASSERT`
+user-defined literals                | half-precision literals      | *gcc 4.7*, *clang 3.1*                      | `HALF_ENABLE_CPP11_USER_LITERALS`
+sized integer types from `<cstdint>` | more flexible type sizes     | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_CSTDINT`
+certain new `<cmath>` functions      | corresponding half functions | *libstdc++ 4.3*, <i>libc++</i>              | `HALF_ENABLE_CPP11_CMATH`
+`std::hash` from `<functional>`      | hash function for halfs      | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_HASH`
 
-It has been tested successfully with *Visual C++ 2010*, *gcc 4.5-4.7* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
+The library has been tested successfully with *Visual C++ 2010*, *gcc 4.4-4.7* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 
 --------------------------------------------------------------------------------
 
@@ -68,7 +70,7 @@ half s = sin(abs(a));
 long l = lround(s);
 ~~~~
 
-Furthermore the library provides proper specializations for `std::numeric_limits`, defining various implementation properties, and `std::hash` for hashing half-precision numbers (the latter only if the preprocessor symbol `HALF_ENABLE_HASH` is defined when including half.hpp). Similar to the corresponding preprocessor symbols from `<cmath>` the library also defines the [HUGE_VALH](\ref HUGE_VALH) constant and maybe the [FP_FAST_FMAH](\ref FP_FAST_FMAH) symbol.
+Furthermore the library provides proper specializations for `std::numeric_limits`, defining various implementation properties, and `std::hash` for hashing half-precision numbers (assuming support for C++11 `std::hash`). Similar to the corresponding preprocessor symbols from `<cmath>` the library also defines the [HUGE_VALH](\ref HUGE_VALH) constant and maybe the [FP_FAST_FMAH](\ref FP_FAST_FMAH) symbol.
 
 Conversions													{#conversions}
 -----------
@@ -77,7 +79,7 @@ The [half](\ref half_float::half) is explicitly constructible/convertible from a
 
 In contrast to the float-to-half conversion, which reduces precision, the conversion from [half](\ref half_float::half) to `float` (and thus to any other type implicitly convertible to `float`) is implicit, because all values represetable with half-precision are also representable with single-precision. This way the half-to-float conversion behaves similar to the builtin float-to-double conversion and all arithmetic expressions involving both half-precision and single-precision arguments will be of single-precision type. This way you can also directly use the mathematical functions of the C++ standard library, though in this case you will invoke the single-precision versions which will also return single-precision values, which is (even if maybe performing the exact same computation, see below) not as conceptually clean when working in a half-precision environment.
 
-You may also specificy explicit half-precision literals, since the library provides a user-defined literal inside the half_float::literal namespace, which you just need to import (assuming your implementation supports C++11 user-defined literals, which is the case since *gcc 4.7* and *clang 3.1*):
+You may also specificy explicit half-precision literals, since the library provides a user-defined literal inside the half_float::literal namespace, which you just need to import (assuming support C++11 user-defined literals):
 
 ~~~~{.cpp}
 using namespace half_float::literal;

@@ -1,6 +1,12 @@
 News														{#news}
 ====
 
+August 10, 2012 - Release 1.3.0
+-------------------------------
+
+[Version 1.3.0](http://sourceforge.net/projects/half/files/half/1.3.0) of the library has been released. It makes the requirement for C++11's `<cstdint>` and `static_assert` optional and thus is now comletely C++98-compatible. Furthermore, all the C++11 features used by the library and detected automatically are now overridable by the user, by just defining the corresponding preprocessor symbols to 0 or 1, which is useful in cases where the automatic detection fails or where the support for a feature should be explicitly disabled.
+
+------------------------------
 August 7, 2012 - Release 1.2.0
 ------------------------------
 

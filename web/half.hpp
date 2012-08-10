@@ -51,6 +51,11 @@ namespace half_float
 	/// (and many mathematical functions) are carried out in single-precision internally. All conversions from single- to 
 	/// half-precision are done using truncation (round towards zero), but temporary results inside chained arithmetic 
 	/// expressions are kept in single-precision as long as possible (while of course still maintaining a strong half-precision type).
+	///
+	/// One more word about the size of half. Although the half is representing an IEEE 16-bit type, it only has an actual size 
+	/// of 16 bits if your C++ implementation supports unsigned integers of exactly 16 bits width, which should be the case on 
+	/// nearly any reasonable platform. Nevertheless on platforms not supporting 16-bit unsigned integers, a half will have an 
+	/// actual size larger than 16 bits in memory.
 	class half
 	{
 	public:
@@ -749,8 +754,8 @@ namespace half_float
 
 
 	/// User-defined literals.
-	/// Import this namespace to enable half-precision floating point literals (of course only on implementations that support 
-	/// C++11 user-defined literals):
+	/// Import this namespace to enable half-precision floating point literals (of course only if C++11 user-defined literals 
+	/// are supported and enabled):
 	/// ~~~~{.cpp}
 	/// using namespace half_float::literal;
 	/// half_float::half = 4.2_h;
@@ -856,7 +861,7 @@ namespace std
 	};
 
 	/// Hash function for half-precision floats.
-	/// You have to define the preprocessor symbol `HALF_ENABLE_HASHING` for this specialization to be available.
+	/// This is only defined if C++11 `std::hash` is supported and enabled.
 	template<> struct hash<half_float::half>
 	{
 		/// Type of function argument.
