@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Version 1.3.0
+// Version 1.3.1
 
 /// \file
 /// Main header file for half precision functionality.
@@ -1216,10 +1216,12 @@ namespace half_float
 		/// \retval false else
 		inline bool isnan(long double arg)
 		{
-		#ifdef _MSC_VER
+		#if HALF_ENABLE_CPP11_CMATH
+			return std::isnan(arg);
+		#elif defined(_MSC_VER)
 			return _isnan(arg) != 0;
 		#else
-			return std::isnan(arg);
+			return arg != arg;
 		#endif
 		}
 
@@ -1229,10 +1231,10 @@ namespace half_float
 		/// \retval false else
 		inline bool signbit(long double arg)
 		{
-		#ifdef _MSC_VER
-			return arg < 0.0L;
-		#else
+		#if HALF_ENABLE_CPP11_CMATH
 			return std::signbit(arg);
+		#else
+			return arg < 0.0L;
 		#endif
 		}
 
