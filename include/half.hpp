@@ -28,6 +28,9 @@
 	#if __has_feature(cxx_static_assert) && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)
 		#define HALF_ENABLE_CPP11_STATIC_ASSERT 1
 	#endif
+	#if __has_feature(cxx_constexpr) && !defined(HALF_ENABLE_CPP11_CONSTEXPR)
+		#define HALF_ENABLE_CPP11_CONSTEXPR 1
+	#endif
 	#if __has_feature(cxx_user_literals) && !defined(HALF_ENABLE_CPP11_USER_LITERALS)
 		#define HALF_ENABLE_CPP11_USER_LITERALS 1
 	#endif
@@ -35,10 +38,16 @@
 	#if __INTEL_COMPILER >= 1100 && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)
 		#define HALF_ENABLE_CPP11_STATIC_ASSERT 1
 	#endif
+	#if __INTEL_COMPILER >= 1300 && !defined(HALF_ENABLE_CPP11_CONSTEXPR)
+		#define HALF_ENABLE_CPP11_CONSTEXPR 1
+	#endif
 #elif defined(__GNUC__)										//gcc
 	#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 		#if HALF_GNUC_VERSION >= 403 && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)
 			#define HALF_ENABLE_CPP11_STATIC_ASSERT 1
+		#endif
+		#if HALF_GNUC_VERSION >= 406 && !defined(HALF_ENABLE_CPP11_CONSTEXPR)
+			#define HALF_ENABLE_CPP11_CONSTEXPR 1
 		#endif
 		#if HALF_GNUC_VERSION >= 407 && !defined(HALF_ENABLE_CPP11_USER_LITERALS)
 			#define HALF_ENABLE_CPP11_USER_LITERALS 1
@@ -99,6 +108,15 @@
 	#endif
 #endif
 #undef HALF_GNUC_VERSION
+
+//support constexpr
+#if HALF_ENABLE_CPP11_CONSTEXPR
+	#define HALF_CONSTEXPR			constexpr
+	#define HALF_CONSTEXPR_CONST	constexpr
+#else
+	#define HALF_CONSTEXPR
+	#define HALF_CONSTEXPR_CONST	const
+#endif
 
 #include <iostream>
 #include <limits>
@@ -168,8 +186,8 @@ namespace half_float
 
 	/// \name Unary arithmetic operators
 	/// \{
-	half operator+(half h);
-	half operator-(half h);
+	HALF_CONSTEXPR half operator+(half h);
+	HALF_CONSTEXPR half operator-(half h);
 	/// \}
 
 	/// \name Input and output
@@ -481,7 +499,7 @@ namespace half_float
 		friend bool operator>(half, half);
 		friend bool operator<=(half, half);
 		friend bool operator>=(half, half);
-		friend half operator-(half h);
+		friend HALF_CONSTEXPR half operator-(half h);
 		friend half fabs(half);
 		friend half nanh(const char*);
 		friend half ceil(half);
@@ -508,7 +526,7 @@ namespace half_float
 	public:
 		/// Default constructor.
 		/// This initializes the half to 0.
-		half()
+		HALF_CONSTEXPR half()
 			: data_()
 		{
 		}
@@ -668,7 +686,7 @@ namespace half_float
 	private:
 		/// Constructor.
 		/// \param bits binary representation to set half to
-		half(detail::uint16 bits, bool)
+		HALF_CONSTEXPR half(detail::uint16 bits, bool)
 			: data_(bits)
 		{
 		}
@@ -753,7 +771,7 @@ namespace half_float
 	/// Identity.
 	/// \param h operand
 	/// \return uncahnged operand
-	inline half operator+(half h)
+	inline HALF_CONSTEXPR half operator+(half h)
 	{
 		return h;
 	}
@@ -761,7 +779,7 @@ namespace half_float
 	/// Negation.
 	/// \param h operand
 	/// \return negated operand
-	inline half operator-(half h)
+	inline HALF_CONSTEXPR half operator-(half h)
 	{
 		return half(h.data_^0x8000, true);
 	}
@@ -2089,84 +2107,84 @@ namespace std
 	{
 	public:
 		/// Supports signed values.
-		static const bool is_signed = true;
+		static HALF_CONSTEXPR_CONST bool is_signed = true;
 
 		/// Is not exact.
-		static const bool is_exact = false;
+		static HALF_CONSTEXPR_CONST bool is_exact = false;
 
 		/// Doesn't provide modulo arithmetic.
-		static const bool is_modulo = false;
+		static HALF_CONSTEXPR_CONST bool is_modulo = false;
 
 		/// IEEE conformant.
-		static const bool is_iec559 = true;
+		static HALF_CONSTEXPR_CONST bool is_iec559 = true;
 
 		/// Supports infinity.
-		static const bool has_infinity = true;
+		static HALF_CONSTEXPR_CONST bool has_infinity = true;
 
 		/// Supports quiet NaNs.
-		static const bool has_quiet_NaN = true;
+		static HALF_CONSTEXPR_CONST bool has_quiet_NaN = true;
 
 		/// Supports subnormal values.
-		static const std::float_denorm_style has_denorm = std::denorm_present;
+		static HALF_CONSTEXPR_CONST std::float_denorm_style has_denorm = std::denorm_present;
 
 		/// Rounding mode.
 		/// Due to the mix of internal single-precision computations (using the rounding mode of the underlying 
 		/// single-precision implementation) with explicit truncation of the single-to-half conversions, the rounding mode is 
 		/// only round-toward-zero if the single-precision rounding mode is also round-toward-zero (which is very unlikely). In 
 		/// all other cases the half-precision rounding mode is indeterminate.
-		static const std::float_round_style round_style = (std::numeric_limits<float>::round_style==std::round_toward_zero) ? 
-			std::round_toward_zero : std::round_indeterminate;
+		static HALF_CONSTEXPR_CONST std::float_round_style round_style = 
+			(std::numeric_limits<float>::round_style==std::round_toward_zero) ? std::round_toward_zero : std::round_indeterminate;
 
 		/// Significant digits.
-		static const int digits = 11;
+		static HALF_CONSTEXPR_CONST int digits = 11;
 
 		/// Significant decimal digits.
-		static const int digits10 = 3;
+		static HALF_CONSTEXPR_CONST int digits10 = 3;
 
 		/// Required decimal digits to represent all possible values.
-		static const int max_digits10 = 5;
+		static HALF_CONSTEXPR_CONST int max_digits10 = 5;
 
 		/// Number base.
-		static const int radix = 2;
+		static HALF_CONSTEXPR_CONST int radix = 2;
 
 		/// One more than smallest exponent.
-		static const int min_exponent = -13;
+		static HALF_CONSTEXPR_CONST int min_exponent = -13;
 
 		/// Smallest normalized representable power of 10.
-		static const int min_exponent10 = -4;
+		static HALF_CONSTEXPR_CONST int min_exponent10 = -4;
 
 		/// One more than largest exponent
-		static const int max_exponent = 16;
+		static HALF_CONSTEXPR_CONST int max_exponent = 16;
 
 		/// Largest finitely representable power of 10.
-		static const int max_exponent10 = 4;
+		static HALF_CONSTEXPR_CONST int max_exponent10 = 4;
 
 		/// Smallest positive normal value.
-		static half_float::half min() { return half_float::half(0x0400, true); }
+		static HALF_CONSTEXPR half_float::half min() { return half_float::half(0x0400, true); }
 
 		/// Smallest finite value.
-		static half_float::half lowest() { return half_float::half(0xFBFF, true); }
+		static HALF_CONSTEXPR half_float::half lowest() { return half_float::half(0xFBFF, true); }
 
 		/// Largest finite value.
-		static half_float::half max() { return half_float::half(0x7BFF, true); }
+		static HALF_CONSTEXPR half_float::half max() { return half_float::half(0x7BFF, true); }
 
 		/// Difference between one and next representable value.
-		static half_float::half epsilon() { return half_float::half(0x1400, true); }
+		static HALF_CONSTEXPR half_float::half epsilon() { return half_float::half(0x1400, true); }
 
 		/// Maximum rounding error.
-		static half_float::half round_error() { return half_float::half(0x3C00, true); }
+		static HALF_CONSTEXPR half_float::half round_error() { return half_float::half(0x3C00, true); }
 
 		/// Positive infinity.
-		static half_float::half infinity() { return half_float::half(0x7C00, true); }
+		static HALF_CONSTEXPR half_float::half infinity() { return half_float::half(0x7C00, true); }
 
 		/// Quiet NaN.
-		static half_float::half quiet_NaN() { return half_float::half(0x7FFF, true); }
+		static HALF_CONSTEXPR half_float::half quiet_NaN() { return half_float::half(0x7FFF, true); }
 
 		/// Signalling NaN.
-		static half_float::half signaling_NaN() { return half_float::half(0x7DFF, true); }
+		static HALF_CONSTEXPR half_float::half signaling_NaN() { return half_float::half(0x7DFF, true); }
 
 		/// Smallest positive subnormal value.
-		static half_float::half denorm_min() { return half_float::half(0x0001, true); }
+		static HALF_CONSTEXPR half_float::half denorm_min() { return half_float::half(0x0001, true); }
 	};
 
 #if HALF_ENABLE_CPP11_HASH
@@ -2191,5 +2209,8 @@ namespace std
 #endif
 }
 
+
+#undef HALF_CONSTEXPR
+#undef HALF_CONSTEXPR_CONST
 
 #endif

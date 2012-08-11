@@ -35,6 +35,7 @@ The library needs an IEEE-754-conformant single-precision `float` type, but this
 C++11 feature                        | Used for                     | Enabled for (and newer)                     | Override with
 -------------------------------------|------------------------------|---------------------------------------------|----------------------------------
 static assertions                    | extended compile-time checks | *VC++ 2010*, *gcc 4.3*, *clang 2.9*         | `HALF_ENABLE_CPP11_STATIC_ASSERT`
+generalized constant expressions     | constant operations          | *gcc 4.6*, *clang 3.1*                      | `HALF_ENABLE_CPP11_CONSTEXPR`
 user-defined literals                | half-precision literals      | *gcc 4.7*, *clang 3.1*                      | `HALF_ENABLE_CPP11_USER_LITERALS`
 sized integer types from `<cstdint>` | more flexible type sizes     | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_CSTDINT`
 certain new `<cmath>` functions      | corresponding half functions | *libstdc++ 4.3*, <i>libc++</i>              | `HALF_ENABLE_CPP11_CMATH`

@@ -64,7 +64,7 @@ namespace half_float
 
 		/// Default constructor.
 		/// This initializes the half to 0.
-		half();
+		constexpr half();
 
 		/// Conversion constructor.
 		/// \param rhs float to convert
@@ -250,12 +250,12 @@ namespace half_float
 	/// Identity.
 	/// \param h operand
 	/// \return uncahnged operand
-	half operator+(half h);
+	half constexpr operator+(half h);
 
 	/// Negation.
 	/// \param h operand
 	/// \return negated operand
-	half operator-(half h);
+	half constexpr operator-(half h);
 
 	/// \}
 	/// \name Input and output
@@ -780,84 +780,84 @@ namespace std
 	{
 	public:
 		/// Supports signed values.
-		static const bool is_signed = true;
+		static constexpr bool is_signed = true;
 
 		/// Is not exact.
-		static const bool is_exact = false;
+		static constexpr bool is_exact = false;
 
 		/// Doesn't provide modulo arithmetic.
-		static const bool is_modulo = false;
+		static constexpr bool is_modulo = false;
 
 		/// IEEE conformant.
-		static const bool is_iec559 = true;
+		static constexpr bool is_iec559 = true;
 
 		/// Supports infinity.
-		static const bool has_infinity = true;
+		static constexpr bool has_infinity = true;
 
 		/// Supports quiet NaNs.
-		static const bool has_quiet_NaN = true;
+		static constexpr bool has_quiet_NaN = true;
 
 		/// Supports subnormal values.
-		static const std::float_denorm_style has_denorm = std::denorm_present;
+		static constexpr std::float_denorm_style has_denorm = std::denorm_present;
 
 		/// Rounding mode.
 		/// Due to the mix of internal single-precision computations (using the rounding mode of the underlying 
 		/// single-precision implementation) with explicit truncation of the single-to-half conversions, the rounding mode is 
 		/// only round-toward-zero if the single-precision rounding mode is also round-toward-zero (which is very unlikely). In 
 		/// all other cases the half-precision rounding mode is indeterminate.
-		static const std::float_round_style round_style = (std::numeric_limits<float>::round_style==std::round_toward_zero) ? 
-			std::round_toward_zero : std::round_indeterminate;
+		static constexpr std::float_round_style round_style = 
+			(std::numeric_limits<float>::round_style==std::round_toward_zero) ? std::round_toward_zero : std::round_indeterminate;
 
 		/// Significant digits.
-		static const int digits = 11;
+		static constexpr int digits = 11;
 
 		/// Significant decimal digits.
-		static const int digits10 = 3;
+		static constexpr int digits10 = 3;
 
 		/// Required decimal digits to represent all possible values.
-		static const int max_digits10 = 5;
+		static constexpr int max_digits10 = 5;
 
 		/// Number base.
-		static const int radix = 2;
+		static constexpr int radix = 2;
 
 		/// One more than smallest exponent.
-		static const int min_exponent = -13;
+		static constexpr int min_exponent = -13;
 
 		/// Smallest normalized representable power of 10.
-		static const int min_exponent10 = -4;
+		static constexpr int min_exponent10 = -4;
 
 		/// One more than largest exponent
-		static const int max_exponent = 16;
+		static constexpr int max_exponent = 16;
 
 		/// Largest finitely representable power of 10.
-		static const int max_exponent10 = 4;
+		static constexpr int max_exponent10 = 4;
 
 		/// Smallest positive normal value.
-		static half_float::half min();
+		static constexpr half_float::half min();
 
 		/// Smallest finite value.
-		static half_float::half lowest();
+		static constexpr half_float::half lowest();
 
 		/// Largest finite value.
-		static half_float::half max();
+		static constexpr half_float::half max();
 
 		/// Difference between one and next representable value.
-		static half_float::half epsilon();
+		static constexpr half_float::half epsilon();
 
 		/// Maximum rounding error.
-		static half_float::half round_error();
+		static constexpr half_float::half round_error();
 
 		/// Positive infinity.
-		static half_float::half infinity();
+		static constexpr half_float::half infinity();
 
 		/// Quiet NaN.
-		static half_float::half quiet_NaN();
+		static constexpr half_float::half quiet_NaN();
 
 		/// Signalling NaN.
-		static half_float::half signaling_NaN();
+		static constexpr half_float::half signaling_NaN();
 
 		/// Smallest positive subnormal value.
-		static half_float::half denorm_min();
+		static constexpr half_float::half denorm_min();
 	};
 
 	/// Hash function for half-precision floats.

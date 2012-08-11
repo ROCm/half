@@ -27,6 +27,9 @@ feature should be explicitly disabled:
   - Static assertions for extended compile-time checks (enabled for VC++ 2010, 
     gcc 4.3, clang 2.9 and newer, overridable with 'HALF_ENABLE_CPP11_STATIC_ASSERT').
 
+  - Generalized constant expressions (enabled for gcc 4.6, clang 3.1 and newer, 
+    overridable with 'HALF_ENABLE_CPP11_CONSTEXPR').
+
   - User-defined literals for half-precision literals to work (enabled for 
     gcc 4.7, clang 3.1 and newer, overridable with 'HALF_ENABLE_CPP11_USER_LITERALS').
 
@@ -176,7 +179,7 @@ are some limitations to the complete conformance to the IEEE 754 standard:
 
   - The implementation does not differentiate between signalling and quiet 
     NaNs, this means operations on halfs are not specified to trap on 
-	signalling NaNs (though they may, see last point).
+    signalling NaNs (though they may, see last point).
 
   - Though arithmetic operations are internally rounded to single-precision 
     using the underlying single-precision implementation's current rounding 
@@ -184,7 +187,7 @@ are some limitations to the complete conformance to the IEEE 754 standard:
     (round toward zero). This mixture of rounding modes is also the reason why 
     'std::numeric_limits<half_float::half>::round_style' only returns 
     'std::round_toward_zero' if the float specialization also does(which is 
-	very unlikely) and 'std::round_indeterminate' otherwise.
+    very unlikely) and 'std::round_indeterminate' otherwise.
 
   - Because of this truncation it may also be that certain single-precision 
     NaNs will be wrongly converted to half-precision infinity, though this is 
