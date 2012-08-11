@@ -40,7 +40,7 @@ feature should be explicitly disabled:
   - Hash functor 'std::hash' from <functional> (enabled for VC++ 2010, 
     libstdc++ 4.3, libc++ and newer, overridable with 'HALF_ENABLE_CPP11_HASH').
 
-The library has been tested successfully with Visual C++ 2005, 2010 and 2012, 
+The library has been tested successfully with Visual C++ 2005/2010/2012, 
 gcc 4.4 - 4.7 and clang 3.1. Please contact me if you have any problems, 
 suggestions or even just success testing it on other platforms.
 

@@ -22,7 +22,7 @@ August 11, 2012 - Release 1.3.1
 Download and Installation									{#downloads}
 =========================
 
-The library in its most recent version can be obtained from here, see [Release Notes](changelog.html) for further information:
+The library in its most recent version can be obtained from here, see the [Release Notes](changelog.html) for further information:
 
 -	[<b>half 1.3.1 (.zip)</b>](http://sourceforge.net/projects/half/files/latest/download)
 
@@ -40,7 +40,7 @@ sized integer types from `<cstdint>` | more flexible type sizes     | *VC++ 2010
 certain new `<cmath>` functions      | corresponding half functions | *libstdc++ 4.3*, <i>libc++</i>              | `HALF_ENABLE_CPP11_CMATH`
 `std::hash` from `<functional>`      | hash function for halfs      | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_HASH`
 
-The library has been tested successfully with *Visual C++ 2005*, *2010* and *2012*, *gcc 4.4* - *4.7* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
+The library has been tested successfully with *Visual C++ 2005* / *2010* / *2012*, *gcc 4.4* - *4.7* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 
 --------------------------------------------------------------------------------
 
