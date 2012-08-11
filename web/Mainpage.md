@@ -9,10 +9,10 @@ This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.o
 News														{#new}
 ====
 
-August 10, 2012 - Release 1.3.0
+August 11, 2012 - Release 1.3.1
 -------------------------------
 
-[Version 1.3.0](http://sourceforge.net/projects/half/files/half/1.3.0) of the library has been released. It makes the requirement for C++11's `<cstdint>` and `static_assert` optional and thus is now comletely C++98-compatible. Furthermore, all the C++11 features used by the library and detected automatically are now overridable by the user, by just defining the corresponding preprocessor symbols to 0 or 1, which is useful in cases where the automatic detection fails or where the support for a feature should be explicitly disabled.
+[Version 1.3.1](http://sourceforge.net/projects/half/files/half/1.3.1) of the library has been released. It fixes a bug with non-VC compilers that required the presence of `std::isnan` and `std::signbit` even if C++11 `<cmath>` functions are unsupported/disabled. Furthermore the library has been tested successfully with Visual C++ 2005 and 2012.
 
 [more](news.html)
 
@@ -40,7 +40,7 @@ sized integer types from `<cstdint>` | more flexible type sizes     | *VC++ 2010
 certain new `<cmath>` functions      | corresponding half functions | *libstdc++ 4.3*, <i>libc++</i>              | `HALF_ENABLE_CPP11_CMATH`
 `std::hash` from `<functional>`      | hash function for halfs      | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_HASH`
 
-The library has been tested successfully with *Visual C++ 2010*, *gcc 4.4-4.7* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
+The library has been tested successfully with *Visual C++ 2005*, *2010* and *2012*, *gcc 4.4* - *4.7* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 
 --------------------------------------------------------------------------------
 

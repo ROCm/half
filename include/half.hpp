@@ -295,8 +295,8 @@ namespace half_float
 
 		/// \name Classification helpers
 		/// \{
-		bool isnan(long double arg);
-		bool signbit(long double arg);
+		template<typename T> bool isnan(T arg);
+		template<typename T> bool signbit(T arg);
 		/// \}
 
 		/// \name Conversion
@@ -1061,7 +1061,7 @@ namespace half_float
 			return half(static_cast<float>(to));
 		if(!(from.data_&0x7FFF))
 			return half((static_cast<detail::uint16>(detail::signbit(to))<<15)+1, true);
-		return half((from.data_+(((from.data_>>15)^(lfrom<to))<<1))-1, true);
+		return half((from.data_+(((from.data_>>15)^static_cast<detail::uint16>(lfrom<to))<<1))-1, true);
 	}
 
 	/// Take sign.
@@ -1211,10 +1211,11 @@ namespace half_float
 	namespace detail
 	{
 		/// Check for NaN.
+		/// \tparam T argument type (builtin floating point type)
 		/// \param arg value to query
 		/// \retval true if not a number
 		/// \retval false else
-		inline bool isnan(long double arg)
+		template<typename T> bool isnan(T arg)
 		{
 		#if HALF_ENABLE_CPP11_CMATH
 			return std::isnan(arg);
@@ -1226,15 +1227,16 @@ namespace half_float
 		}
 
 		/// Check sign.
+		/// \tparam T argument type (builtin floating point type)
 		/// \param arg value to query
 		/// \retval true if signbit set
 		/// \retval false else
-		inline bool signbit(long double arg)
+		template<typename T> bool signbit(T arg)
 		{
 		#if HALF_ENABLE_CPP11_CMATH
 			return std::signbit(arg);
 		#else
-			return arg < 0.0L;
+			return arg < T();
 		#endif
 		}
 

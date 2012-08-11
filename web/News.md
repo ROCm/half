@@ -1,6 +1,12 @@
 News														{#news}
 ====
 
+August 11, 2012 - Release 1.3.1
+-------------------------------
+
+[Version 1.3.1](http://sourceforge.net/projects/half/files/half/1.3.1) of the library has been released. It fixes a bug with non-VC compilers that required the presence of `std::isnan` and `std::signbit` even if C++11 `<cmath>` functions are unsupported/disabled. Furthermore the library has been tested successfully with Visual C++ 2005 and 2012.
+
+-------------------------------
 August 10, 2012 - Release 1.3.0
 -------------------------------
 
