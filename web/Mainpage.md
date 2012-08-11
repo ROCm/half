@@ -24,7 +24,7 @@ Download and Installation									{#downloads}
 
 The library in its most recent version can be obtained from here, see the [Release Notes](changelog.html) for further information:
 
--	[<b>half 1.3.1 (.zip)</b>](http://sourceforge.net/projects/half/files/latest/download)
+-	[<b>half 1.4.0 (.zip)</b>](http://sourceforge.net/projects/half/files/latest/download)
 
 If you are interested in previous versions of the library, see the [SourceForge download page](http://sourceforge.net/projects/half/files/half).
 
