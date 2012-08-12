@@ -482,10 +482,18 @@ namespace half_float
 	/// half-precision are done using truncation (round towards zero), but temporary results inside chained arithmetic 
 	/// expressions are kept in single-precision as long as possible (while of course still maintaining a strong half-precision type).
 	///
-	/// One more word about the size of half. Although the half is representing an IEEE 16-bit type, it only has an actual size 
-	/// of 16 bits if your C++ implementation supports unsigned integers of exactly 16 bits width, which should be the case on 
-	/// nearly any reasonable platform. Nevertheless on platforms not supporting 16-bit unsigned integers, a half will have an 
-	/// actual size larger than 16 bits in memory.
+	/// According to the C++98/03 definition, the half type is not a POD type. But according to C++11's less strict and 
+	/// extended definitions it is both a standard layout type and a trivially copyable type (even if not a POD type), which 
+	/// means it can be standard-conformantly copied using raw binary copies. But in this context some more words about the 
+	/// actual size of the type. Although the half is representing an IEEE 16-bit type, it does not neccessarily have to be of 
+	/// exactly 16-bits size. But on any reasonable implementation the actual binary representation of this type will most 
+	/// probably not ivolve any additional "magic" beyond the simple binary representation of the underlying 16-bit IEEE 
+	/// number, even if not strictly guaranteed by the standard. But even then it only has an actual size of 16 bits if your 
+	/// C++ implementation supports an unsigned integer type of exactly 16 bits width. But this should be the case on nearly 
+	/// any reasonable platform.
+	///
+	/// So if your C++ implementation is not totally exotic it is a reasonable assumption that the data of a half is just 
+	/// comprised of the 2 bytes of the underlying IEEE representation.
 	class half : public detail::half_expr<half>
 	{
 		friend class std::numeric_limits<half>;
