@@ -18,11 +18,11 @@ projects, without the neccessity to build anything or link to anything.
 The library needs an IEEE-754-conformant single-precision 'float' type, but 
 this should be the case on most modern platforms. Whereas the library is fully 
 C++98-compatible, it can profit from certain C++11 features. Support for those 
-features is checked by the library at compile (or rather preprocessing) time 
-automatically, but can be explicitly enabled or disabled by defining the 
-corresponding preprocessor symbols to either 1 or 0 yourself. This is useful 
-when the automatic detection fails (for more exotic implementations) or when a 
-feature should be explicitly disabled:
+features is checked automatically at compile (or rather preprocessing) time, 
+but can be explicitly enabled or disabled by defining the corresponding 
+preprocessor symbols to either 1 or 0 yourself. This is useful when the 
+automatic detection fails (for more exotic implementations) or when a feature 
+should be explicitly disabled:
 
   - Static assertions for extended compile-time checks (enabled for VC++ 2010, 
     gcc 4.3, clang 2.9 and newer, overridable with 'HALF_ENABLE_CPP11_STATIC_ASSERT').
