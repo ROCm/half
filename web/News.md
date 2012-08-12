@@ -1,6 +1,12 @@
 News														{#news}
 ====
 
+August 12, 2012 - Release 1.4.0
+-------------------------------
+
+[Version 1.4.0](http://sourceforge.net/projects/half/files/half/1.4.0) of the library has been released. It adds support for C++11 generalized constant expressions (`constexpr`). But due to the not constantly expressable half-single-conversions most arithmetic operators as well as the half-precision literals cannot be made `constexpr`. The only `constexpr` operators are the unary plus and minus as well as the zero-initializing default constructor. But now the `std::numeric_limits` specialization is C++11-conformant, with all its special half-precision constants being actual constant expressions.
+
+-------------------------------
 August 11, 2012 - Release 1.3.1
 -------------------------------
 
