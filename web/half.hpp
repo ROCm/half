@@ -762,7 +762,7 @@ namespace half_float
 	/// \}
 
 
-	/// User-defined literals.
+	/// Library-defined half-precision literals.
 	/// Import this namespace to enable half-precision floating point literals (of course only if C++11 user-defined literals 
 	/// are supported and enabled):
 	/// ~~~~{.cpp}

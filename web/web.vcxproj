@@ -81,8 +81,8 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"C:\Program Files\doxygen\bin\doxygen.exe" $(InputPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating Documentation</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">html</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)half.hpp;$(ProjectDir)Mainpage.md;$(ProjectDir)News.md;$(ProjectDir)../ChangeLog.txt</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)half.hpp;$(ProjectDir)Mainpage.md;$(ProjectDir)News.md;$(ProjectDir)../ChangeLog.txt</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)layout.xml;$(ProjectDir)half.hpp;$(ProjectDir)Mainpage.md;$(ProjectDir)News.md;$(ProjectDir)../ChangeLog.txt</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)layout.xml;$(ProjectDir)half.hpp;$(ProjectDir)Mainpage.md;$(ProjectDir)News.md;$(ProjectDir)../ChangeLog.txt</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">html</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating Documentation</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"C:\Program Files\doxygen\bin\doxygen.exe" $(InputPath)</Command>

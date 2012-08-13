@@ -24,7 +24,7 @@ Download and Installation									{#downloads}
 
 The library in its most recent version can be obtained from here, see the [Release Notes](changelog.html) for further information:
 
--	[<b>half 1.4.0 (.zip)</b>](http://sourceforge.net/projects/half/files/latest/download)
+<ul class="tablist"><li>[Download half 1.4.0 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
 
 If you are interested in previous versions of the library, see the [SourceForge download page](http://sourceforge.net/projects/half/files/half).
 
@@ -48,6 +48,9 @@ The library has been tested successfully with *Visual C++ 2005* / *2010* / *2012
 
 Documentation												{#doc}
 =============
+
+What follows are some general words about the usage of the library and its implementation. For a complete reference documentation of its iterface you should consult the [API Documentation](usergroup0.html).
+
 
 Basic usage													{#usage}
 -----------
