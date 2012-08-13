@@ -293,7 +293,7 @@ namespace half_float
 	#endif
 
 		/// Generic half expression.
-		/// This class represents the base class for expressions of half-precision value, convertible to single precision.
+		/// This class represents the base class for expressions of half-precision type, convertible to single precision.
 		/// \tparam E concrete expression type
 		template<typename E> struct half_expr
 		{
