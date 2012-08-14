@@ -41,7 +41,7 @@
 
 
 /// Main namespace for half precision functionality.
-/// This namespace contain all the functionality provided by the library.
+/// This namespace contains all the functionality provided by the library.
 namespace half_float
 {
 	/// Half-precision floating point type.
