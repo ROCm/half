@@ -4,9 +4,9 @@
     <tab type="mainpage" visible="yes" title="Home"/>
     <tab type="user" visible="yes" title="News" url="@ref news"/>
     <tab type="user" visible="yes" title="Release Notes" url="@ref changelog"/>
-    <tab type="pages" visible="no" title="" intro=""/>
+    <!--tab type="pages" visible="yes" title="" intro=""/-->
     <tab type="usergroup" visible="yes" title="Documentation">
-      <tab type="modules" visible="no" title="" intro=""/>
+      <!--tab type="modules" visible="yes" title="" intro=""/-->
       <tab type="namespacelist" visible="yes" title="Namespaces">
         <!--tab type="namespacelist" visible="yes" title="" intro=""/>
         <tab type="namespacemembers" visible="yes" title="" intro=""/-->
@@ -21,7 +21,12 @@
         <!--tab type="filelist" visible="yes" title="" intro=""/>
         <tab type="globals" visible="yes" title="" intro=""/-->
       </tab>
-      <tab type="examples" visible="no" title="" intro=""/>
+      <!--tab type="examples" visible="yes" title="" intro=""/-->
+    </tab>
+    <tab type="usergroup" visible="yes" title="Support">
+      <tab type="user" visible="yes" title="Contact" url="mailto:rauy@users.sourceforge.net"/>
+      <tab type="user" visible="yes" title="Tickets" url="http://sourceforge.net/p/half/tickets/"/>
+      <tab type="user" visible="yes" title="Forums" url="http://sourceforge.net/p/half/discussion/"/>
     </tab>
     <tab type="user" visible="yes" title="SourceForge.net" url="http://sourceforge.net/projects/half/"/>
   </navindex>
