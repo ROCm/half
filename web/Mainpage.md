@@ -9,22 +9,21 @@ This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.o
 News														{#new}
 ====
 
-August 12, 2012 - Release 1.4.0
+August 16, 2012 - Release 1.5.0
 -------------------------------
 
-[Version 1.4.0](http://sourceforge.net/projects/half/files/half/1.4.0) of the library has been released. It adds support for C++11 generalized constant expressions (`constexpr`). But due to the not constantly expressable half-single-conversions most arithmetic operators as well as the half-precision literals cannot be made `constexpr`. The only `constexpr` operators are the unary plus and minus as well as the zero-initializing default constructor. But now the `std::numeric_limits` specialization is C++11-conformant, with all its special half-precision constants being actual constant expressions.
+[Version 1.5.0](http://sourceforge.net/projects/half/files/half/1.5.0) of the library has been released. It adds a special half_cast() that can be used to cast between [half](\ref half_float::half) and any type convertible to/from `float`. In addition to doing an explicit conversion via `float` and thus avoiding any possible warnings about precision loss, it allows the explicit specification of the rounding mode to use for the single-to-half conversion (if any). This way you can choose a specific rounding mode if needed and can even synchronize it with the rounding mode of the underlying single-precision implementation (which is usually `std::round_to_nearest`). But this is more of an expert feature to be used when you are sure you really need it (which should rarely be the case) and most of the time the default rounding from single- to half-precision (`std::round_indeterminate`), which is the fastest, will be sufficient. Furthermore, the library has been tested successfully with Visual C++ 2008.
 
 [more](news.html)
 
---------------------------------------------------------------------------------
 
-
+-------------------------
 Download and Installation									{#downloads}
 =========================
 
 The library in its most recent version can be obtained from here, see the [Release Notes](changelog.html) for further information:
 
-<ul class="tablist"><li>[Download half 1.4.0 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
+<ul class="tablist"><li>[Download half 1.5.0 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
 
 If you are interested in previous versions of the library, see the [SourceForge download page](http://sourceforge.net/projects/half/files/half).
 
@@ -41,11 +40,10 @@ sized integer types from `<cstdint>` | more flexible type sizes     | *VC++ 2010
 certain new `<cmath>` functions      | corresponding half functions | *libstdc++ 4.3*, <i>libc++</i>              | `HALF_ENABLE_CPP11_CMATH`
 `std::hash` from `<functional>`      | hash function for halfs      | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_HASH`
 
-The library has been tested successfully with *Visual C++ 2005* / *2010* / *2012*, *gcc 4.4* - *4.7* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
-
---------------------------------------------------------------------------------
+The library has been tested successfully with *Visual C++ 2005* - *2012*, *gcc 4.4* - *4.7* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 
 
+-------------
 Documentation												{#doc}
 =============
 
@@ -79,7 +77,13 @@ Furthermore the library provides proper specializations for `std::numeric_limits
 Conversions													{#conversions}
 -----------
 
-The [half](\ref half_float::half) is explicitly constructible/convertible from a single-precision `float` argument. Thus it is also explicitly constructible/convertible from any type implicitly convertible to `float`, but constructing it from types like `double` or `int` will involve the usual warnings arising when implicitly converting those to `float` because of the lost precision. On the one hand those warnings are intentional, because converting those types to [half](\ref half_float::half) neccessarily also reduces precision. But on the other hand they are raised for explicit conversions from those types, when the user knows what he is doing. So if those warnings keep bugging you, then you won't get around first explicitly converting to `float` before converting to [half](\ref half_float::half). In addition you can also directly assign `float` values to [half](\ref half_float::half)s.
+The [half](\ref half_float::half) is explicitly constructible/convertible from a single-precision `float` argument. Thus it is also explicitly constructible/convertible from any type implicitly convertible to `float`, but constructing it from types like `double` or `int` will involve the usual warnings arising when implicitly converting those to `float` because of the lost precision. On the one hand those warnings are intentional, because converting those types to [half](\ref half_float::half) neccessarily also reduces precision. But on the other hand they are raised for explicit conversions from those types, when the user knows what he is doing. So if those warnings keep bugging you, then you won't get around first explicitly converting to `float` before converting to [half](\ref half_float::half), or use the half_cast() described below. In addition you can also directly assign `float` values to [half](\ref half_float::half)s.
+
+For performance reasons the conversion from `float` to [half](\ref half_float::half) uses truncation (round toward zero, but mapping overflows to infinity) for rounding values not representable exactly in half-precision. If you are in need for other rounding behaviour (though this should rarely be the case), you can use the half_cast(). In addition to performning an explicit cast between [half](\ref half_float::half) and any other type convertible to/from `float` via an explicit cast to/from `float` (and thus without any warnings due to possible precision-loss), it let's you explicitly specify the rounding mode to use for the float-to-half conversion. You can even synchronize it with the bultin single-precision implementation's rounding mode:
+
+~~~~{.cpp}
+half a = half_float::half_cast<half,std::numeric_limits<float>::round_style>(4.2);
+~~~~
 
 In contrast to the float-to-half conversion, which reduces precision, the conversion from [half](\ref half_float::half) to `float` (and thus to any other type implicitly convertible to `float`) is implicit, because all values represetable with half-precision are also representable with single-precision. This way the half-to-float conversion behaves similar to the builtin float-to-double conversion and all arithmetic expressions involving both half-precision and single-precision arguments will be of single-precision type. This way you can also directly use the mathematical functions of the C++ standard library, though in this case you will invoke the single-precision versions which will also return single-precision values, which is (even if maybe performing the exact same computation, see below) not as conceptually clean when working in a half-precision environment.
 
@@ -98,15 +102,9 @@ For performance reasons (and ease of implementation) many of the mathematical fu
 This approach has two implications. First of all you have to treat the documentation on this site as a simplified version, describing the behaviour of the library as if implemented this way. The actual argument and return types of functions and operators may involve other internal types (feel free to generate the exact developer documentation from the Doxygen comments in the library's header file if you really need to). But nevertheless the behaviour is exactly like specified in the documentation. The other implication is, that in the presence of rounding errors or over-/underflows arithmetic expressions may produce different results when compared to converting to half-precision after each individual operation:
 
 ~~~~{.cpp}
-half a, b;
-...
-a = (std::numeric_limits<half>::max() * 2.0_h) / 2.0_h;		// a = MAX
-b = std::numeric_limits<half>::max() * 2.0_h;				// b = INF
-b /= 2.0_h;													// b stays INF
-...
-a = (std::numeric_limits<half>::max() + 1.0_h) - 1.0_h;		// a = MAX
-b = std::numeric_limits<half>::max() + 1.0_h;				// b = MAX (truncation)
-b -= 1.0_h;													// b = MAX-32 (truncation)
+half a = (std::numeric_limits<half>::max() * 2.0_h) / 2.0_h;	// a = MAX
+half b = std::numeric_limits<half>::max() * 2.0_h;				// b = INF
+b /= 2.0_h;														// b stays INF
 ~~~~
 
 But this should only be a problem in very few cases. One last word has to be said when talking about performance. Even with its efforts in reducing conversion overhead as much as possible, the software half-precision implementation can most probably not beat the direct use of single-precision computations. Usually using actual `float` values for all computations and temproraries and using [half](\ref half_float::half)s only for storage is the recommended way. On the one hand this somehow makes the provided mathematical functions obsolete (especially in light of the implicit conversion from [half](\ref half_float::half) to `float`), but nevertheless the goal of this library was to provide a complete and conceptually clean half-precision implementation, to which the standard mathematical functions belong, even if usually not needed.
@@ -121,11 +119,10 @@ The [half](\ref half_float::half) type uses the standard IEEE representation wit
 -	Because of this truncation it may also be that certain single-precision NaNs will be wrongly converted to half-precision infinity, though this is very unlikely to happen, since most single-precision implementations don't tend to only set the lowest bits of a NaN mantissa.
 -	The implementation does not provide any floating point exceptions, thus arithmetic operations or mathematical functions are not specified to invoke proper floating point exceptions. But due to many functions implemented in single-precision, those may still invoke floating point exceptions of the underlying single-precision implementation.
 
-Some of those points could have been circumvented by controlling the floating point environment using `<cfenv>` or implementing a similar exception mechanism. But this would have required excessive runtime checks giving two high an impact on performance for something that is rarely ever needed. If you really need to rely on proper floating point exceptions, it is recommended to explicitly perform computations using the builtin floating point types to be on the safe side.
-
---------------------------------------------------------------------------------
+Some of those points could have been circumvented by controlling the floating point environment using `<cfenv>` or implementing a similar exception mechanism. But this would have required excessive runtime checks giving two high an impact on performance for something that is rarely ever needed. If you really need to rely on proper floating point exceptions, it is recommended to explicitly perform computations using the builtin floating point types to be on the safe side. In the same way, if you really need to rely on a particular rounding behaviour other than round-toward-zero, it is recommended to use single-precision computations and explicitly convert the result to half-precision using half_cast() and specifying the required rounding mode. But those are really considered expert-scenarios rarely encountered in practice, since actually working with half-precision usually comes with a certain tolerance/ignorance of exactness considerations.
 
 
+-------------------
 Credits and Contact											{#contact}
 ===================
 

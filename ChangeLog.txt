@@ -1,6 +1,14 @@
 Release Notes											{#changelog}
 =============
 
+1.5.0 release (2012-08-16):
+---------------------------
+
+- Added `half_cast` for explicitly casting between half and any type 
+  convertible to/from `float` and allowing the explicit specification of the 
+  rounding mode to use.
+
+
 1.4.0 release (2012-08-12):
 ---------------------------
 

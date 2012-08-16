@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Version 1.4.0
+// Version 1.5.0
 
 /// \file
 /// Main header file for half precision functionality.
@@ -249,6 +249,12 @@ namespace half_float
 	bool isunordered(half x, half y);
 	/// \}
 
+	/// \name Casting
+	/// \{
+	template<typename T,typename U> T half_cast(const U &arg);
+	template<typename T,std::float_round_style R,typename U> T half_cast(const U &arg);
+	/// \}
+
 #if HALF_ENABLE_CPP11_USER_LITERALS
 	/// Library-defined half-precision literals.
 	/// Import this namespace to enable half-precision floating point literals:
@@ -311,6 +317,49 @@ namespace half_float
 			float value;
 		};
 
+		/// Helper class for half casts.
+		/// \tparam T destination type
+		/// \tparam U source type
+		/// \tparam R rounding mode to use
+		template<typename T,typename U,std::float_round_style R> struct half_caster;
+/*		{
+		#if HALF_ENABLE_CPP11_STATIC_ASSERT
+			static T cast(const U &arg);
+		#endif
+		};
+*/
+		/// Helper class for half casts specialized for casting to half.
+		/// \tparam U source type
+		/// \tparam R rounding mode to use
+		template<typename U,std::float_round_style R> struct half_caster<half,U,R>
+		{
+			static half cast(const U &arg);
+		};
+
+		/// Helper class for half casts specialized for casting from half.
+		/// \tparam T destination type
+		/// \tparam R rounding mode to use
+		template<typename T,std::float_round_style R> struct half_caster<T,half,R>
+		{
+			template<typename E> static T cast(const half_expr<E> &arg);
+		};
+
+		/// Helper class for half casts specialized for casting from half-precision expressions.
+		/// \tparam T destination type
+		/// \tparam R rounding mode to use
+		template<typename T,std::float_round_style R> struct half_caster<T,float_half_expr,R> : public half_caster<T,half,R> {};
+
+		/// Helper class for half casts specialized for casting between halfs.
+		/// \tparam R rounding mode to use
+		template<std::float_round_style R> struct half_caster<half,half,R>
+		{
+			template<typename E> static half cast(const half_expr<E> &arg);
+		};
+
+		/// Helper class for half casts specialized for casting half-precision expressions to halfs.
+		/// \tparam R rounding mode to use
+		template<std::float_round_style R> struct half_caster<half,float_half_expr,R> : public half_caster<half,half,R> {};
+
 		/// \name Classification helpers
 		/// \{
 		template<typename T> bool isnan(T arg);
@@ -319,6 +368,7 @@ namespace half_float
 
 		/// \name Conversion
 		/// \{
+		template<std::float_round_style R> uint16 float2half(float value);
 		uint16 float2half(float value);
 		float half2float(uint16 value);
 		/// \}
@@ -496,6 +546,7 @@ namespace half_float
 	/// assumption that the data of a half is just comprised of the 2 bytes of the underlying IEEE representation.
 	class half : public detail::half_expr<half>
 	{
+		template<typename,typename,std::float_round_style> friend struct detail::half_caster;
 		friend class std::numeric_limits<half>;
 #if HALF_ENABLE_CPP11_HASH
 		friend struct std::hash<half>;
@@ -678,18 +729,18 @@ namespace half_float
 		/// \return non-incremented half value
 		half operator++(int)
 		{
-			half out(*this);
-			++*this;
-			return out;
+			detail::uint16 out = data_;
+			data_ = detail::float2half(detail::half2float(data_)+1.0f);
+			return half(out, true);
 		}
 
 		/// Postfix decrement.
 		/// \return non-decremented half value
 		half operator--(int)
 		{
-			half out(*this);
-			--*this;
-			return out;
+			detail::uint16 out = data_;
+			data_ = detail::float2half(detail::half2float(data_)-1.0f);
+			return half(out, true);
 		}
 	
 	private:
@@ -1015,8 +1066,8 @@ namespace half_float
 			for(m<<=1; m<0x400; m<<=1)
 				--e;
 		}
-		unsigned int sign = x.data_ & 0x8000;
 		e += exp;
+		unsigned int sign = x.data_ & 0x8000;
 		return (e>30) ? half(sign|0x7C00, true) : half((e>0) ? (sign|(e<<10)|(m&0x3FF)) : ((e<-9) ? sign : (sign|(m>>(1-e)))), true);
 	}
 
@@ -1222,6 +1273,42 @@ namespace half_float
 		return isnan(x) || isnan(y);
 	}
 
+	/// Cast to or from half-precision floating point number.
+	/// This casts between [half](\ref half_float::half) and any type convertible to/from `float` via an explicit cast of this 
+	/// type to/from `float`. It uses the fastest rounding possible when performing a float-to-half conversion (if any) and is 
+	/// thus equivalent to half_cast<T,std::round_indeterminate,U>() or a simple `static_cast`, but suppressing any possible 
+	/// warnings due to an otherwise implicit conversion to/from `float`.
+	///
+	/// Using this cast with neither of the two types being a [half](\ref half_float::half) results in a compiler error and 
+	/// casting between [half](\ref half_float::half)s is just a no-op.
+	/// \tparam T destination type
+	/// \tparam U source type
+	/// \param arg value to cast
+	/// \return \a arg converted to destination type
+	template<typename T,typename U> T half_cast(const U &arg)
+	{
+		return detail::half_caster<T,U,std::round_indeterminate>::cast(arg);
+	}
+
+	/// Cast to or from half-precision floating point number with specified rounding.
+	/// This casts between [half](\ref half_float::half) and any type convertible to/from `float` via an explicit cast of this 
+	/// type to/from `float`. The rounding mode used for the internal float-to-half conversion (if any) can be specified 
+	/// explicitly, or chosen to be the fastest possible rounding using `std::round_indeterminate`, which would be equivalent 
+	/// to half_cast<T,U>() or a simple `static_cast`, but suppressing any possible warnings due to an otherwise implicit 
+	/// conversion to/from `float`.
+	///
+	/// Using this cast with neither of the two types being a [half](\ref half_float::half) results in a compiler error and 
+	/// casting between [half](\ref half_float::half)s is just a no-op.
+	/// \tparam T destination type
+	/// \tparam R rounding mode to use
+	/// \tparam U source type
+	/// \param arg value to cast
+	/// \return \a arg converted to destination type
+	template<typename T,std::float_round_style R,typename U> T half_cast(const U &arg)
+	{
+		return detail::half_caster<T,U,R>::cast(arg);
+	}
+
 #if HALF_ENABLE_CPP11_USER_LITERALS
 	namespace literal
 	{
@@ -1268,9 +1355,10 @@ namespace half_float
 		}
 
 		/// Convert IEEE single-precision to half-precision.
+		/// \tparam R rounding mode to use, `std::round_indeterminate` for fastest rounding
 		/// \param value single-precision value
 		/// \return binary representation of half-precision value
-		inline uint16 float2half(float value)
+		template<std::float_round_style R> uint16 float2half(float value)
 		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT
 			static_assert(std::numeric_limits<float>::is_iec559, "float to half conversion needs IEEE 754 conformant 'float' type");
@@ -1328,7 +1416,18 @@ namespace half_float
 				24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 13 };
 			uint32 bits;// = *reinterpret_cast<uint32*>(&value);
 			std::memcpy(&bits, &value, sizeof(float));
-			return base_table[bits>>23] + ((bits&0x7FFFFF)>>shift_table[bits>>23]);
+			uint16 hbits = base_table[bits>>23] + ((bits&0x7FFFFF)>>shift_table[bits>>23]);
+			if(R == std::round_to_nearest)
+				hbits += (((bits&0x7FFFFF)>>(shift_table[bits>>23]-1))|(((bits>>23)&0xFF)==102)) & 1 & ((hbits&0x7C00)!=0x7C00);
+			else if(R == std::round_toward_zero)
+				hbits -= ((hbits&0x7FFF)==0x7C00) & (shift_table[bits>>23]!=13);
+			else if(R == std::round_toward_infinity)
+				hbits += ((((bits&0x7FFFFF&((static_cast<uint32>(1)<<(shift_table[bits>>23]))-1))!=0)|(((bits>>23)<=102)&
+					((bits>>23)!=0)))&(hbits<0x7C00)) - ((hbits==0xFC00)&((bits>>23)!=511));
+			else if(R == std::round_toward_neg_infinity)
+				hbits += ((((bits&0x7FFFFF&((static_cast<uint32>(1)<<(shift_table[bits>>23]))-1))!=0)|(((bits>>23)<=358)&
+					((bits>>23)!=256)))&(hbits<0xFC00)&(hbits>>15)) - ((hbits==0x7C00)&((bits>>23)!=255));
+			return hbits;
 		}
 /*
 		/// Convert non-IEEE single-precision to half-precision.
@@ -1367,6 +1466,14 @@ namespace half_float
 			return float2half_impl(value, std::integral_constant<bool,std::numeric_limits<float>::is_iec559>());
 		}
 */
+		/// Convert IEEE single-precision to half-precision.
+		/// \param value single-precision value
+		/// \return binary representation of half-precision value
+		inline uint16 float2half(float value)
+		{
+			return float2half<std::round_indeterminate>(value);
+		}
+
 		/// Convert half-precision to IEEE single-precision.
 		/// \param value binary representation of half-precision value
 		/// \return single-precision value
@@ -1581,6 +1688,41 @@ namespace half_float
 		inline float_half_expr::operator float() const
 		{
 			return value;
+		}
+/*
+		#if HALF_ENABLE_CPP11_STATIC_ASSERT
+			/// Cast between unknown types.
+			/// This is just a no-op function to issue a compiler error when trying to cast between non-half types.
+			/// \param arg value to cast
+			/// \return nothing
+			template<typename T,typename U,std::float_round_style R> T half_caster<T,U,R>::cast(const U &arg)
+			{
+				static_assert(false, "unsupported half cast");
+			}
+		#endif
+*/
+		/// Cast to half.
+		/// \param arg value to cast
+		/// \return \a arg converted to half-precision (via single-precision)
+		template<typename U,std::float_round_style R> half half_caster<half,U,R>::cast(const U &arg)
+		{
+			return half(float2half<R>(static_cast<float>(arg)), true);
+		}
+
+		/// Cast from half.
+		/// \param arg expression to cast
+		/// \return \a arg converted to destination type (via single-precision)
+		template<typename T,std::float_round_style R> template<typename E> T half_caster<T,half,R>::cast(const half_expr<E> &arg)
+		{
+			return static_cast<T>(static_cast<float>(arg));
+		}
+
+		/// Cast between halfs.
+		/// \param arg expression to cast
+		/// \return unchanged value
+		template<std::float_round_style R> template<typename E> half half_caster<half,half,R>::cast(const half_expr<E> &arg)
+		{
+			return arg;
 		}
 
 		/// Add halfs.

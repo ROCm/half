@@ -1,6 +1,13 @@
 News														{#news}
 ====
 
+August 16, 2012 - Release 1.5.0
+-------------------------------
+
+[Version 1.5.0](http://sourceforge.net/projects/half/files/half/1.5.0) of the library has been released. It adds a special half_cast() that can be used to cast between [half](\ref half_float::half) and any type convertible to/from `float`. In addition to doing an explicit conversion via `float` and thus avoiding any possible warnings about precision loss, it allows the explicit specification of the rounding mode to use for the single-to-half conversion (if any). This way you can choose a specific rounding mode if needed and can even synchronize it with the rounding mode of the underlying single-precision implementation (which is usually `std::round_to_nearest`). But this is more of an expert feature to be used when you are sure you really need it (which should rarely be the case) and most of the time the default rounding from single- to half-precision (`std::round_indeterminate`), which is the fastest, will be sufficient. Furthermore, the library has been tested successfully with Visual C++ 2008.
+
+
+-------------------------------
 August 12, 2012 - Release 1.4.0
 -------------------------------
 
