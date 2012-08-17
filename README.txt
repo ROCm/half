@@ -190,10 +190,9 @@ are some limitations to the complete conformance to the IEEE 754 standard:
   - Though arithmetic operations are internally rounded to single-precision 
     using the underlying single-precision implementation's current rounding 
     mode, those values are then converted to half-precision using truncation 
-    (round toward zero). This mixture of rounding modes is also the reason why 
-    'std::numeric_limits<half_float::half>::round_style' only returns 
-    'std::round_toward_zero' if the float specialization also does(which is 
-    very unlikely) and 'std::round_indeterminate' otherwise.
+    (round toward zero, but with overflows mapped to infinity). This is also 
+    the reason why 'std::numeric_limits<half_float::half>::round_style' 
+    actually returns 'std::round_indeterminate'.
 
   - Because of this truncation it may also be that certain single-precision 
     NaNs will be wrongly converted to half-precision infinity, though this is 
@@ -213,12 +212,12 @@ on performance for something that is rarely ever needed. If you really need to
 rely on proper floating point exceptions, it is recommended to explicitly 
 perform computations using the builtin floating point types to be on the safe 
 side. In the same way, if you really need to rely on a particular rounding 
-behaviour other than round-toward-zero, it is recommended to use 
-single-precision computations and explicitly convert the result to 
-half-precision using 'half_cast' and specifying the required rounding mode. But 
-those are really considered expert-scenarios rarely encountered in practice, 
-since actually working with half-precision usually comes with a certain 
-tolerance/ignorance of exactness considerations.
+behaviour, it is recommended to use single-precision computations and 
+explicitly convert the result to half-precision using 'half_cast' and 
+specifying the desired rounding mode. But those are really considered 
+expert-scenarios rarely encountered in practice, since actually working with 
+half-precision usually comes with a certain tolerance/ignorance of exactness 
+considerations.
 
 
 CREDITS AND CONTACT

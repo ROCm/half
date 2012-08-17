@@ -1418,9 +1418,9 @@ namespace half_float
 			std::memcpy(&bits, &value, sizeof(float));
 			uint16 hbits = base_table[bits>>23] + ((bits&0x7FFFFF)>>shift_table[bits>>23]);
 			if(R == std::round_to_nearest)
-				hbits += (((bits&0x7FFFFF)>>(shift_table[bits>>23]-1))|(((bits>>23)&0xFF)==102)) & 1 & ((hbits&0x7C00)!=0x7C00);
+				hbits += (((bits&0x7FFFFF)>>(shift_table[bits>>23]-1))|(((bits>>23)&0xFF)==102)) & ((hbits&0x7C00)!=0x7C00);
 			else if(R == std::round_toward_zero)
-				hbits -= ((hbits&0x7FFF)==0x7C00) & (shift_table[bits>>23]!=13);
+				hbits -= ((hbits&0x7FFF)==0x7C00) & ~shift_table[bits>>23];
 			else if(R == std::round_toward_infinity)
 				hbits += ((((bits&0x7FFFFF&((static_cast<uint32>(1)<<(shift_table[bits>>23]))-1))!=0)|(((bits>>23)<=102)&
 					((bits>>23)!=0)))&(hbits<0x7C00)) - ((hbits==0xFC00)&((bits>>23)!=511));
@@ -1650,7 +1650,7 @@ namespace half_float
 				if(!exp)
 				{
 					if(mant == 0)
-						return sign ? -0.0f : 0.0f;
+						return (value&0x8000) ? -0.0f : 0.0f;
 					for(mant<<=1; mant<0x400; mant<<=1)
 						--exp;
 				}
@@ -2280,11 +2280,9 @@ namespace std
 
 		/// Rounding mode.
 		/// Due to the mix of internal single-precision computations (using the rounding mode of the underlying 
-		/// single-precision implementation) with explicit truncation of the single-to-half conversions, the rounding mode is 
-		/// only round-toward-zero if the single-precision rounding mode is also round-toward-zero (which is very unlikely). In 
-		/// all other cases the half-precision rounding mode is indeterminate.
-		static HALF_CONSTEXPR_CONST std::float_round_style round_style = 
-			(std::numeric_limits<float>::round_style==std::round_toward_zero) ? std::round_toward_zero : std::round_indeterminate;
+		/// single-precision implementation) with explicit truncation of the single-to-half conversions, the actual rounding 
+		/// mode is indeterminate.
+		static HALF_CONSTEXPR_CONST std::float_round_style round_style = std::round_indeterminate;
 
 		/// Significant digits.
 		static HALF_CONSTEXPR_CONST int digits = 11;
@@ -2354,7 +2352,7 @@ namespace std
 		/// \return hash value
 		std::size_t operator()(half_float::half arg) const
 		{
-			return std::hash<half_float::detail::uint16>()(-static_cast<half_float::detail::uint16>(arg.data_!=0x8000)&arg.data_);
+			return std::hash<half_float::detail::uint16>()(arg.data_&-static_cast<half_float::detail::uint16>(arg.data_!=0x8000));
 		}
 	};
 #endif

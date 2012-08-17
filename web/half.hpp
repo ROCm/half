@@ -276,7 +276,7 @@ namespace half_float
 	/// \param out output stream to write into
 	/// \param h half to write
 	/// \return reference to output stream
-	template<typename charT,typename traits,typename E> std::basic_ostream<charT,traits>& operator<<(std::basic_ostream<charT,traits> &out, half h);
+	template<typename charT,typename traits> std::basic_ostream<charT,traits>& operator<<(std::basic_ostream<charT,traits> &out, half h);
 
 	/// Input operator.
 	/// \tparam charT character type
@@ -845,11 +845,9 @@ namespace std
 
 		/// Rounding mode.
 		/// Due to the mix of internal single-precision computations (using the rounding mode of the underlying 
-		/// single-precision implementation) with explicit truncation of the single-to-half conversions, the rounding mode is 
-		/// only round-toward-zero if the single-precision rounding mode is also round-toward-zero (which is very unlikely). In 
-		/// all other cases the half-precision rounding mode is indeterminate.
-		static constexpr std::float_round_style round_style = 
-			(std::numeric_limits<float>::round_style==std::round_toward_zero) ? std::round_toward_zero : std::round_indeterminate;
+		/// single-precision implementation) with explicit truncation of the single-to-half conversions, the actual rounding 
+		/// mode is indeterminate.
+		static constexpr std::float_round_style round_style = std::round_indeterminate;
 
 		/// Significant digits.
 		static constexpr int digits = 11;
