@@ -28,6 +28,7 @@
 #include <functional>
 #include <fstream>
 #include <random>
+#include <bitset>
 #include <cstdint>
 
 
@@ -389,32 +390,6 @@ private:
 	}
 
 	template<typename F>
-	bool class_test(const std::string &name, const std::vector<std::string> &classes, F test)
-	{
-		unsigned int count = 0;
-		log_ << "testing " << name << ":\n";
-		for(auto iterB=halfs_.begin(); iterB!=halfs_.end(); ++iterB)
-		{
-			unsigned int passed = 0;
-			for(auto iterH=iterB->second.begin(); iterH!=iterB->second.end(); ++iterH)
-				passed += test(*iterH) == (std::find(classes.begin(), classes.end(), iterB->first) != classes.end());
-			log_ << "    " << iterB->first << ": ";
-			if(passed == iterB->second.size())
-			{
-				log_ << "all passed\n";
-				++count;
-			}
-			else
-				log_ << (iterB->second.size()-passed) << " of " << iterB->second.size() << " failed\n";
-		}
-		log_ << '\n';
-		bool passed = count == halfs_.size();
-		++tests_;
-		passed_ += passed;		
-		return passed;
-	}
-
-	template<typename F>
 	bool simple_test(const std::string &name, F test)
 	{
 		log_ << "testing " << name << ": ";
@@ -508,6 +483,10 @@ int main(int argc, char *argv[])
 	half h = half_cast<half>(i);
 	unsigned int u = half_cast<unsigned int>(h);
 	half a = half_cast<half>(h), b = half_cast<half>(h+a);
+
+	half pi = half_cast<half,std::round_to_nearest>(3.1415926535897932384626433832795L);
+	std::cout << "Pi: " << pi << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(pi) << std::dec 
+		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(pi))).to_string() << std::endl;
 
 	std::unique_ptr<std::ostream> file;
 	if(argc > 1)
