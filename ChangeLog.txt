@@ -1,6 +1,14 @@
 Release Notes											{#changelog}
 =============
 
+1.6.0 release (2012-09-12):
+---------------------------
+
+- Added `HALF_ENABLE_CPP11_LONG_LONG` to control support for `long long` 
+  integers and corresponding mathematical functions.
+- Fixed C++98 compatibility on non-VC compilers.
+
+
 1.5.1 release (2012-08-17):
 ---------------------------
 

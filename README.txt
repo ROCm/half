@@ -1,4 +1,4 @@
-HALF-PRECISION FLOATING POINT LIBRARY (Version 1.5.1)
+HALF-PRECISION FLOATING POINT LIBRARY (Version 1.6.0)
 -----------------------------------------------------
 
 This is a C++ header-only library to provide an IEEE 754 conformant 16-bit 
@@ -23,6 +23,10 @@ but can be explicitly enabled or disabled by defining the corresponding
 preprocessor symbols to either 1 or 0 yourself. This is useful when the 
 automatic detection fails (for more exotic implementations) or when a feature 
 should be explicitly disabled:
+
+  - 'long long' integer type for mathematical functions returning 'long long' 
+    results (enabled for VC++ 2010 and newer, gcc and clang, overridable with 
+    'HALF_ENABLE_CPP11_LONG_LONG').
 
   - Static assertions for extended compile-time checks (enabled for VC++ 2010, 
     gcc 4.3, clang 2.9 and newer, overridable with 'HALF_ENABLE_CPP11_STATIC_ASSERT').

@@ -9,10 +9,10 @@ This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.o
 News														{#new}
 ====
 
-August 17, 2012 - Release 1.5.1
--------------------------------
+September 12, 2012 - Release 1.6.0
+----------------------------------
 
-[Version 1.5.1](http://sourceforge.net/projects/half/files/half/1.5.1) of the library has been released. It fixes the `std::numeric_limits` specialization to always return `std::round_indeterminate` as `round_style`, even if the `float` version returns `std::round_toward_zero`. This is neccessary as the single-to-half conversion is not exactly round-toward-zero, since it maps overflows to +/-infinity instead of the maximum/minimum finite value.
+[Version 1.6.0](http://sourceforge.net/projects/half/files/half/1.6.0) of the library has been released. It fixes a major bug in the C++98 compatibility for non-VC compilers, which required C++11 `<cmath>` functions even without C++11 support enabled. Furthermore, an additional preprocessor flag `HALF_ENABLE_CPP11_LONG_LONG` has been added, which controls the support for C++11 `long long` integers and the corresponding mathematical functions (actually only llround()).
 
 [more](news.html)
 
@@ -23,7 +23,7 @@ Download and Installation									{#downloads}
 
 The library in its most recent version can be obtained from here, see the [Release Notes](changelog.html) for further information:
 
-<ul class="tablist"><li>[Download half 1.5.1 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
+<ul class="tablist"><li>[Download half 1.6.0 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
 
 If you are interested in previous versions of the library, see the [SourceForge download page](http://sourceforge.net/projects/half/files/half).
 
@@ -33,6 +33,7 @@ The library needs an IEEE-754-conformant single-precision `float` type, but this
 
 C++11 feature                        | Used for                     | Enabled for (and newer)                     | Override with
 -------------------------------------|------------------------------|---------------------------------------------|----------------------------------
+`long long` integer type             | functions returning `long long` | *VC++ 2010*, *gcc*, *clang*              | `HALF_ENABLE_CPP11_LONG_LONG`
 static assertions                    | extended compile-time checks | *VC++ 2010*, *gcc 4.3*, *clang 2.9*         | `HALF_ENABLE_CPP11_STATIC_ASSERT`
 generalized constant expressions     | constant operations          | *gcc 4.6*, *clang 3.1*                      | `HALF_ENABLE_CPP11_CONSTEXPR`
 user-defined literals                | half-precision literals      | *gcc 4.7*, *clang 3.1*                      | `HALF_ENABLE_CPP11_USER_LITERALS`

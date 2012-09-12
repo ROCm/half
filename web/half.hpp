@@ -574,6 +574,7 @@ namespace half_float
 	long lround(half arg);
 
 	/// Nearest integer.
+	/// This function requires support for C++11 `long long`.
 	/// \param arg half to round
 	/// \return nearest integer, rounded away from zero in half-way cases
 	long long llround(half arg);

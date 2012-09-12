@@ -1,6 +1,12 @@
 News														{#news}
 ====
 
+September 12, 2012 - Release 1.6.0
+----------------------------------
+
+[Version 1.6.0](http://sourceforge.net/projects/half/files/half/1.6.0) of the library has been released. It fixes a major bug in the C++98 compatibility for non-VC compilers, which required C++11 `<cmath>` functions even without C++11 support enabled. Furthermore, an additional preprocessor flag `HALF_ENABLE_CPP11_LONG_LONG` has been added, which controls the support for C++11 `long long` integers and the corresponding mathematical functions (actually only llround()).
+
+-------------------------------
 August 17, 2012 - Release 1.5.1
 -------------------------------
 

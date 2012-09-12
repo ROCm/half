@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Version 1.5.1
+// Version 1.6.0
 
 /// \file
 /// Main header file for half precision functionality.
@@ -478,13 +478,11 @@ namespace half_float
 		template<typename E> float_half_expr trunc(const half_expr<E> &arg);
 		template<typename E> float_half_expr round(const half_expr<E> &arg);
 		template<typename E> long lround(const half_expr<E> &arg);
+		template<typename E> long long llround(const half_expr<E> &arg);
 		template<typename E> float_half_expr nearbyint(const half_expr<E> &arg);
 		template<typename E> float_half_expr rint(const half_expr<E> &arg);
 		template<typename E> long lrint(const half_expr<E> &arg);
-	#if HALF_ENABLE_CPP11_LONG_LONG
-		template<typename E> long long llround(const half_expr<E> &arg);
 		template<typename E> long long llrint(const half_expr<E> &arg);
-	#endif
 	#endif
 		/// \}
 	}
@@ -537,13 +535,11 @@ namespace half_float
 	using detail::trunc;
 	using detail::round;
 	using detail::lround;
+	using detail::llround;
 	using detail::nearbyint;
 	using detail::rint;
 	using detail::lrint;
-#if HALF_ENABLE_CPP11_LONG_LONG
-	using detail::llround;
 	using detail::llrint;
-#endif
 #endif
 
 
@@ -999,7 +995,6 @@ namespace half_float
 			m = ((m>>(24-e))+1) >> 1;
 		return signbit(arg) ? -static_cast<long>(m) : static_cast<long>(m);
 	}
-
 #if HALF_ENABLE_CPP11_LONG_LONG
 	/// Nearest integer.
 	/// \param arg half to round
@@ -1011,7 +1006,6 @@ namespace half_float
 			static_cast<long long>(l) : std::numeric_limits<long long>::max()) : std::numeric_limits<long long>::min();
 	}
 #endif
-
 	/// Decompress floating point number.
 	/// \param arg number to decompress
 	/// \param exp address to store exponent at
@@ -2230,6 +2224,15 @@ namespace half_float
 		/// Nearest integer.
 		/// \tparam E type of half expression
 		/// \param arg half expression to round
+		/// \return nearest integer, rounded away from zero in half-way cases
+		template<typename E> long long llround(const half_expr<E> &arg)
+		{
+			return std::llround(static_cast<float>(arg));
+		}
+
+		/// Nearest integer.
+		/// \tparam E type of half expression
+		/// \param arg half expression to round
 		/// \return nearest integer using current rounding mode
 		template<typename E> float_half_expr nearbyint(const half_expr<E> &arg)
 		{
@@ -2253,15 +2256,6 @@ namespace half_float
 		{
 			return std::lrint(static_cast<float>(arg));
 		}
-#if HALF_ENABLE_CPP11_LONG_LONG
-		/// Nearest integer.
-		/// \tparam E type of half expression
-		/// \param arg half expression to round
-		/// \return nearest integer, rounded away from zero in half-way cases
-		template<typename E> long long llround(const half_expr<E> &arg)
-		{
-			return std::llround(static_cast<float>(arg));
-		}
 
 		/// Nearest integer.
 		/// \tparam E type of half expression
@@ -2271,7 +2265,6 @@ namespace half_float
 		{
 			return std::llrint(static_cast<float>(arg));
 		}
-#endif
 #endif
 	}
 }
