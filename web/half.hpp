@@ -308,14 +308,14 @@ namespace half_float
 	half fmod(half x, half y);
 
 	/// Remainder of division.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::remainder`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param x first operand
 	/// \param y second operand
 	/// \return remainder of floating point division.
 	half remainder(half x, half y);
 
 	/// Remainder of division.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::remquo`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param x first operand
 	/// \param y second operand
 	/// \param quo address to store some bits of quotient at
@@ -323,7 +323,7 @@ namespace half_float
 	half remquo(half x, half y, int *quo);
 
 	/// Fused multiply add.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::fma`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param x first operand
 	/// \param y second operand
 	/// \param z third operand
@@ -343,7 +343,7 @@ namespace half_float
 	half fmax(half x, half y);
 
 	/// Positive difference.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::fdim`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param x first operand
 	/// \param y second operand
 	/// \return \a x - \a y or 0 if difference negative
@@ -364,13 +364,13 @@ namespace half_float
 	half exp(half arg);
 
 	/// Binary exponential.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::exp2`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return 2 raised to \a arg
 	half exp2(half arg);
 
 	/// Exponential minus one.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::expm1`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return e raised to \a arg subtracted by 1
 	half expm1(half arg);
@@ -388,13 +388,13 @@ namespace half_float
 	half log10(half arg);
 
 	/// Natural logorithm.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::log1p`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return logarithm of \a arg plus 1 to base e
 	half log1p(half arg);
 
 	/// Binary logorithm.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::log2`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return logarithm of \a arg to base 2
 	half log2(half arg);
@@ -410,13 +410,13 @@ namespace half_float
 	half sqrt(half arg);
 
 	/// Cubic root.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::cbrt`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return cubic root of \a arg
 	half cbrt(half arg);
 
 	/// Hypotenuse function.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::hypot`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param x first operand
 	/// \param y second operand
 	/// \return square root of sum of squares
@@ -499,19 +499,19 @@ namespace half_float
 	half tanh(half arg);
 
 	/// Hyperbolic arc sine.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::asinh`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return hyperbolic arc sine value of \a arg
 	half asinh(half arg);
 
 	/// Hyperbolic arc cosine.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::acosh`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return hyperbolic arc cosine value of \a arg
 	half acosh(half arg);
 
 	/// Hyperbolic arc tangent.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::atanh`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return hyperbolic arc tangent value of \a arg
 	half atanh(half arg);
@@ -521,25 +521,25 @@ namespace half_float
 	/// \{
 
 	/// Error function.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::erf`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return error function value of \a arg
 	half erf(half arg);
 
 	/// Complementary error function.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::erfc`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return 1 minus error function value of \a arg
 	half erfc(half arg);
 
 	/// Natural logarithm of gamma function.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::lgamma`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return natural logarith of gamma function for \a arg
 	half lgamma(half arg);
 
 	/// Gamma function.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::tgamma`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \param arg operand
 	/// \return gamma function value of \a arg
 	half tgamma(half arg);
@@ -579,28 +579,28 @@ namespace half_float
 	long long llround(half arg);
 
 	/// Nearest integer.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::nearbyint`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
 	/// \return nearest integer using current single-precision rounding mode
 	half nearbyint(half arg);
 
 	/// Nearest integer.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::rint`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
 	/// \return nearest integer using current single-precision rounding mode
 	half rint(half arg);
 
 	/// Nearest integer.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::lrint`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
 	/// \return nearest integer using current single-precision rounding mode
 	long lrint(half arg);
 
 	/// Nearest integer.
-	/// This function uses the underlying single-precision implementation and thus requires C++11 `std::llrint`.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
 	/// \return nearest integer using current single-precision rounding mode
