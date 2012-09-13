@@ -1,4 +1,4 @@
-HALF-PRECISION FLOATING POINT LIBRARY (Version 1.6.0)
+HALF-PRECISION FLOATING POINT LIBRARY (Version 1.6.1)
 -----------------------------------------------------
 
 This is a C++ header-only library to provide an IEEE 754 conformant 16-bit 

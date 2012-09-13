@@ -36,7 +36,7 @@
 /// Fast half-precision fma function.
 /// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate half-precision 
 /// multiplication followed by an addition. Due to the internal single-precision implementation of this function, it is only 
-/// defined if the corresponding `FP_FAST_FMAF` symbol from `<cmath>` is defined, too.
+/// defined if the corresponding `FP_FAST_FMAF` symbol from `<cmath>` is defined or C++11 `<cmath>` functions are not supported.
 #define FP_FAST_FMAH	1
 
 
@@ -323,7 +323,7 @@ namespace half_float
 	half remquo(half x, half y, int *quo);
 
 	/// Fused multiply add.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
 	/// \param x first operand
 	/// \param y second operand
 	/// \param z third operand
@@ -343,7 +343,7 @@ namespace half_float
 	half fmax(half x, half y);
 
 	/// Positive difference.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
 	/// \param x first operand
 	/// \param y second operand
 	/// \return \a x - \a y or 0 if difference negative

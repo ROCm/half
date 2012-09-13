@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Version 1.6.0
+// Version 1.6.1
 
 /// \file
 /// Main header file for half precision functionality.
@@ -127,6 +127,7 @@
 	#define HALF_CONSTEXPR_CONST	const
 #endif
 
+#include <algorithm>
 #include <iostream>
 #include <limits>
 #include <climits>
@@ -146,11 +147,12 @@
 /// operation, in particular it just evaluates to positive infinity.
 #define HUGE_VALH	std::numeric_limits<half_float::half>::infinity()
 
-#ifdef FP_FAST_FMAF
+#if !defined(HALF_ENABLE_CPP11_CMATH) || defined(FP_FAST_FMAF)
 	/// Fast half-precision fma function.
 	/// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate 
 	/// half-precision multiplication followed by an addition. Due to the internal single-precision implementation of this 
-	/// function, it is only defined if the corresponding `FP_FAST_FMAF` symbol from `cmath` is defined, too.
+	/// function, it is only defined if the corresponding `FP_FAST_FMAF` symbol from `<cmath>` is defined or C++11 `<cmath>` 
+	/// functions are not supported.
 	#define FP_FAST_FMAH	1
 #endif
 
@@ -404,13 +406,13 @@ namespace half_float
 		template<typename E> float_half_expr abs(const half_expr<E> &arg);
 		template<typename E> float_half_expr fabs(const half_expr<E> &arg);
 		template<typename X,typename Y> float_half_expr fmod(const half_expr<X> &x, const half_expr<Y> &y);
+		template<typename X,typename Y,typename Z> float_half_expr fma(const half_expr<X> &x, const half_expr<Y> &y, const half_expr<Y> &z);
+		template<typename X,typename Y> float_half_expr fdim(const half_expr<X> &x, const half_expr<Y> &y);
 	#if HALF_ENABLE_CPP11_CMATH
 		template<typename X,typename Y> float_half_expr remainder(const half_expr<X> &x, const half_expr<Y> &y);
 		template<typename X,typename Y> float_half_expr remquo(const half_expr<X> &x, const half_expr<Y> &y, int *quo);
-		template<typename X,typename Y,typename Z> float_half_expr fma(const half_expr<X> &x, const half_expr<Y> &y, const half_expr<Y> &z);
 		template<typename X,typename Y> float_half_expr fmin(const half_expr<X> &x, const half_expr<Y> &y);
 		template<typename X,typename Y> float_half_expr fmax(const half_expr<X> &x, const half_expr<Y> &y);
-		template<typename X,typename Y> float_half_expr fdim(const half_expr<X> &x, const half_expr<Y> &y);
 	#endif
 		/// \}
 
@@ -495,6 +497,8 @@ namespace half_float
 	using detail::abs;
 	using detail::fabs;
 	using detail::fmod;
+	using detail::fma;
+	using detail::fdim;
 	using detail::exp;
 	using detail::log;
 	using detail::log10;
@@ -515,10 +519,8 @@ namespace half_float
 #if HALF_ENABLE_CPP11_CMATH
 	using detail::remainder;
 	using detail::remquo;
-	using detail::fma;
 	using detail::fmin;
 	using detail::fmax;
-	using detail::fdim;
 	using detail::exp2;
 	using detail::expm1;
 	using detail::log1p;
@@ -1848,6 +1850,38 @@ namespace half_float
 		{
 			return float_half_expr(std::fmod(static_cast<float>(x), static_cast<float>(y)));
 		}
+
+		/// Fused multiply add.
+		/// \tparam X type of first expression
+		/// \tparam Y type of second expression
+		/// \tparam Z type of third expression
+		/// \param x first operand
+		/// \param y second operand
+		/// \param z third operand
+		/// \return ( \a x * \a y ) + \a z rounded as one operation.
+		template<typename X,typename Y,typename Z> float_half_expr fma(const half_expr<X> &x, const half_expr<Y> &y, const half_expr<Y> &z)
+		{
+		#if HALF_ENABLE_CPP11_CMATH
+			return float_half_expr(std::fma(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)));
+		#else
+			return float_half_expr(static_cast<float>(x)*static_cast<float>(y)+static_cast<float>(z));
+		#endif
+		}
+
+		/// Positive difference.
+		/// \tparam X type of first expression
+		/// \tparam Y type of second expression
+		/// \param x first operand
+		/// \param y second operand
+		/// \return \a x - \a y or 0 if difference negative
+		template<typename X,typename Y> float_half_expr fdim(const half_expr<X> &x, const half_expr<Y> &y)
+		{
+		#if HALF_ENABLE_CPP11_CMATH
+			return float_half_expr(std::fdim(static_cast<float>(x), static_cast<float>(y)));
+		#else
+			return float_half_expr(std::max(static_cast<float>(x)-static_cast<float>(y), 0.0f));
+		#endif
+		}
 #if HALF_ENABLE_CPP11_CMATH
 		/// Remainder of division.
 		/// \tparam X type of first expression
@@ -1872,19 +1906,6 @@ namespace half_float
 			return float_half_expr(std::remquo(static_cast<float>(x), static_cast<float>(y), quo));
 		}
 
-		/// Fused multiply add.
-		/// \tparam X type of first expression
-		/// \tparam Y type of second expression
-		/// \tparam Z type of third expression
-		/// \param x first operand
-		/// \param y second operand
-		/// \param z third operand
-		/// \return ( \a x * \a y ) + \a z rounded as one operation.
-		template<typename X,typename Y,typename Z> float_half_expr fma(const half_expr<X> &x, const half_expr<Y> &y, const half_expr<Y> &z)
-		{
-			return float_half_expr(std::fma(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)));
-		}
-
 		/// Minimum of half expressions.
 		/// \tparam X type of first expression
 		/// \tparam Y type of second expression
@@ -1905,17 +1926,6 @@ namespace half_float
 		template<typename X,typename Y> float_half_expr fmax(const half_expr<X> &x, const half_expr<Y> &y)
 		{
 			return float_half_expr(std::fmax(static_cast<float>(x), static_cast<float>(y)));
-		}
-		
-		/// Positive difference.
-		/// \tparam X type of first expression
-		/// \tparam Y type of second expression
-		/// \param x first operand
-		/// \param y second operand
-		/// \return \a x - \a y or 0 if difference negative
-		template<typename X,typename Y> float_half_expr fdim(const half_expr<X> &x, const half_expr<Y> &y)
-		{
-			return float_half_expr(std::fdim(static_cast<float>(x), static_cast<float>(y)));
 		}
 #endif
 		/// Exponential function.

@@ -135,13 +135,13 @@ public:
 
 		//test operators
 		unary_test("prefix increment", [](half arg) -> bool { float f = static_cast<float>(arg); 
-			return comp(static_cast<half>(++f), ++arg); });
+			return comp(static_cast<half>(++f), ++arg) && comp(static_cast<half>(f), arg); });
 		unary_test("prefix decrement", [](half arg) -> bool { float f = static_cast<float>(arg); 
-			return comp(static_cast<half>(--f), --arg); });
+			return comp(static_cast<half>(--f), --arg) && comp(static_cast<half>(f), arg); });
 		unary_test("postfix increment", [](half arg) -> bool { float f = static_cast<float>(arg); 
-			return comp(static_cast<half>(f++), arg++); });
+			return comp(static_cast<half>(f++), arg++) && comp(static_cast<half>(f), arg); });
 		unary_test("postfix decrement", [](half arg) -> bool { float f = static_cast<float>(arg); 
-			return comp(static_cast<half>(f--), arg--); });
+			return comp(static_cast<half>(f--), arg--) && comp(static_cast<half>(f), arg); });
 		unary_test("unary plus", [](half arg) { return comp(+arg, arg); });
 		unary_test("unary minus", [](half arg) { return comp(-arg, static_cast<half>(-static_cast<float>(arg))); });
 		binary_test("addition", [](half a, half b) { return comp(a+b, static_cast<half>(static_cast<float>(a)+static_cast<float>(b))); });
@@ -160,6 +160,8 @@ public:
 		unary_test("fabs", [](half arg) { return comp(abs(arg), static_cast<half>(std::fabs(static_cast<float>(arg)))); });
 		binary_test("fmod", [](half a, half b) { return comp(fmod(a, b), 
 			static_cast<half>(std::fmod(static_cast<float>(a), static_cast<float>(b)))); });
+		binary_test("fdim", [](half a, half b) -> bool { half c = fdim(a, b); return isnan(a) || isnan(b) || 
+			(isinf(a) && isinf(b) && signbit(a)==signbit(b)) || ((a>b) && comp(c, a-b)) || ((a<=b) && comp(c, static_cast<half>(0.0f))); });
 
 		//test exponential functions
 		unary_test("exp", [](half arg) { return comp(exp(arg), static_cast<half>(std::exp(static_cast<float>(arg)))); });

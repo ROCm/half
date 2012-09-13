@@ -1,6 +1,13 @@
 Release Notes											{#changelog}
 =============
 
+1.6.1 release (2012-09-13):
+---------------------------
+
+- Made `fma` and `fdim` functions available even if corresponding 
+  single-precision functions are not.
+
+
 1.6.0 release (2012-09-12):
 ---------------------------
 

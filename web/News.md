@@ -1,6 +1,12 @@
 News														{#news}
 ====
 
+September 13, 2012 - Release 1.6.1
+----------------------------------
+
+[Version 1.6.1](http://sourceforge.net/projects/half/files/half/1.6.1) of the library has been released. It makes the fma() and fdim() functions available even if the corresponding single-precision functions from C++11 `<cmath>` are not supported.
+
+----------------------------------
 September 12, 2012 - Release 1.6.0
 ----------------------------------
 
