@@ -34,8 +34,8 @@ Release Notes											{#changelog}
 ---------------------------
 
 - Added `half_cast` for explicitly casting between half and any type 
-  convertible to/from `float` and allowing the explicit specification of the 
-  rounding mode to use.
+  convertible to/from `float` and allowing the explicit specification of 
+  the rounding mode to use.
 
 
 1.4.0 release (2012-08-12):
@@ -54,39 +54,40 @@ Release Notes											{#changelog}
 1.3.0 release (2012-08-10):
 ---------------------------
 
-- Made requirement for `<cstdint>` and `static_assert` optional and thus made 
-  the library C++98-compatible.
-- Made support for C++11 features user-overridable through explicit definition 
-  of corresponding preprocessor symbols to either 0 or 1.
-- Renamed `HALF_ENABLE_HASH` to `HALF_ENABLE_CPP11_HASH` in correspondence with 
-  other C++11 preprocessor symbols.
+- Made requirement for `<cstdint>` and `static_assert` optional and thus 
+  made the library C++98-compatible.
+- Made support for C++11 features user-overridable through explicit 
+  definition of corresponding preprocessor symbols to either 0 or 1.
+- Renamed `HALF_ENABLE_HASH` to `HALF_ENABLE_CPP11_HASH` in correspondence 
+  with other C++11 preprocessor symbols.
 
 
 1.2.0 release (2012-08-07):
 ---------------------------
 
-- Added proper preprocessor definitions for `HUGE_VALH` and `FP_FAST_FMAH` in 
-  correspondence with their single-precision counterparts from `<cmath>`.
+- Added proper preprocessor definitions for `HUGE_VALH` and `FP_FAST_FMAH` 
+  in correspondence with their single-precision counterparts from `<cmath>`.
 - Fixed internal preprocessor macros to be properly undefined after use.
 
 
 1.1.2 release (2012-08-07):
 ---------------------------
 
-- Revised `std::numeric_limits::round_style` to return `std::round_toward_zero` 
-  if the `float` version also does and `std::round_indeterminate` otherwise.
-- Fixed `std::numeric_limits::round_error` to reflect worst-case round toward 
-  zero behaviour.
+- Revised `std::numeric_limits::round_style` to return 
+  `std::round_toward_zero` if the `float` version also does and 
+  `std::round_indeterminate` otherwise.
+- Fixed `std::numeric_limits::round_error` to reflect worst-case round 
+  toward zero behaviour.
 
 
 1.1.1 release (2012-08-06):
 ---------------------------
 
-- Fixed `std::numeric_limits::min` to return smallest positive normal number, 
-  instead of subnormal number.
-- Fixed `std::numeric_limits::round_style` to return `std::round_indeterminate` 
-  due to mixture of separately rounded single-precision arithmetics with 
-  truncating single-to-half conversions.
+- Fixed `std::numeric_limits::min` to return smallest positive normal 
+  number, instead of subnormal number.
+- Fixed `std::numeric_limits::round_style` to return 
+  `std::round_indeterminate` due to mixture of separately rounded 
+  single-precision arithmetics with truncating single-to-half conversions.
 
 
 1.1.0 release (2012-08-06):
