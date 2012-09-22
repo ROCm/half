@@ -33,7 +33,7 @@ The library needs an IEEE-754-conformant single-precision `float` type, but this
 
 C++11 feature                        | Used for                     | Enabled for (and newer)                     | Override with
 -------------------------------------|------------------------------|---------------------------------------------|----------------------------------
-`long long` integer type             | functions returning `long long` | *VC++ 2010*, *gcc*, *clang*              | `HALF_ENABLE_CPP11_LONG_LONG`
+`long long` integer type             | functions returning `long long` | *VC++ 2003*, *gcc*, *clang*              | `HALF_ENABLE_CPP11_LONG_LONG`
 static assertions                    | extended compile-time checks | *VC++ 2010*, *gcc 4.3*, *clang 2.9*         | `HALF_ENABLE_CPP11_STATIC_ASSERT`
 generalized constant expressions     | constant operations          | *gcc 4.6*, *clang 3.1*                      | `HALF_ENABLE_CPP11_CONSTEXPR`
 user-defined literals                | half-precision literals      | *gcc 4.7*, *clang 3.1*                      | `HALF_ENABLE_CPP11_USER_LITERALS`

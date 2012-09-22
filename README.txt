@@ -25,7 +25,7 @@ automatic detection fails (for more exotic implementations) or when a feature
 should be explicitly disabled:
 
   - 'long long' integer type for mathematical functions returning 'long long' 
-    results (enabled for VC++ 2010 and newer, gcc and clang, overridable with 
+    results (enabled for VC++ 2003 and newer, gcc and clang, overridable with 
     'HALF_ENABLE_CPP11_LONG_LONG').
 
   - Static assertions for extended compile-time checks (enabled for VC++ 2010, 
