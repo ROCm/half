@@ -875,31 +875,31 @@ namespace std
 		static constexpr int max_exponent10 = 4;
 
 		/// Smallest positive normal value.
-		static constexpr half_float::half min();
+		static constexpr half_float::half min() noexcept;
 
 		/// Smallest finite value.
-		static constexpr half_float::half lowest();
+		static constexpr half_float::half lowest() noexcept;
 
 		/// Largest finite value.
-		static constexpr half_float::half max();
+		static constexpr half_float::half max() noexcept;
 
 		/// Difference between one and next representable value.
-		static constexpr half_float::half epsilon();
+		static constexpr half_float::half epsilon() noexcept;
 
 		/// Maximum rounding error.
-		static constexpr half_float::half round_error();
+		static constexpr half_float::half round_error() noexcept;
 
 		/// Positive infinity.
-		static constexpr half_float::half infinity();
+		static constexpr half_float::half infinity() noexcept;
 
 		/// Quiet NaN.
-		static constexpr half_float::half quiet_NaN();
+		static constexpr half_float::half quiet_NaN() noexcept;
 
 		/// Signalling NaN.
-		static constexpr half_float::half signaling_NaN();
+		static constexpr half_float::half signaling_NaN() noexcept;
 
 		/// Smallest positive subnormal value.
-		static constexpr half_float::half denorm_min();
+		static constexpr half_float::half denorm_min() noexcept;
 	};
 
 	/// Hash function for half-precision floats.

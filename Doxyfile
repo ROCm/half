@@ -32,7 +32,7 @@ PROJECT_NAME           = half
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER         = 1.6
+PROJECT_NUMBER         = 1.7
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description 
 # for a project that appears at the top of each page and should give viewer 
@@ -1534,7 +1534,9 @@ PREDEFINED             = FP_ILOGB0 \
                          FP_FAST_FMAH \
                          HALF_ENABLE_CPP11_CSTDINT \
                          HALF_ENABLE_CPP11_CMATH \
-                         HALF_ENABLE_CPP11_CONSTEXPR
+                         HALF_ENABLE_CPP11_CONSTEXPR \
+                         HALF_ENABLE_CPP11_LONG_LONG \
+                         HALF_ENABLE_CPP11_NOEXCEPT
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 

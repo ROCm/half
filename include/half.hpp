@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Version 1.6.2
+// Version 1.7.0
 
 /// \file
 /// Main header file for half precision functionality.
@@ -31,13 +31,16 @@
 	#if __has_feature(cxx_constexpr) && !defined(HALF_ENABLE_CPP11_CONSTEXPR)
 		#define HALF_ENABLE_CPP11_CONSTEXPR 1
 	#endif
+	#if __has_feature(cxx_noexcept) && !defined(HALF_ENABLE_CPP11_NOEXCEPT)
+		#define HALF_ENABLE_CPP11_NOEXCEPT 1
+	#endif
 	#if __has_feature(cxx_user_literals) && !defined(HALF_ENABLE_CPP11_USER_LITERALS)
 		#define HALF_ENABLE_CPP11_USER_LITERALS 1
 	#endif
 	#if !defined(HALF_ENABLE_CPP11_LONG_LONG)
 		#define HALF_ENABLE_CPP11_LONG_LONG 1
 	#endif
-#elif defined(__INTEL_COMPILER)								//Intel C++
+/*#elif defined(__INTEL_COMPILER)								//Intel C++
 	#if __INTEL_COMPILER >= 1100 && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)
 		#define HALF_ENABLE_CPP11_STATIC_ASSERT 1
 	#endif
@@ -46,7 +49,7 @@
 	#endif
 	#if !defined(HALF_ENABLE_CPP11_LONG_LONG)
 		#define HALF_ENABLE_CPP11_LONG_LONG 1
-	#endif
+	#endif*/
 #elif defined(__GNUC__)										//gcc
 	#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 		#if HALF_GNUC_VERSION >= 403 && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)
@@ -54,6 +57,9 @@
 		#endif
 		#if HALF_GNUC_VERSION >= 406 && !defined(HALF_ENABLE_CPP11_CONSTEXPR)
 			#define HALF_ENABLE_CPP11_CONSTEXPR 1
+		#endif
+		#if HALF_GNUC_VERSION >= 406 && !defined(HALF_ENABLE_CPP11_NOEXCEPT)
+			#define HALF_ENABLE_CPP11_NOEXCEPT 1
 		#endif
 		#if HALF_GNUC_VERSION >= 407 && !defined(HALF_ENABLE_CPP11_USER_LITERALS)
 			#define HALF_ENABLE_CPP11_USER_LITERALS 1
@@ -128,6 +134,15 @@
 #else
 	#define HALF_CONSTEXPR
 	#define HALF_CONSTEXPR_CONST	const
+#endif
+
+//support noexcept
+#if HALF_ENABLE_CPP11_NOEXCEPT
+	#define HALF_NOEXCEPT	noexcept
+	#define HALF_NOTHROW	noexcept
+#else
+	#define HALF_NOEXCEPT
+	#define HALF_NOTHROW	throw()
 #endif
 
 #include <algorithm>
@@ -302,16 +317,16 @@ namespace half_float
 		typedef unsigned short uint16;
 
 		/// Conditional type.
-		template<typename T,typename F,bool> struct conditional { typedef T type; };
+		template<bool B,typename T,typename F> struct conditional { typedef T type; };
 
 		/// Conditional type.
-		template<typename T,typename F> struct conditional<T,F,false> { typedef F type; };
+		template<typename T,typename F> struct conditional<false,T,F> { typedef F type; };
 
 		/// Unsigned integer of (at least) 32 bits width.
-		typedef conditional<unsigned int,unsigned long,std::numeric_limits<unsigned int>::digits>=32>::type uint32;
+		typedef conditional<std::numeric_limits<unsigned int>::digits>=32,unsigned int,unsigned long>::type uint32;
 
 		/// Fastest signed integer capable of holding all values of type uint16.
-		typedef conditional<int,long,std::numeric_limits<int>::digits>=16>::type int17;
+		typedef conditional<std::numeric_limits<int>::digits>=16,int,long>::type int17;
 	#endif
 
 		/// Generic half expression.
@@ -2344,31 +2359,31 @@ namespace std
 		static HALF_CONSTEXPR_CONST int max_exponent10 = 4;
 
 		/// Smallest positive normal value.
-		static HALF_CONSTEXPR half_float::half min() { return half_float::half(0x0400, true); }
+		static HALF_CONSTEXPR half_float::half min() HALF_NOTHROW { return half_float::half(0x0400, true); }
 
 		/// Smallest finite value.
-		static HALF_CONSTEXPR half_float::half lowest() { return half_float::half(0xFBFF, true); }
+		static HALF_CONSTEXPR half_float::half lowest() HALF_NOTHROW { return half_float::half(0xFBFF, true); }
 
 		/// Largest finite value.
-		static HALF_CONSTEXPR half_float::half max() { return half_float::half(0x7BFF, true); }
+		static HALF_CONSTEXPR half_float::half max() HALF_NOTHROW { return half_float::half(0x7BFF, true); }
 
 		/// Difference between one and next representable value.
-		static HALF_CONSTEXPR half_float::half epsilon() { return half_float::half(0x1400, true); }
+		static HALF_CONSTEXPR half_float::half epsilon() HALF_NOTHROW { return half_float::half(0x1400, true); }
 
 		/// Maximum rounding error.
-		static HALF_CONSTEXPR half_float::half round_error() { return half_float::half(0x3C00, true); }
+		static HALF_CONSTEXPR half_float::half round_error() HALF_NOTHROW { return half_float::half(0x3C00, true); }
 
 		/// Positive infinity.
-		static HALF_CONSTEXPR half_float::half infinity() { return half_float::half(0x7C00, true); }
+		static HALF_CONSTEXPR half_float::half infinity() HALF_NOTHROW { return half_float::half(0x7C00, true); }
 
 		/// Quiet NaN.
-		static HALF_CONSTEXPR half_float::half quiet_NaN() { return half_float::half(0x7FFF, true); }
+		static HALF_CONSTEXPR half_float::half quiet_NaN() HALF_NOTHROW { return half_float::half(0x7FFF, true); }
 
 		/// Signalling NaN.
-		static HALF_CONSTEXPR half_float::half signaling_NaN() { return half_float::half(0x7DFF, true); }
+		static HALF_CONSTEXPR half_float::half signaling_NaN() HALF_NOTHROW { return half_float::half(0x7DFF, true); }
 
 		/// Smallest positive subnormal value.
-		static HALF_CONSTEXPR half_float::half denorm_min() { return half_float::half(0x0001, true); }
+		static HALF_CONSTEXPR half_float::half denorm_min() HALF_NOTHROW { return half_float::half(0x0001, true); }
 	};
 
 #if HALF_ENABLE_CPP11_HASH
@@ -2396,5 +2411,7 @@ namespace std
 
 #undef HALF_CONSTEXPR
 #undef HALF_CONSTEXPR_CONST
+#undef HALF_NOEXCEPT
+#undef HALF_NOTHROW
 
 #endif

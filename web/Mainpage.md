@@ -23,7 +23,7 @@ Download and Installation									{#downloads}
 
 The library in its most recent version can be obtained from here, see the [Release Notes](changelog.html) for further information:
 
-<ul class="tablist"><li>[Download half 1.6.1 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
+<ul class="tablist"><li>[Download half 1.7.0 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
 
 If you are interested in previous versions of the library, see the [SourceForge download page](http://sourceforge.net/projects/half/files/half).
 
@@ -36,6 +36,7 @@ C++11 feature                        | Used for                     | Enabled fo
 `long long` integer type             | functions returning `long long` | *VC++ 2003*, *gcc*, *clang*              | `HALF_ENABLE_CPP11_LONG_LONG`
 static assertions                    | extended compile-time checks | *VC++ 2010*, *gcc 4.3*, *clang 2.9*         | `HALF_ENABLE_CPP11_STATIC_ASSERT`
 generalized constant expressions     | constant operations          | *gcc 4.6*, *clang 3.1*                      | `HALF_ENABLE_CPP11_CONSTEXPR`
+`noexcept` specifications            | proper `noexcept` functions  | *gcc 4.6*, *clang 3.0*                      | `HALF_ENABLE_CPP11_NOEXCEPT`
 user-defined literals                | half-precision literals      | *gcc 4.7*, *clang 3.1*                      | `HALF_ENABLE_CPP11_USER_LITERALS`
 sized integer types from `<cstdint>` | more flexible type sizes     | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_CSTDINT`
 certain new `<cmath>` functions      | corresponding half functions | *libstdc++ 4.3*, <i>libc++</i>              | `HALF_ENABLE_CPP11_CMATH`

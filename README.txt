@@ -1,4 +1,4 @@
-HALF-PRECISION FLOATING POINT LIBRARY (Version 1.6.1)
+HALF-PRECISION FLOATING POINT LIBRARY (Version 1.7.0)
 -----------------------------------------------------
 
 This is a C++ header-only library to provide an IEEE 754 conformant 16-bit 
@@ -33,6 +33,9 @@ should be explicitly disabled:
 
   - Generalized constant expressions (enabled for gcc 4.6, clang 3.1 and newer, 
     overridable with 'HALF_ENABLE_CPP11_CONSTEXPR').
+
+  - noexcept exception specifications (enabled for gcc 4.6, clang 3.0 and newer, 
+    overridable with 'HALF_ENABLE_CPP11_NOEXCEPT').
 
   - User-defined literals for half-precision literals to work (enabled for 
     gcc 4.7, clang 3.1 and newer, overridable with 'HALF_ENABLE_CPP11_USER_LITERALS').
