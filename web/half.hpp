@@ -31,12 +31,16 @@
 /// Value signaling overflow.
 /// In correspondence with `HUGE_VAL[F|L]` from `<cmath>` this symbol expands to a positive value signaling the overflow of an 
 /// operation, in particular it just evaluates to positive infinity.
+///
+/// **See also:** Documentation for [HUGE_VAL](http://en.cppreference.com/w/cpp/numeric/math/HUGE_VAL)
 #define HUGE_VALH		std::numeric_limits<half_float::half>::infinity()
 
 /// Fast half-precision fma function.
 /// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate half-precision 
 /// multiplication followed by an addition. Due to the internal single-precision implementation of this function, it is only 
 /// defined if the corresponding `FP_FAST_FMAF` symbol from `<cmath>` is defined or C++11 `<cmath>` functions are not supported.
+///
+/// **See also:** Documentation for [FP_FAST_FMA](http://en.cppreference.com/w/cpp/numeric/math/fma)
 #define FP_FAST_FMAH	1
 
 
@@ -789,7 +793,7 @@ namespace half_float
 	/// Using this cast with neither of the two types being a [half](\ref half_float::half) results in a compiler error and 
 	/// casting between [half](\ref half_float::half)s is just a no-op.
 	/// \tparam T destination type
-	/// \tparam R rounding mode to use
+	/// \tparam R rounding mode to use (see [std::float_round_style](http://en.cppreference.com/w/cpp/types/numeric_limits/float_round_style))
 	/// \tparam U source type
 	/// \param arg value to cast
 	/// \return \a arg converted to destination type
@@ -820,6 +824,8 @@ namespace std
 	/// Numeric limits for half-precision floats.
 	/// Because of the underlying single-precision implementation of many operations, it inherits some properties from 
 	/// `std::numeric_limits<float>`.
+	///
+	/// **See also:** Documentation for [std::numeric_limits](http://en.cppreference.com/w/cpp/types/numeric_limits)
 	template<> class numeric_limits<half_float::half> : public std::numeric_limits<float>
 	{
 	public:
@@ -904,6 +910,8 @@ namespace std
 
 	/// Hash function for half-precision floats.
 	/// This is only defined if C++11 `std::hash` is supported and enabled.
+	///
+	/// **See also:** Documentation for [std::hash](http://en.cppreference.com/w/cpp/utility/hash)
 	template<> struct hash<half_float::half>
 	{
 		/// Type of function argument.

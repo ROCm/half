@@ -66,7 +66,7 @@ if(c > a)
 	std::cout << c << std::endl;
 ~~~~
 
-Additionally the half_float namespace also defines half-precision versions for all mathematical functions of the C++ standard library, which can be used directly through ADL:
+Additionally the half_float namespace also defines half-precision versions for all mathematical functions of the [C++ standard library](http://en.cppreference.com/w/cpp/numeric/math), which can be used directly through ADL:
 
 ~~~~{.cpp}
 half a(-3.14159);
