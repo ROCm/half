@@ -29,7 +29,11 @@
 #include <fstream>
 #include <random>
 #include <bitset>
+#include <limits>
 #include <cstdint>
+#if HALF_ENABLE_CPP11_HASH
+	#include <unordered_map>
+#endif
 
 
 using half_float::half;
@@ -55,7 +59,7 @@ class half_test
 {
 public:
 	half_test(std::ostream &log)
-		: tests_(0), passed_(0), log_(log)
+		: tests_(0), log_(log)
 	{
 		//prepare halfs
 		half_vector batch;
@@ -120,8 +124,11 @@ public:
 		}
 	}
 
-	bool test()
+	unsigned int test()
 	{
+		//test size
+		simple_test("size", []() { return sizeof(half)*CHAR_BIT >= 16; });
+
 		//test conversion
 		unary_test("conversion", [](half arg) { return comp(static_cast<half>(static_cast<float>(arg)), arg); });
 
@@ -196,8 +203,10 @@ public:
 			static_cast<half>(static_cast<int>(static_cast<float>(arg)+(signbit(arg) ? -0.5f : 0.5f)))); });
 		unary_test("lround", [](half arg) { return !isfinite(arg) || lround(arg) == 
 			static_cast<long>(static_cast<float>(arg)+(signbit(arg) ? -0.5f : 0.5f)); });
+#if HALF_ENABLE_CPP11_LONG_LONG
 		unary_test("llround", [](half arg) { return !isfinite(arg) || llround(arg) == 
 			static_cast<long long>(static_cast<float>(arg)+(signbit(arg) ? -0.5f : 0.5f)); });
+#endif
 
 		//test float functions
 		unary_test("frexp", [](half arg) -> bool { int eh, ef; bool eq = comp(frexp(arg, &eh), 
@@ -211,6 +220,7 @@ public:
 			(comp(a, b) && comp(b, c)) || ((d==1||d==0x7FFF) && (a<b)==(a<c)); });
 		binary_test("copysign", [](half a, half b) -> bool { half h = copysign(a, b); 
 			return comp(abs(h), abs(a)) && signbit(h)==signbit(b); });
+
 #if HALF_ENABLE_CPP11_CMATH
 		//test basic functions
 		binary_test("remainder", [](half a, half b) { return comp(remainder(a, b), 
@@ -291,6 +301,7 @@ public:
 		binary_test("isunordered", [](half a, half b) { return isunordered(a, b) == 
 			std::isunordered(static_cast<float>(a), static_cast<float>(b)); });
 #endif
+
 		//test rounding
 		auto rand32 = std::bind(std::uniform_int_distribution<std::uint32_t>(0, std::numeric_limits<std::uint32_t>::max()), std::mt19937());
 		simple_test("round_to_nearest", [&rand32]() mutable -> bool { unsigned int passed = 0; for(unsigned int i=0; i<1e6; ++i) {
@@ -351,12 +362,30 @@ public:
 			static_cast<half>(c)))<=std::ldexp(static_cast<double>(std::numeric_limits<half>::round_error()), 
 			ilogb(static_cast<half>(c))-std::numeric_limits<half>::digits+1); });
 
-		bool passed = passed_ == tests_;
-		if(passed)
+#if HALF_ENABLE_CPP11_HASH
+		//test hash
+		binary_test("hash function", [](half a, half b) { return a != b || std::hash<half>()(a) == std::hash<half>()(b); });
+		auto bincomp = [](half a, half b) { return h2b(a) == h2b(b); };
+		std::unordered_map<half,const half*,std::hash<half>,decltype(bincomp)> map(65536, std::hash<half>(), bincomp);
+		unary_test("hash insert", [&map](const half &arg) { return map.insert(std::make_pair(arg, &arg)).second; });
+		unary_test("hash retrieve", [&map](const half &arg) { return map[arg] == &arg; });
+#endif
+
+#if HALF_ENABLE_CPP11_USER_LITERAL
+		//test literals
+		simple_test("literals", []() { return comp(0.0_h, half(0.0f)) && comp(-1.0_h, half(1.0f)) && 
+			comp(+3.14159265359_h, half(3.14159265359f)) && comp(1e-2_h, half(1e-2f)) && comp(-4.2e3_h, half(-4.2e3)); }
+#endif
+
+		if(failed_.empty())
 			log_ << "ALL TESTS PASSED\n";
 		else
-			log_ << (tests_-passed_) << " OF " << tests_ << " FAILED\n";
-		return passed;
+		{
+			log_ << (failed_.size()) << " OF " << tests_ << " FAILED:\n    ";
+			std::copy(failed_.begin(), failed_.end(), std::ostream_iterator<std::string>(log_, "\n    "));
+			log_ << '\n';
+		}
+		return failed_.size();
 	}
 
 private:
@@ -385,10 +414,11 @@ private:
 				log_ << (iterB->second.size()-passed) << " of " << iterB->second.size() << " failed\n";
 		}
 		log_ << '\n';
-		bool passed = count == halfs_.size();
 		++tests_;
-		passed_ += passed;		
-		return passed;
+		if(count == halfs_.size())
+			return true;
+		failed_.push_back(name);
+		return false;
 	}
 
 	template<typename F>
@@ -398,7 +428,8 @@ private:
 		bool passed = test();
 		log_ << (passed ? "passed" : "failed") << "\n\n";
 		++tests_;
-		passed_ += passed;
+		if(!passed)
+			failed_.push_back(name);
 		return passed;
 	}
 
@@ -422,10 +453,11 @@ private:
 				log_ << (iterB->second.size()-passed) << " of " << iterB->second.size() << " failed\n";
 		}
 		log_ << '\n';
-		bool passed = count == halfs_.size();
 		++tests_;
-		passed_ += passed;		
-		return passed;
+		if(count == halfs_.size())
+			return true;
+		failed_.push_back(name);
+		return false;
 	}
 
 	template<typename F>
@@ -452,16 +484,18 @@ private:
 		if(passed)
 			log_ << "all passed\n\n";
 		else
+		{
 			log_ << (tests-count) << " of " << tests << " failed\n\n";
+			failed_.push_back(name);
+		}
 		++tests_;
-		passed_ += passed;		
 		return passed;
 	}
 
 	test_map halfs_;
 	class_map classes_;
 	unsigned int tests_;
-	unsigned int passed_;
+	std::vector<std::string> failed_;
 	std::ostream &log_;
 };
 
@@ -494,5 +528,5 @@ int main(int argc, char *argv[])
 	if(argc > 1)
 		file.reset(new std::ofstream(argv[1]));
 	half_test test((argc>1) ? *file : std::cout);
-	return test.test() ? 0 : -1;
+	return test.test();
 }
