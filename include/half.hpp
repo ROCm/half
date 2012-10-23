@@ -1381,6 +1381,22 @@ namespace half_float
 		#endif
 		}
 
+		/// Check for infinity.
+		/// \tparam T argument type (builtin floating point type)
+		/// \param arg value to query
+		/// \retval true if infinity
+		/// \retval false else
+		template<typename T> bool isinf(T arg)
+		{
+		#if HALF_ENABLE_CPP11_CMATH
+			return std::isinf(arg);
+		#elif defined(_MSC_VER)
+			return !_finite(arg) && !_isnan(arg);
+		#else
+			return arg == std::numeric_limits<T>::infinity() || arg == -std::numeric_limits<T>::infinity();
+		#endif
+		}
+
 		/// Check sign.
 		/// \tparam T argument type (builtin floating point type)
 		/// \param arg value to query
@@ -1474,37 +1490,51 @@ namespace half_float
 		/// Convert non-IEEE single-precision to half-precision.
 		/// \param value single-precision value
 		/// \return binary representation of half-precision value
-		inline uint16 float2half_impl(float value, const std::false_type&)
+		template<std::float_round_style R> uint16 float2half_impl(float value, const std::false_type&)
 		{
-			unsigned int sign = signbit(value) << 15;
+			uint16 hbits = signbit(value) << 15;
 			if(value == 0.0f)
-				return sign;
+				return hbits;
 			if(isnan(value))
-				return sign | 0x7FFF;
-//			if(std::isinf(value))
-//				return sign | 0x7C00;
-			if(value == std::numeric_limits<float>::infinity())
-				return 0x7C00;
-			if(value == -std::numeric_limits<float>::infinity())
-				return 0xFC00;
+				return hbits | 0x7FFF;
+			if(isinf(value))
+				return hbits | 0x7C00;
 			int exp;
-			float mantf = std::frexp(value, &exp);
+			std::frexp(value, &exp);
 			if(exp > 16)
-				return sign | 0x7C00;
-			if(exp < -23)
-				return sign;
-			unsigned int mant = std::abs(mantf*2048.0f);
+			{
+				if(R == std::round_toward_zero)
+					return hbits | 0x7BFF;
+				else if(R == std::round_toward_infinity)
+					return hbits | 0xFBFF - (hbits>>15);
+				else if(R == std::round_toward_neg_infinity)
+					return hbits | 0x7C00 - ((~hbits)>>15);
+				return hbits | 0x7C00;
+			}
 			if(exp < -13)
-				return sign | ((mant>>(-13-exp))&0x3FF);
-			return sign | ((exp+14)<<10) | (mant&0x3FF);
+				value = std::ldexp(value, 24);
+			else
+			{
+				value = std::ldexp(value, 11-exp);
+				hbits |= ((exp+14)<<10);
+			}
+			int ival = static_cast<int>(value);
+			hbits |= (static_cast<uint16>(std::abs(ival))&0x3FF);
+			if(R == std::round_to_nearest)
+				hbits += (value-static_cast<float>(ival)) >= 0.5f;
+			else if(R == std::round_toward_infinity)
+				hbits += value > static_cast<float>(ival);
+			else if(R == std::round_toward_neg_infinity)
+				hbits += value < static_cast<float>(ival);
+			return hbits;
 		}
 
 		/// Convert single-precision to half-precision.
 		/// \param value single-precision value
 		/// \return binary representation of half-precision value
-		inline uint16 float2half(float value)
+		template<std::float_round_style R> uint16 float2half(float value)
 		{
-			return float2half_impl(value, std::integral_constant<bool,std::numeric_limits<float>::is_iec559>());
+			return float2half_impl<R>(value, std::integral_constant<bool,std::numeric_limits<float>::is_iec559>());
 		}
 */
 		/// Convert IEEE single-precision to half-precision.
@@ -1690,10 +1720,11 @@ namespace half_float
 				unsigned int mant = value & 0x3FF;
 				if(!exp)
 				{
-					if(mant == 0)
-						return (value&0x8000) ? -0.0f : 0.0f;
-					for(mant<<=1; mant<0x400; mant<<=1)
-						--exp;
+					if(mant)
+						for(mant<<=1; mant<0x400; mant<<=1)
+							--exp;
+					else
+						out = 0.0f;
 				}
 				else
 					mant |= 0x400;
