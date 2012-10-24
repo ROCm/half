@@ -328,7 +328,10 @@ namespace half_float
 		/// Fastest signed integer capable of holding all values of type uint16.
 		typedef conditional<std::numeric_limits<int>::digits>=16,int,long>::type int17;
 	#endif
-
+/*
+		/// Helper for tag dispatching.
+		template<bool> struct booltype {};
+*/
 		/// Generic half expression.
 		/// This class represents the base class for expressions of half-precision type, convertible to single precision.
 		/// \tparam E concrete expression type
@@ -394,6 +397,7 @@ namespace half_float
 		/// \name Classification helpers
 		/// \{
 		template<typename T> bool isnan(T arg);
+		template<typename T> bool isinf(T arg);
 		template<typename T> bool signbit(T arg);
 		/// \}
 
@@ -1415,7 +1419,7 @@ namespace half_float
 		/// \tparam R rounding mode to use, `std::round_indeterminate` for fastest rounding
 		/// \param value single-precision value
 		/// \return binary representation of half-precision value
-		template<std::float_round_style R> uint16 float2half(float value)
+		template<std::float_round_style R> uint16 float2half(float value/*, booltype<true>*/)
 		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT
 			static_assert(std::numeric_limits<float>::is_iec559, "float to half conversion needs IEEE 754 conformant 'float' type");
@@ -1490,7 +1494,7 @@ namespace half_float
 		/// Convert non-IEEE single-precision to half-precision.
 		/// \param value single-precision value
 		/// \return binary representation of half-precision value
-		template<std::float_round_style R> uint16 float2half_impl(float value, const std::false_type&)
+		template<std::float_round_style R> uint16 float2half_impl(float value, booltype<false>)
 		{
 			uint16 hbits = signbit(value) << 15;
 			if(value == 0.0f)
@@ -1506,9 +1510,9 @@ namespace half_float
 				if(R == std::round_toward_zero)
 					return hbits | 0x7BFF;
 				else if(R == std::round_toward_infinity)
-					return hbits | 0xFBFF - (hbits>>15);
+					return hbits | 0x7C00 - (hbits>>15);
 				else if(R == std::round_toward_neg_infinity)
-					return hbits | 0x7C00 - ((~hbits)>>15);
+					return hbits | 0x7BFF + (hbits>>15);
 				return hbits | 0x7C00;
 			}
 			if(exp < -13)
@@ -1521,7 +1525,7 @@ namespace half_float
 			int ival = static_cast<int>(value);
 			hbits |= (static_cast<uint16>(std::abs(ival))&0x3FF);
 			if(R == std::round_to_nearest)
-				hbits += (value-static_cast<float>(ival)) >= 0.5f;
+				hbits += std::abs(value-static_cast<float>(ival)) >= 0.5f;
 			else if(R == std::round_toward_infinity)
 				hbits += value > static_cast<float>(ival);
 			else if(R == std::round_toward_neg_infinity)
@@ -1534,7 +1538,7 @@ namespace half_float
 		/// \return binary representation of half-precision value
 		template<std::float_round_style R> uint16 float2half(float value)
 		{
-			return float2half_impl<R>(value, std::integral_constant<bool,std::numeric_limits<float>::is_iec559>());
+			return float2half_impl<R>(value, booltype<std::numeric_limits<float>::is_iec559>());
 		}
 */
 		/// Convert IEEE single-precision to half-precision.
@@ -1548,7 +1552,7 @@ namespace half_float
 		/// Convert half-precision to IEEE single-precision.
 		/// \param value binary representation of half-precision value
 		/// \return single-precision value
-		inline float half2float(uint16 value)
+		inline float half2float(uint16 value/*, booltype<true>*/)
 		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT
 			static_assert(std::numeric_limits<float>::is_iec559, "half to float conversion needs IEEE 754 conformant 'float' type");
@@ -1702,7 +1706,7 @@ namespace half_float
 		/// Convert half-precision to non-IEEE single-precision.
 		/// \param value binary representation of half-precision value
 		/// \return single-precision value
-		inline float half2float_impl(uint16 value, const std::false_type&)
+		inline float half2float_impl(uint16 value, booltype<false>)
 		{
 			int exp = value & 0x7C00;
 			float out;
@@ -1723,8 +1727,6 @@ namespace half_float
 					if(mant)
 						for(mant<<=1; mant<0x400; mant<<=1)
 							--exp;
-					else
-						out = 0.0f;
 				}
 				else
 					mant |= 0x400;
@@ -1738,7 +1740,7 @@ namespace half_float
 		/// \return single-precision value
 		inline float half2float(uint16 value)
 		{
-			return half2float_impl(value, std::integral_constant<bool,std::numeric_limits<float>::is_iec559>());
+			return half2float_impl(value, booltype<std::numeric_limits<float>::is_iec559>());
 		}
 */
 		/// Conversion to single-precision.
