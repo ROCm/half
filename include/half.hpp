@@ -404,7 +404,6 @@ namespace half_float
 		/// \name Conversion
 		/// \{
 		template<std::float_round_style R> uint16 float2half(float value);
-		uint16 float2half(float value);
 		float half2float(uint16 value);
 		/// \}
 
@@ -639,7 +638,7 @@ namespace half_float
 		/// Conversion constructor.
 		/// \param rhs float to convert
 		explicit half(float rhs)
-			: data_(detail::float2half(rhs))
+			: data_(detail::float2half<std::round_indeterminate>(rhs))
 		{
 		}
 
@@ -648,7 +647,7 @@ namespace half_float
 		/// \param rhs half expression to copy from
 		template<typename E>
 		half(const detail::half_expr<E> &rhs)
-			: data_(detail::float2half(static_cast<float>(rhs)))
+			: data_(detail::float2half<std::round_indeterminate>(static_cast<float>(rhs)))
 		{
 		}
 	
@@ -665,7 +664,7 @@ namespace half_float
 		/// \return reference to this half
 		template<typename E> half& operator=(const detail::half_expr<E> &rhs)
 		{
-			data_ = detail::float2half(static_cast<float>(rhs));
+			data_ = detail::float2half<std::round_indeterminate>(static_cast<float>(rhs));
 			return *this;
 		}
 
@@ -675,7 +674,7 @@ namespace half_float
 		/// \return reference to this half
 		template<typename E> half& operator+=(const detail::half_expr<E> &rhs)
 		{
-			data_ = detail::float2half(detail::half2float(data_)+static_cast<float>(rhs));
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)+static_cast<float>(rhs));
 			return *this;
 		}
 
@@ -685,7 +684,7 @@ namespace half_float
 		/// \return reference to this half
 		template<typename E> half& operator-=(const detail::half_expr<E> &rhs)
 		{
-			data_ = detail::float2half(detail::half2float(data_)-static_cast<float>(rhs));
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)-static_cast<float>(rhs));
 			return *this;
 		}
 
@@ -695,7 +694,7 @@ namespace half_float
 		/// \return reference to this half
 		template<typename E> half& operator*=(const detail::half_expr<E> &rhs)
 		{
-			data_ = detail::float2half(detail::half2float(data_)*static_cast<float>(rhs));
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)*static_cast<float>(rhs));
 			return *this;
 		}
 
@@ -705,7 +704,7 @@ namespace half_float
 		/// \return reference to this half
 		template<typename E> half& operator/=(const detail::half_expr<E> &rhs)
 		{
-			data_ = detail::float2half(detail::half2float(data_)/static_cast<float>(rhs));
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)/static_cast<float>(rhs));
 			return *this;
 		}
 
@@ -714,7 +713,7 @@ namespace half_float
 		/// \return reference to this half
 		half& operator=(float rhs)
 		{
-			data_ = detail::float2half(rhs);
+			data_ = detail::float2half<std::round_indeterminate>(rhs);
 			return *this;
 		}
 
@@ -723,7 +722,7 @@ namespace half_float
 		/// \return reference to this half
 		half& operator+=(float rhs)
 		{
-			data_ = detail::float2half(detail::half2float(data_)+rhs);
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)+rhs);
 			return *this;
 		}
 
@@ -732,7 +731,7 @@ namespace half_float
 		/// \return reference to this half
 		half& operator-=(float rhs)
 		{
-			data_ = detail::float2half(detail::half2float(data_)-rhs);
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)-rhs);
 			return *this;
 		}
 
@@ -741,7 +740,7 @@ namespace half_float
 		/// \return reference to this half
 		half& operator*=(float rhs)
 		{
-			data_ = detail::float2half(detail::half2float(data_)*rhs);
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)*rhs);
 			return *this;
 		}
 
@@ -750,7 +749,7 @@ namespace half_float
 		/// \return reference to this half
 		half& operator/=(float rhs)
 		{
-			data_ = detail::float2half(detail::half2float(data_)/rhs);
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)/rhs);
 			return *this;
 		}
 
@@ -758,7 +757,7 @@ namespace half_float
 		/// \return incremented half value
 		half& operator++()
 		{
-			data_ = detail::float2half(detail::half2float(data_)+1.0f);
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)+1.0f);
 			return *this;
 		}
 
@@ -766,7 +765,7 @@ namespace half_float
 		/// \return decremented half value
 		half& operator--()
 		{
-			data_ = detail::float2half(detail::half2float(data_)-1.0f);
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)-1.0f);
 			return *this;
 		}
 
@@ -775,7 +774,7 @@ namespace half_float
 		half operator++(int)
 		{
 			detail::uint16 out = data_;
-			data_ = detail::float2half(detail::half2float(data_)+1.0f);
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)+1.0f);
 			return half(out, true);
 		}
 
@@ -784,7 +783,7 @@ namespace half_float
 		half operator--(int)
 		{
 			detail::uint16 out = data_;
-			data_ = detail::float2half(detail::half2float(data_)-1.0f);
+			data_ = detail::float2half<std::round_indeterminate>(detail::half2float(data_)-1.0f);
 			return half(out, true);
 		}
 	
@@ -1540,7 +1539,7 @@ namespace half_float
 		{
 			return float2half_impl<R>(value, booltype<std::numeric_limits<float>::is_iec559>());
 		}
-*/
+
 		/// Convert IEEE single-precision to half-precision.
 		/// \param value single-precision value
 		/// \return binary representation of half-precision value
@@ -1548,7 +1547,7 @@ namespace half_float
 		{
 			return float2half<std::round_indeterminate>(value);
 		}
-
+*/
 		/// Convert half-precision to IEEE single-precision.
 		/// \param value binary representation of half-precision value
 		/// \return single-precision value
