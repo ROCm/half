@@ -9,10 +9,10 @@ This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.o
 News														{#new}
 ====
 
-September 13, 2012 - Release 1.6.1
-----------------------------------
+October 26, 2012 - Release 1.7.0
+--------------------------------
 
-[Version 1.6.1](http://sourceforge.net/projects/half/files/half/1.6.1) of the library has been released. It makes the fma() and fdim() functions available even if the corresponding single-precision functions from C++11 `<cmath>` are not supported.
+[Version 1.7.0](http://sourceforge.net/projects/half/files/half/1.7.0) of the library has been released. It adds support for C++11 `noexcept` specifications. But due to the ongoing discussions about their appropriate usage in practice (and the author's limited experience with them) they are at the moment only used to provide a C++11-conformant `std::numeric_limits` specialization, with all its functions returning half-preicision constants now properly being `noexcept`. Furthermore, the automatic support for C++11 `long long` and the corresponding mathematical functions on *Microsoft* compilers has been extended all the way down to *VC++ 2003*.
 
 [more](news.html)
 
