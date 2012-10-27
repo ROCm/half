@@ -1,10 +1,13 @@
 Release Notes											{#changelog}
 =============
 
+- Fixed declaration of `fma` function.
+
+
 1.7.0 release (2012-10-26):
 ---------------------------
 
-- Added support for C++11 `noexcept` specifiers
+- Added support for C++11 `noexcept` specifiers.
 - Changed C++11 `long long` to be supported on *VC++ 2003* and up.
 
 

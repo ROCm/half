@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Version 1.7.0
+// Version 1.7.1
 
 /// \file
 /// Main header file for half precision functionality.
@@ -428,7 +428,7 @@ namespace half_float
 		template<typename E> float_half_expr abs(const half_expr<E> &arg);
 		template<typename E> float_half_expr fabs(const half_expr<E> &arg);
 		template<typename X,typename Y> float_half_expr fmod(const half_expr<X> &x, const half_expr<Y> &y);
-		template<typename X,typename Y,typename Z> float_half_expr fma(const half_expr<X> &x, const half_expr<Y> &y, const half_expr<Y> &z);
+		template<typename X,typename Y,typename Z> float_half_expr fma(const half_expr<X> &x, const half_expr<Y> &y, const half_expr<Z> &z);
 		template<typename X,typename Y> float_half_expr fdim(const half_expr<X> &x, const half_expr<Y> &y);
 	#if HALF_ENABLE_CPP11_CMATH
 		template<typename X,typename Y> float_half_expr remainder(const half_expr<X> &x, const half_expr<Y> &y);
@@ -1935,7 +1935,7 @@ namespace half_float
 		/// \param y second operand
 		/// \param z third operand
 		/// \return ( \a x * \a y ) + \a z rounded as one operation.
-		template<typename X,typename Y,typename Z> float_half_expr fma(const half_expr<X> &x, const half_expr<Y> &y, const half_expr<Y> &z)
+		template<typename X,typename Y,typename Z> float_half_expr fma(const half_expr<X> &x, const half_expr<Y> &y, const half_expr<Z> &z)
 		{
 		#if HALF_ENABLE_CPP11_CMATH
 			return float_half_expr(std::fma(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)));
