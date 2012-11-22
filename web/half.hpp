@@ -68,9 +68,8 @@ namespace half_float
 	///
 	/// So if your C++ implementation is not totally exotic or imposes special alignment requirements, it is a reasonable 
 	/// assumption that the data of a half is just comprised of the 2 bytes of the underlying IEEE representation.
-	class half
+	struct half
 	{
-	public:
 		/// \name Construction and assignment
 		/// \{
 
@@ -172,14 +171,6 @@ namespace half_float
 		/// \return non-decremented half value
 		half operator--(int);
 		/// \}
-
-	private:
-		/// Constructor.
-		/// \param bits binary representation to set half to
-		half(std::uint16_t bits, bool);
-
-		/// Internal binary representation
-		std::uint16_t data_;
 	};
 
 
@@ -826,9 +817,8 @@ namespace std
 	/// `std::numeric_limits<float>`.
 	///
 	/// **See also:** Documentation for [std::numeric_limits](http://en.cppreference.com/w/cpp/types/numeric_limits)
-	template<> class numeric_limits<half_float::half> : public std::numeric_limits<float>
+	template<> struct numeric_limits<half_float::half> : public std::numeric_limits<float>
 	{
-	public:
 		/// Supports signed values.
 		static constexpr bool is_signed = true;
 
