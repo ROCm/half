@@ -303,7 +303,7 @@ public:
 #endif
 
 		//test rounding
-		auto rand32 = std::bind(std::uniform_int_distribution<std::uint32_t>(0, std::numeric_limits<std::uint32_t>::max()), std::mt19937());
+		auto rand32 = std::bind(std::uniform_int_distribution<std::uint32_t>(0, std::numeric_limits<std::uint32_t>::max()), std::default_random_engine());
 		simple_test("round_to_nearest", [&rand32]() mutable -> bool { unsigned int passed = 0; for(unsigned int i=0; i<1e6; ++i) {
 			std::uint32_t u=rand32(); float f = *reinterpret_cast<float*>(&u); half a(f), b(nextafter(a, 
 			copysign(std::numeric_limits<half>::infinity(), a))), h = half_cast<half,std::round_to_nearest>(f);
@@ -325,13 +325,13 @@ public:
 			(comp(h, b)&&signbit(h)&&hf<f); } return passed == 1e6; });
 
 		//test casting
-		auto rand23 = std::bind(std::uniform_int_distribution<std::uint32_t>(0, (1<<23)-1), std::mt19937());
+		auto rand23 = std::bind(std::uniform_int_distribution<std::uint32_t>(0, (1<<23)-1), std::default_random_engine());
 		unary_test("half_cast<float>", [](half arg) -> bool { float a = half_cast<float>(arg), b = static_cast<float>(arg); 
 			return *reinterpret_cast<std::uint32_t*>(&a) == *reinterpret_cast<std::uint32_t*>(&b); });
 		unary_test("half_cast<round_to_nearest>", [&rand23](half arg) mutable -> bool { float f = half_cast<float>(arg); 
 			std::uint32_t n=rand23(), m=1<<13; if(fpclassify(arg)==FP_SUBNORMAL) m <<= std::min(std::max(-ilogb(arg)-14, 0), 10);
-			*reinterpret_cast<std::uint32_t*>(&f) |= n&(m-1)&-isfinite(arg); return comp(half_cast<half,std::round_to_nearest>(f), 
-			(n&(m>>1)) ? nextafter(arg, copysign(std::numeric_limits<half>::infinity(), arg)) : arg); });
+			*reinterpret_cast<std::uint32_t*>(&f) |= n&(m-1)&-isfinite(arg); return fpclassify(arg)==FP_ZERO || 
+			comp(half_cast<half,std::round_to_nearest>(f), (n&(m>>1)) ? nextafter(arg, copysign(std::numeric_limits<half>::infinity(), arg)) : arg); });
 		unary_test("half_cast<round_toward_zero>", [&rand23](half arg) mutable -> bool { float f = half_cast<float>(arg);
 			std::uint32_t n=rand23(), m=1<<13; if(fpclassify(arg)==FP_SUBNORMAL) m <<= std::min(std::max(-ilogb(arg)-14, 0), 10);
 			*reinterpret_cast<std::uint32_t*>(&f) |= n&(m-1)&-isfinite(arg); return comp(half_cast<half,std::round_toward_zero>(f), arg); });

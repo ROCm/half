@@ -337,15 +337,22 @@ namespace half_float
 		/// \tparam E concrete expression type
 		template<typename E> struct half_expr
 		{
-			operator float() const;
+			/// Conversion to single-precision.
+			/// \return single precision value representing expression value
+			operator float() const { return static_cast<float>(*static_cast<const E*>(this)); }
 		};
 
 		/// Temporary half expression with internal float.
 		/// This class represents a half-precision expression which just stores a single-precision value internally.
 		struct float_half_expr : public half_expr<float_half_expr>
 		{
-			explicit float_half_expr(float f);
-			operator float() const;
+			/// Conversion constructor.
+			/// \param f single-precision value to convert
+			explicit float_half_expr(float f) : value(f) {}
+
+			/// Conversion to single-precision.
+			/// \return single precision value representing expression value
+			operator float() const { return value; }
 
 			/// Internal expression value stored in single-precision.
 			float value;
@@ -358,7 +365,7 @@ namespace half_float
 		template<typename T,typename U,std::float_round_style R> struct half_caster;
 /*		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT
-			static T cast(const U &arg);
+			static T cast(const U&) { static_assert(false, "unsupported half cast"); }
 		#endif
 		};
 */
@@ -631,33 +638,21 @@ namespace half_float
 		/// Default constructor.
 		/// This initializes the half to 0. Although this does not match the builtin types' default-initialization semantics 
 		/// and may be less efficient than no initialization, it is needed to provide proper value-initialization semantics.
-		HALF_CONSTEXPR half()
-			: data_()
-		{
-		}
+		HALF_CONSTEXPR half() : data_() {}
 
 		/// Conversion constructor.
 		/// \param rhs float to convert
-		explicit half(float rhs)
-			: data_(detail::float2half<std::round_indeterminate>(rhs))
-		{
-		}
+		explicit half(float rhs) : data_(detail::float2half<std::round_indeterminate>(rhs)) {}
 
 		/// Copy constructor.
 		/// \tparam E type of concrete half expression
 		/// \param rhs half expression to copy from
-		template<typename E>
-		half(const detail::half_expr<E> &rhs)
-			: data_(detail::float2half<std::round_indeterminate>(static_cast<float>(rhs)))
-		{
-		}
+		template<typename E> half(const detail::half_expr<E> &rhs)
+			: data_(detail::float2half<std::round_indeterminate>(static_cast<float>(rhs))) {}
 	
 		/// Conversion to single-precision.
 		/// \return single precision value representing expression value
-		operator float() const
-		{
-			return detail::half2float(data_);
-		}
+		operator float() const { return detail::half2float(data_); }
 
 		/// Assignment operator.
 		/// \tparam E type of concrete half expression
@@ -791,10 +786,7 @@ namespace half_float
 	private:
 		/// Constructor.
 		/// \param bits binary representation to set half to
-		HALF_CONSTEXPR half(detail::uint16 bits, bool)
-			: data_(bits)
-		{
-		}
+		HALF_CONSTEXPR half(detail::uint16 bits, bool) : data_(bits) {}
 
 		/// Internal binary representation
 		detail::uint16 data_;
@@ -1410,7 +1402,7 @@ namespace half_float
 		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT
 			static_assert(std::numeric_limits<float>::is_iec559, "float to half conversion needs IEEE 754 conformant 'float' type");
-			static_assert(sizeof(uint32)==sizeof(float), "float to half conversion needs unsigned integer type of exactly 32 bits width");
+			static_assert(sizeof(uint32)==sizeof(float), "float to half conversion needs unsigned integer type of exactly the size of a 'float'");
 		#endif
 			static const uint16 base_table[512] = { 
 				0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
@@ -1543,7 +1535,7 @@ namespace half_float
 		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT
 			static_assert(std::numeric_limits<float>::is_iec559, "half to float conversion needs IEEE 754 conformant 'float' type");
-			static_assert(sizeof(uint32)==sizeof(float), "half to float conversion needs unsigned integer type of exactly 32 bits width");
+			static_assert(sizeof(uint32)==sizeof(float), "half to float conversion needs unsigned integer type of exactly the size of a 'float'");
 		#endif
 			static const uint32 mantissa_table[2048] = { 
 				0x00000000, 0x33800000, 0x34000000, 0x34400000, 0x34800000, 0x34A00000, 0x34C00000, 0x34E00000, 0x35000000, 0x35100000, 0x35200000, 0x35300000, 0x35400000, 0x35500000, 0x35600000, 0x35700000, 
@@ -1768,38 +1760,6 @@ namespace half_float
 			return (value&0x8000) ? -m : m;
 		}
 
-		/// Conversion to single-precision.
-		/// \return single precision value representing expression value
-		template<typename E> half_expr<E>::operator float() const
-		{
-				return static_cast<float>(*static_cast<const E*>(this));
-		}
-
-		/// Conversion constructor.
-		/// \param f single-precision value to convert
-		inline float_half_expr::float_half_expr(float f)
-				: value(f)
-		{
-		}
-
-		/// Conversion to single-precision.
-		/// \return single precision value representing expression value
-		inline float_half_expr::operator float() const
-		{
-			return value;
-		}
-/*
-		#if HALF_ENABLE_CPP11_STATIC_ASSERT
-			/// Cast between unknown types.
-			/// This is just a no-op function to issue a compiler error when trying to cast between non-half types.
-			/// \param arg value to cast
-			/// \return nothing
-			template<typename T,typename U,std::float_round_style R> T half_caster<T,U,R>::cast(const U &arg)
-			{
-				static_assert(false, "unsupported half cast");
-			}
-		#endif
-*/
 		/// Cast to half.
 		/// \param arg value to cast
 		/// \return \a arg converted to half-precision (via single-precision)
