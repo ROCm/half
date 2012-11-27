@@ -598,9 +598,9 @@ namespace half_float
 	{
 		template<typename,typename,std::float_round_style> friend struct detail::half_caster;
 		friend class std::numeric_limits<half>;
-#if HALF_ENABLE_CPP11_HASH
+	#if HALF_ENABLE_CPP11_HASH
 		friend struct std::hash<half>;
-#endif
+	#endif
 
 		friend bool operator==(half, half);
 		friend bool operator!=(half, half);
@@ -616,9 +616,9 @@ namespace half_float
 		friend half trunc(half);
 		friend half round(half);
 		friend long lround(half);
-#if HALF_ENABLE_CPP11_LONG_LONG
+	#if HALF_ENABLE_CPP11_LONG_LONG
 		friend long long llround(half);
-#endif
+	#endif
 		friend half frexp(half, int*);
 		friend half modf(half, half*);
 		friend half scalbln(half, long);
@@ -1077,7 +1077,7 @@ namespace half_float
 	/// \return \a arg multplied by 2 raised to \a exp	
 	inline half scalbln(half x, long exp)
 	{
-		int e = x.data_ & 0x7C00;
+		long e = x.data_ & 0x7C00;
 		if(e == 0x7C00)
 			return x;
 		unsigned int m = x.data_ & 0x3FF;
