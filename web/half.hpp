@@ -36,9 +36,9 @@
 #define HUGE_VALH		std::numeric_limits<half_float::half>::infinity()
 
 /// Fast half-precision fma function.
-/// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate half-precision 
-/// multiplication followed by an addition. Due to the internal single-precision implementation of this function, it is only 
-/// defined if the corresponding `FP_FAST_FMAF` symbol from `<cmath>` is defined or C++11 `<cmath>` functions are not supported.
+/// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate 
+/// half-precision multiplication followed by an addition. Due to the internal single-precision implementation of all 
+/// arithmetic operations, this is usually always the case.
 ///
 /// **See also:** Documentation for [FP_FAST_FMA](http://en.cppreference.com/w/cpp/numeric/math/fma)
 #define FP_FAST_FMAH	1
@@ -318,7 +318,8 @@ namespace half_float
 	half remquo(half x, half y, int *quo);
 
 	/// Fused multiply add.
-	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
+	/// This function uses the underlying single-precision implementation from C++11 `<cmath>` if it is supported **and** 
+	/// faster than the straight-forward single-precision implementation (thus if `FP_FAST_FMAF` is defined).
 	/// \param x first operand
 	/// \param y second operand
 	/// \param z third operand

@@ -165,14 +165,11 @@
 /// operation, in particular it just evaluates to positive infinity.
 #define HUGE_VALH	std::numeric_limits<half_float::half>::infinity()
 
-#if !defined(HALF_ENABLE_CPP11_CMATH) || defined(FP_FAST_FMAF)
-	/// Fast half-precision fma function.
-	/// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate 
-	/// half-precision multiplication followed by an addition. Due to the internal single-precision implementation of this 
-	/// function, it is only defined if the corresponding `FP_FAST_FMAF` symbol from `<cmath>` is defined or C++11 `<cmath>` 
-	/// functions are not supported.
-	#define FP_FAST_FMAH	1
-#endif
+/// Fast half-precision fma function.
+/// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate 
+/// half-precision multiplication followed by an addition. Due to the internal single-precision implementation of all 
+/// arithmetic operations, this is usually always the case.
+#define FP_FAST_FMAH	1
 
 #ifndef FP_ILOGB0
 	#define FP_ILOGB0		INT_MIN
@@ -1897,7 +1894,7 @@ namespace half_float
 		/// \return ( \a x * \a y ) + \a z rounded as one operation.
 		template<typename X,typename Y,typename Z> float_half_expr fma(const half_expr<X> &x, const half_expr<Y> &y, const half_expr<Z> &z)
 		{
-		#if HALF_ENABLE_CPP11_CMATH
+		#if HALF_ENABLE_CPP11_CMATH && defined(FP_FAST_FMAF)
 			return float_half_expr(std::fma(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)));
 		#else
 			return float_half_expr(static_cast<float>(x)*static_cast<float>(y)+static_cast<float>(z));
