@@ -1516,14 +1516,6 @@ namespace half_float
 		{
 			return float2half_impl<R>(value, booltype<std::numeric_limits<float>::is_iec559>());
 		}
-
-		/// Convert IEEE single-precision to half-precision.
-		/// \param value single-precision value
-		/// \return binary representation of half-precision value
-		inline uint16 float2half(float value)
-		{
-			return float2half<std::round_indeterminate>(value);
-		}
 */
 		/// Convert half-precision to IEEE single-precision.
 		/// \param value binary representation of half-precision value
@@ -1722,7 +1714,7 @@ namespace half_float
 		/// Convert half-precision floating point to integer.
 		/// \tparam T type to convert to (integer type with at least 16 bits precision, excluding any implicit sign bits)
 		/// \tparam R rounding mode to use, `std::round_indeterminate` for fastest rounding
-		/// \param binary representation of half-precision value
+		/// \param value binary representation of half-precision value
 		/// \return integral value
 		template<typename T,std::float_round_style R> T half2int(uint16 value)
 		{
@@ -1733,7 +1725,7 @@ namespace half_float
 			if(e == 0x7C00)
 				return (value&0x8000) ? std::numeric_limits<T>::min() : std::numeric_limits<T>::max();
 			if(e < 0x3800)
-				return static_cast<T>(0);
+				return T();
 			T m = (value&0x3FF) | 0x400;
 			e >>= 10;
 			if(e < 25)
