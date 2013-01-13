@@ -524,7 +524,7 @@ int main(int argc, char *argv[])
 	std::cout << "Pi: " << pi << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(pi) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(pi))).to_string() << std::endl;
 
-	std::cout << ilogb(sin(a+b)) << '\n';			//ADL test
+//	std::cout << ilogb(sin(a+b)) << '\n';			//ADL test
 
 	std::unique_ptr<std::ostream> file;
 	if(argc > 1)
