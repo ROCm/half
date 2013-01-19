@@ -597,7 +597,8 @@ namespace half_float
 	long lrint(half arg);
 
 	/// Nearest integer.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
+	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions 
+	/// and C++11 `long long`.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
 	/// \return nearest integer using current single-precision rounding mode

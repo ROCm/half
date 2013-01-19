@@ -167,7 +167,7 @@ public:
 		//test basic functions
 		unary_test("abs", [](half arg) { return comp(abs(arg), static_cast<half>(std::abs(static_cast<float>(arg)))); });
 		unary_test("fabs", [](half arg) { return comp(abs(arg), static_cast<half>(std::fabs(static_cast<float>(arg)))); });
-		binary_test("fmod", [](half a, half b) { return comp(half_float::fmod(a, b), 
+		binary_test("fmod", [](half a, half b) { return comp(fmod(a, b), 
 			static_cast<half>(std::fmod(static_cast<float>(a), static_cast<float>(b)))); });
 		binary_test("fdim", [](half a, half b) -> bool { half c = fdim(a, b); return isnan(a) || isnan(b) || 
 			(isinf(a) && isinf(b) && signbit(a)==signbit(b)) || ((a>b) && comp(c, a-b)) || ((a<=b) && comp(c, static_cast<half>(0.0f))); });
@@ -189,7 +189,7 @@ public:
 		unary_test("asin", [](half arg) { return comp(asin(arg), static_cast<half>(std::asin(static_cast<float>(arg)))); });
 		unary_test("acos", [](half arg) { return comp(acos(arg), static_cast<half>(std::acos(static_cast<float>(arg)))); });
 		unary_test("atan", [](half arg) { return comp(atan(arg), static_cast<half>(std::atan(static_cast<float>(arg)))); });
-		binary_test("atan2", [](half a, half b) { return comp(half_float::atan2(a, b), 
+		binary_test("atan2", [](half a, half b) { return comp(atan2(a, b), 
 			static_cast<half>(std::atan2(static_cast<float>(a), static_cast<float>(b)))); });
 
 		//test hyp functions

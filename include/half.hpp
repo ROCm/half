@@ -1763,43 +1763,71 @@ namespace half_float
 		/// Absolute value.
 		/// \param arg operand
 		/// \return absolute value of \a arg
-		template<typename T> typename enable<T,T>::type abs(T arg) { return unary_specialized<T>::fabs(arg); }
+//		template<typename T> typename enable<T,T>::type abs(T arg) { return unary_specialized<T>::fabs(arg); }
+		inline half abs(half arg) { return unary_specialized<half>::fabs(arg); }
+		inline expr abs(expr arg) { return unary_specialized<expr>::fabs(arg); }
 
 		/// Absolute value.
 		/// \param arg operand
 		/// \return absolute value of \a arg
-		template<typename T> typename enable<T,T>::type fabs(T arg) { return unary_specialized<T>::fabs(arg); }
+//		template<typename T> typename enable<T,T>::type fabs(T arg) { return unary_specialized<T>::fabs(arg); }
+		inline half fabs(half arg) { return unary_specialized<half>::fabs(arg); }
+		inline expr fabs(expr arg) { return unary_specialized<expr>::fabs(arg); }
 
 		/// Remainder of division.
 		/// \param x first operand
 		/// \param y second operand
 		/// \return remainder of floating point division.
-		template<typename T,typename U> typename enable<expr,T,U>::type fmod(T x, U y) { return functions::fmod(x, y); }
+//		template<typename T,typename U> typename enable<expr,T,U>::type fmod(T x, U y) { return functions::fmod(x, y); }
+		inline expr fmod(half x, half y) { return functions::fmod(x, y); }
+		inline expr fmod(half x, expr y) { return functions::fmod(x, y); }
+		inline expr fmod(expr x, half y) { return functions::fmod(x, y); }
+		inline expr fmod(expr x, expr y) { return functions::fmod(x, y); }
 
 		/// Fused multiply add.
 		/// \param x first operand
 		/// \param y second operand
 		/// \param z third operand
 		/// \return ( \a x * \a y ) + \a z rounded as one operation.
-		template<typename T,typename U,typename V> typename enable<expr,T,U,V>::type fma(T x, U y, V z) { return functions::fma(x, y, z); }
+//		template<typename T,typename U,typename V> typename enable<expr,T,U,V>::type fma(T x, U y, V z) { return functions::fma(x, y, z); }
+		inline expr fma(half x, half y, half z) { return functions::fma(x, y, z); }
+		inline expr fma(half x, half y, expr z) { return functions::fma(x, y, z); }
+		inline expr fma(half x, expr y, half z) { return functions::fma(x, y, z); }
+		inline expr fma(half x, expr y, expr z) { return functions::fma(x, y, z); }
+		inline expr fma(expr x, half y, half z) { return functions::fma(x, y, z); }
+		inline expr fma(expr x, half y, expr z) { return functions::fma(x, y, z); }
+		inline expr fma(expr x, expr y, half z) { return functions::fma(x, y, z); }
+		inline expr fma(expr x, expr y, expr z) { return functions::fma(x, y, z); }
 
 		/// Maximum of half expressions.
 		/// \param x first operand
 		/// \param y second operand
 		/// \return maximum of operands
-		template<typename T,typename U> typename result<T,U>::type fmax(T x, U y) { return binary_specialized<T,U>::fmax(x, y); }
+//		template<typename T,typename U> typename result<T,U>::type fmax(T x, U y) { return binary_specialized<T,U>::fmax(x, y); }
+		inline half fmax(half x, half y) { return binary_specialized<half,half>::fmax(x, y); }
+		inline expr fmax(half x, expr y) { return binary_specialized<half,expr>::fmax(x, y); }
+		inline expr fmax(expr x, half y) { return binary_specialized<expr,half>::fmax(x, y); }
+		inline expr fmax(expr x, expr y) { return binary_specialized<expr,expr>::fmax(x, y); }
 
 		/// Minimum of half expressions.
 		/// \param x first operand
 		/// \param y second operand
 		/// \return minimum of operands
-		template<typename T,typename U> typename result<T,U>::type fmin(T x, U y) { return binary_specialized<T,U>::fmin(x, y); }
+//		template<typename T,typename U> typename result<T,U>::type fmin(T x, U y) { return binary_specialized<T,U>::fmin(x, y); }
+		inline half fmin(half x, half y) { return binary_specialized<half,half>::fmin(x, y); }
+		inline expr fmin(half x, expr y) { return binary_specialized<half,expr>::fmin(x, y); }
+		inline expr fmin(expr x, half y) { return binary_specialized<expr,half>::fmin(x, y); }
+		inline expr fmin(expr x, expr y) { return binary_specialized<expr,expr>::fmin(x, y); }
 
 		/// Positive difference.
 		/// \param x first operand
 		/// \param y second operand
 		/// \return \a x - \a y or 0 if difference negative
-		template<typename T,typename U> typename enable<expr,T,U>::type fdim(T x, U y) { return functions::fdim(x, y); }
+//		template<typename T,typename U> typename enable<expr,T,U>::type fdim(T x, U y) { return functions::fdim(x, y); }
+		inline expr fdim(half x, half y) { return functions::fdim(x, y); }
+		inline expr fdim(half x, expr y) { return functions::fdim(x, y); }
+		inline expr fdim(expr x, half y) { return functions::fdim(x, y); }
+		inline expr fdim(expr x, expr y) { return functions::fdim(x, y); }
 
 		/// Get NaN value.
 		/// \param arg descriptive string (ignored)
@@ -1810,14 +1838,22 @@ namespace half_float
 		/// \param x first operand
 		/// \param y second operand
 		/// \return remainder of floating point division.
-		template<typename T,typename U> typename enable<expr,T,U>::type remainder(T x, U y) { return functions::remainder(x, y); }
+//		template<typename T,typename U> typename enable<expr,T,U>::type remainder(T x, U y) { return functions::remainder(x, y); }
+		inline expr remainder(half x, half y) { return functions::remainder(x, y); }
+		inline expr remainder(half x, expr y) { return functions::remainder(x, y); }
+		inline expr remainder(expr x, half y) { return functions::remainder(x, y); }
+		inline expr remainder(expr x, expr y) { return functions::remainder(x, y); }
 
 		/// Remainder of division.
 		/// \param x first operand
 		/// \param y second operand
 		/// \param quo address to store some bits of quotient at
 		/// \return remainder of floating point division.
-		template<typename T,typename U> typename enable<expr,T,U>::type remquo(T x, U y, int *quo) { return functions::remquo(x, y, quo); }
+//		template<typename T,typename U> typename enable<expr,T,U>::type remquo(T x, U y, int *quo) { return functions::remquo(x, y, quo); }
+		inline expr remquo(half x, half y, int *quo) { return functions::remquo(x, y, quo); }
+		inline expr remquo(half x, expr y, int *quo) { return functions::remquo(x, y, quo); }
+		inline expr remquo(expr x, half y, int *quo) { return functions::remquo(x, y, quo); }
+		inline expr remquo(expr x, expr y, int *quo) { return functions::remquo(x, y, quo); }
 	#endif
 
 		/// \}
@@ -1827,37 +1863,51 @@ namespace half_float
 		/// Exponential function.
 		/// \param arg function argument
 		/// \return e raised to \a arg
-		template<typename T> typename enable<expr,T>::type exp(T arg) { return functions::exp(arg); }
+//		template<typename T> typename enable<expr,T>::type exp(T arg) { return functions::exp(arg); }
+		inline expr exp(half arg) { return functions::exp(arg); }
+		inline expr exp(expr arg) { return functions::exp(arg); }
 
 		/// Exponential minus one.
 		/// \param arg function argument
 		/// \return e raised to \a arg subtracted by 1
-		template<typename T> typename enable<expr,T>::type expm1(T arg) { return functions::expm1(arg); }
+//		template<typename T> typename enable<expr,T>::type expm1(T arg) { return functions::expm1(arg); }
+		inline expr expm1(half arg) { return functions::expm1(arg); }
+		inline expr expm1(expr arg) { return functions::expm1(arg); }
 
 		/// Binary exponential.
 		/// \param arg function argument
 		/// \return 2 raised to \a arg
-		template<typename T> typename enable<expr,T>::type exp2(T arg) { return functions::exp2(arg); }
+//		template<typename T> typename enable<expr,T>::type exp2(T arg) { return functions::exp2(arg); }
+		inline expr exp2(half arg) { return functions::exp2(arg); }
+		inline expr exp2(expr arg) { return functions::exp2(arg); }
 
 		/// Natural logorithm.
 		/// \param arg function argument
 		/// \return logarithm of \a arg to base e
-		template<typename T> typename enable<expr,T>::type log(T arg) { return functions::log(arg); }
+//		template<typename T> typename enable<expr,T>::type log(T arg) { return functions::log(arg); }
+		inline expr log(half arg) { return functions::log(arg); }
+		inline expr log(expr arg) { return functions::log(arg); }
 
 		/// Common logorithm.
 		/// \param arg function argument
 		/// \return logarithm of \a arg to base 10
-		template<typename T> typename enable<expr,T>::type log10(T arg) { return functions::log10(arg); }
+//		template<typename T> typename enable<expr,T>::type log10(T arg) { return functions::log10(arg); }
+		inline expr log10(half arg) { return functions::log10(arg); }
+		inline expr log10(expr arg) { return functions::log10(arg); }
 
 		/// Natural logorithm.
 		/// \param arg function argument
 		/// \return logarithm of \a arg plus 1 to base e
-		template<typename T> typename enable<expr,T>::type log1p(T arg) { return functions::log1p(arg); }
+//		template<typename T> typename enable<expr,T>::type log1p(T arg) { return functions::log1p(arg); }
+		inline expr log1p(half arg) { return functions::log1p(arg); }
+		inline expr log1p(expr arg) { return functions::log1p(arg); }
 
 		/// Binary logorithm.
 		/// \param arg function argument
 		/// \return logarithm of \a arg to base 2
-		template<typename T> typename enable<expr,T>::type log2(T arg) { return functions::log2(arg); }
+//		template<typename T> typename enable<expr,T>::type log2(T arg) { return functions::log2(arg); }
+		inline expr log2(half arg) { return functions::log2(arg); }
+		inline expr log2(expr arg) { return functions::log2(arg); }
 
 		/// \}
 		/// \name Power functions
@@ -1866,24 +1916,36 @@ namespace half_float
 		/// Square root.
 		/// \param arg function argument
 		/// \return square root of \a arg
-		template<typename T> typename enable<expr,T>::type sqrt(T arg) { return functions::sqrt(arg); }
+//		template<typename T> typename enable<expr,T>::type sqrt(T arg) { return functions::sqrt(arg); }
+		inline expr sqrt(half arg) { return functions::sqrt(arg); }
+		inline expr sqrt(expr arg) { return functions::sqrt(arg); }
 
 		/// Hypotenuse function.
 		/// \param x first argument
 		/// \param y second argument
 		/// \return square root of sum of squares without internal over- or underflows
-		template<typename T,typename U> typename enable<expr,T,U>::type hypot(T x, U y) { return functions::hypot(x, y); }
+//		template<typename T,typename U> typename enable<expr,T,U>::type hypot(T x, U y) { return functions::hypot(x, y); }
+		inline expr hypot(half x, half y) { return functions::hypot(x, y); }
+		inline expr hypot(half x, expr y) { return functions::hypot(x, y); }
+		inline expr hypot(expr x, half y) { return functions::hypot(x, y); }
+		inline expr hypot(expr x, expr y) { return functions::hypot(x, y); }
 
 		/// Power function.
 		/// \param base first argument
 		/// \param exp second argument
 		/// \return \a base raised to \a exp
-		template<typename T,typename U> typename enable<expr,T,U>::type pow(T base, U exp) { return functions::pow(base, exp); }
+//		template<typename T,typename U> typename enable<expr,T,U>::type pow(T base, U exp) { return functions::pow(base, exp); }
+		inline expr pow(half base, half exp) { return functions::pow(base, exp); }
+		inline expr pow(half base, expr exp) { return functions::pow(base, exp); }
+		inline expr pow(expr base, half exp) { return functions::pow(base, exp); }
+		inline expr pow(expr base, expr exp) { return functions::pow(base, exp); }
 	#if HALF_ENABLE_CPP11_CMATH
 		/// Cubic root.
 		/// \param arg function argument
 		/// \return cubic root of \a arg
-		template<typename T> typename enable<expr,T>::type cbrt(T arg) { return functions::cbrt(arg); }
+//		template<typename T> typename enable<expr,T>::type cbrt(T arg) { return functions::cbrt(arg); }
+		inline expr cbrt(half arg) { return functions::cbrt(arg); }
+		inline expr cbrt(expr arg) { return functions::cbrt(arg); }
 	#endif
 
 		/// \}
@@ -1893,38 +1955,54 @@ namespace half_float
 		/// Sine function.
 		/// \param arg function argument
 		/// \return sine value of \a arg
-		template<typename T> typename enable<expr,T>::type sin(T arg) { return functions::sin(arg); }
+//		template<typename T> typename enable<expr,T>::type sin(T arg) { return functions::sin(arg); }
+		inline expr sin(half arg) { return functions::sin(arg); }
+		inline expr sin(expr arg) { return functions::sin(arg); }
 
 		/// Cosine function.
 		/// \param arg function argument
 		/// \return cosine value of \a arg
-		template<typename T> typename enable<expr,T>::type cos(T arg) { return functions::cos(arg); }
+//		template<typename T> typename enable<expr,T>::type cos(T arg) { return functions::cos(arg); }
+		inline expr cos(half arg) { return functions::cos(arg); }
+		inline expr cos(expr arg) { return functions::cos(arg); }
 
 		/// Tangent function.
 		/// \param arg function argument
 		/// \return tangent value of \a arg
-		template<typename T> typename enable<expr,T>::type tan(T arg) { return functions::tan(arg); }
+//		template<typename T> typename enable<expr,T>::type tan(T arg) { return functions::tan(arg); }
+		inline expr tan(half arg) { return functions::tan(arg); }
+		inline expr tan(expr arg) { return functions::tan(arg); }
 
 		/// Arc sine.
 		/// \param arg function argument
 		/// \return arc sine value of \a arg
-		template<typename T> typename enable<expr,T>::type asin(T arg) { return functions::asin(arg); }
+//		template<typename T> typename enable<expr,T>::type asin(T arg) { return functions::asin(arg); }
+		inline expr asin(half arg) { return functions::asin(arg); }
+		inline expr asin(expr arg) { return functions::asin(arg); }
 
 		/// Arc cosine function.
 		/// \param arg function argument
 		/// \return arc cosine value of \a arg
-		template<typename T> typename enable<expr,T>::type acos(T arg) { return functions::acos(arg); }
+//		template<typename T> typename enable<expr,T>::type acos(T arg) { return functions::acos(arg); }
+		inline expr acos(half arg) { return functions::acos(arg); }
+		inline expr acos(expr arg) { return functions::acos(arg); }
 
 		/// Arc tangent function.
 		/// \param arg function argument
 		/// \return arc tangent value of \a arg
-		template<typename T> typename enable<expr,T>::type atan(T arg) { return functions::atan(arg); }
+//		template<typename T> typename enable<expr,T>::type atan(T arg) { return functions::atan(arg); }
+		inline expr atan(half arg) { return functions::atan(arg); }
+		inline expr atan(expr arg) { return functions::atan(arg); }
 
 		/// Arc tangent function.
 		/// \param x first argument
 		/// \param y second argument
 		/// \return arc tangent value
-		template<typename T,typename U> typename enable<expr,T,U>::type atan2(T x, U y) { return functions::atan2(x, y); }
+//		template<typename T,typename U> typename enable<expr,T,U>::type atan2(T x, U y) { return functions::atan2(x, y); }
+		inline expr atan2(half x, half y) { return functions::atan2(x, y); }
+		inline expr atan2(half x, expr y) { return functions::atan2(x, y); }
+		inline expr atan2(expr x, half y) { return functions::atan2(x, y); }
+		inline expr atan2(expr x, expr y) { return functions::atan2(x, y); }
 
 		/// \}
 		/// \name Hyperbolic functions
@@ -1933,32 +2011,44 @@ namespace half_float
 		/// Hyperbolic sine.
 		/// \param arg function argument
 		/// \return hyperbolic sine value of \a arg
-		template<typename T> typename enable<expr,T>::type sinh(T arg) { return functions::sinh(arg); }
+//		template<typename T> typename enable<expr,T>::type sinh(T arg) { return functions::sinh(arg); }
+		inline expr sinh(half arg) { return functions::sinh(arg); }
+		inline expr sinh(expr arg) { return functions::sinh(arg); }
 
 		/// Hyperbolic cosine.
 		/// \param arg function argument
 		/// \return hyperbolic cosine value of \a arg
-		template<typename T> typename enable<expr,T>::type cosh(T arg) { return functions::cosh(arg); }
+//		template<typename T> typename enable<expr,T>::type cosh(T arg) { return functions::cosh(arg); }
+		inline expr cosh(half arg) { return functions::cosh(arg); }
+		inline expr cosh(expr arg) { return functions::cosh(arg); }
 
 		/// Hyperbolic tangent.
 		/// \param arg function argument
 		/// \return hyperbolic tangent value of \a arg
-		template<typename T> typename enable<expr,T>::type tanh(T arg) { return functions::tanh(arg); }
+//		template<typename T> typename enable<expr,T>::type tanh(T arg) { return functions::tanh(arg); }
+		inline expr tanh(half arg) { return functions::tanh(arg); }
+		inline expr tanh(expr arg) { return functions::tanh(arg); }
 
 		/// Hyperbolic area sine.
 		/// \param arg function argument
 		/// \return area sine value of \a arg
-		template<typename T> typename enable<expr,T>::type asinh(T arg) { return functions::asinh(arg); }
+//		template<typename T> typename enable<expr,T>::type asinh(T arg) { return functions::asinh(arg); }
+		inline expr asinh(half arg) { return functions::asinh(arg); }
+		inline expr asinh(expr arg) { return functions::asinh(arg); }
 
 		/// Hyperbolic area cosine.
 		/// \param arg function argument
 		/// \return area cosine value of \a arg
-		template<typename T> typename enable<expr,T>::type acosh(T arg) { return functions::acosh(arg); }
+//		template<typename T> typename enable<expr,T>::type acosh(T arg) { return functions::acosh(arg); }
+		inline expr acosh(half arg) { return functions::acosh(arg); }
+		inline expr acosh(expr arg) { return functions::acosh(arg); }
 
 		/// Hyperbolic area tangent.
 		/// \param arg function argument
 		/// \return area tangent value of \a arg
-		template<typename T> typename enable<expr,T>::type atanh(T arg) { return functions::atanh(arg); }
+//		template<typename T> typename enable<expr,T>::type atanh(T arg) { return functions::atanh(arg); }
+		inline expr atanh(half arg) { return functions::atanh(arg); }
+		inline expr atanh(expr arg) { return functions::atanh(arg); }
 	#if HALF_ENABLE_CPP11_CMATH
 		/// \}
 		/// \name Error and gamma functions
@@ -1967,22 +2057,30 @@ namespace half_float
 		/// Error function.
 		/// \param arg function argument
 		/// \return error function value of \a arg
-		template<typename T> typename enable<expr,T>::type erf(T arg) { return functions::erf(arg); }
+//		template<typename T> typename enable<expr,T>::type erf(T arg) { return functions::erf(arg); }
+		inline expr erf(half arg) { return functions::erf(arg); }
+		inline expr erf(expr arg) { return functions::erf(arg); }
 
 		/// Complementary error function.
 		/// \param arg function argument
 		/// \return 1 minus error function value of \a arg
-		template<typename T> typename enable<expr,T>::type erfc(T arg) { return functions::erfc(arg); }
+//		template<typename T> typename enable<expr,T>::type erfc(T arg) { return functions::erfc(arg); }
+		inline expr erfc(half arg) { return functions::erfc(arg); }
+		inline expr erfc(expr arg) { return functions::erfc(arg); }
 
 		/// Natural logarithm of gamma function.
 		/// \param arg function argument
 		/// \return natural logarith of gamma function for \a arg
-		template<typename T> typename enable<expr,T>::type lgamma(T arg) { return functions::lgamma(arg); }
+//		template<typename T> typename enable<expr,T>::type lgamma(T arg) { return functions::lgamma(arg); }
+		inline expr lgamma(half arg) { return functions::lgamma(arg); }
+		inline expr lgamma(expr arg) { return functions::lgamma(arg); }
 
 		/// Gamma function.
 		/// \param arg function argument
 		/// \return gamma function value of \a arg
-		template<typename T> typename enable<expr,T>::type tgamma(T arg) { return functions::tgamma(arg); }
+//		template<typename T> typename enable<expr,T>::type tgamma(T arg) { return functions::tgamma(arg); }
+		inline expr tgamma(half arg) { return functions::tgamma(arg); }
+		inline expr tgamma(expr arg) { return functions::tgamma(arg); }
 	#endif
 		/// \}
 		/// \name Rounding
@@ -1991,54 +2089,74 @@ namespace half_float
 		/// Nearest integer not less than half value.
 		/// \param arg half to round
 		/// \return nearest integer not less than \a arg
-		template<typename T> typename enable<half,T>::type ceil(T arg) { return functions::ceil(arg); }
+//		template<typename T> typename enable<half,T>::type ceil(T arg) { return functions::ceil(arg); }
+		inline half ceil(half arg) { return functions::ceil(arg); }
+		inline half ceil(expr arg) { return functions::ceil(arg); }
 
 		/// Nearest integer not greater than half value.
 		/// \param arg half to round
 		/// \return nearest integer not greater than \a arg
-		template<typename T> typename enable<half,T>::type floor(T arg) { return functions::floor(arg); }
+//		template<typename T> typename enable<half,T>::type floor(T arg) { return functions::floor(arg); }
+		inline half floor(half arg) { return functions::floor(arg); }
+		inline half floor(expr arg) { return functions::floor(arg); }
 
 		/// Nearest integer not greater in magnitude than half value.
 		/// \param arg half to round
 		/// \return nearest integer not greater in magnitude than \a arg
-		template<typename T> typename enable<half,T>::type trunc(T arg) { return functions::trunc(arg); }
+//		template<typename T> typename enable<half,T>::type trunc(T arg) { return functions::trunc(arg); }
+		inline half trunc(half arg) { return functions::trunc(arg); }
+		inline half trunc(expr arg) { return functions::trunc(arg); }
 
 		/// Nearest integer.
 		/// \param arg half to round
 		/// \return nearest integer, rounded away from zero in half-way cases
-		template<typename T> typename enable<half,T>::type round(T arg) { return functions::round(arg); }
+//		template<typename T> typename enable<half,T>::type round(T arg) { return functions::round(arg); }
+		inline half round(half arg) { return functions::round(arg); }
+		inline half round(expr arg) { return functions::round(arg); }
 
 		/// Nearest integer.
 		/// \param arg half to round
 		/// \return nearest integer, rounded away from zero in half-way cases
-		template<typename T> typename enable<long,T>::type lround(T arg) { return functions::lround(arg); }
+//		template<typename T> typename enable<long,T>::type lround(T arg) { return functions::lround(arg); }
+		inline long lround(half arg) { return functions::lround(arg); }
+		inline long lround(expr arg) { return functions::lround(arg); }
 	#if HALF_ENABLE_CPP11_CMATH
 		/// Nearest integer.
 		/// \param arg half expression to round
 		/// \return nearest integer using current rounding mode
-		template<typename T> typename enable<half,T>::type nearbyint(T arg) { return functions::nearbyint(arg); }
+//		template<typename T> typename enable<half,T>::type nearbyint(T arg) { return functions::nearbyint(arg); }
+		inline half nearbyint(half arg) { return functions::nearbyint(arg); }
+		inline half nearbyint(expr arg) { return functions::nearbyint(arg); }
 
 		/// Nearest integer.
 		/// \param arg half expression to round
 		/// \return nearest integer using current rounding mode
-		template<typename T> typename enable<half,T>::type rint(T arg) { return functions::rint(arg); }
+//		template<typename T> typename enable<half,T>::type rint(T arg) { return functions::rint(arg); }
+		inline half rint(half arg) { return functions::rint(arg); }
+		inline half rint(expr arg) { return functions::rint(arg); }
 
 		/// Nearest integer.
 		/// \param arg half expression to round
 		/// \return nearest integer using current rounding mode
-		template<typename T> typename enable<long,T>::type lrint(T arg) { return functions::lrint(arg); }
+//		template<typename T> typename enable<long,T>::type lrint(T arg) { return functions::lrint(arg); }
+		inline long lrint(half arg) { return functions::lrint(arg); }
+		inline long lrint(expr arg) { return functions::lrint(arg); }
 	#if HALF_ENABLE_CPP11_LONG_LONG
 		/// Nearest integer.
 		/// \param arg half expression to round
 		/// \return nearest integer using current rounding mode
-		template<typename T> typename enable<long long,T>::type llrint(T arg) { return functions::llrint(arg); }
+//		template<typename T> typename enable<long long,T>::type llrint(T arg) { return functions::llrint(arg); }
+		inline long long llrint(half arg) { return functions::llrint(arg); }
+		inline long long llrint(expr arg) { return functions::llrint(arg); }
 	#endif
 	#endif
 	#if HALF_ENABLE_CPP11_LONG_LONG
 		/// Nearest integer.
 		/// \param arg half to round
 		/// \return nearest integer, rounded away from zero in half-way cases
-		template<typename T> typename enable<long long,T>::type llround(T arg) { return functions::llround(arg); }
+//		template<typename T> typename enable<long long,T>::type llround(T arg) { return functions::llround(arg); }
+		inline long long llround(half arg) { return functions::llround(arg); }
+		inline long long llround(expr arg) { return functions::llround(arg); }
 	#endif
 
 		/// \}
@@ -2049,31 +2167,41 @@ namespace half_float
 		/// \param arg number to decompress
 		/// \param exp address to store exponent at
 		/// \return significant in range [0.5, 1)
-		template<typename T> typename enable<half,T>::type frexp(T arg, int *exp) { return functions::frexp(arg, exp); }
+//		template<typename T> typename enable<half,T>::type frexp(T arg, int *exp) { return functions::frexp(arg, exp); }
+		inline half frexp(half arg, int *exp) { return functions::frexp(arg, exp); }
+		inline half frexp(expr arg, int *exp) { return functions::frexp(arg, exp); }
 
 		/// Multiply by power of two.
 		/// \param arg number to modify
 		/// \param exp power of two to multiply with
 		/// \return \a arg multplied by 2 raised to \a exp
-		template<typename T> typename enable<half,T>::type ldexp(T arg, int exp) { return functions::scalbln(arg, exp); }
+//		template<typename T> typename enable<half,T>::type ldexp(T arg, int exp) { return functions::scalbln(arg, exp); }
+		inline half ldexp(half arg, int exp) { return functions::scalbln(arg, exp); }
+		inline half ldexp(expr arg, int exp) { return functions::scalbln(arg, exp); }
 
 		/// Extract integer and fractional parts.
 		/// \param arg number to decompress
 		/// \param iptr address to store integer part at
 		/// \return fractional part
-		template<typename T> typename enable<half,T>::type modf(T arg, half *iptr) { return functions::modf(arg, iptr); }
+//		template<typename T> typename enable<half,T>::type modf(T arg, half *iptr) { return functions::modf(arg, iptr); }
+		inline half modf(half arg, half *iptr) { return functions::modf(arg, iptr); }
+		inline half modf(expr arg, half *iptr) { return functions::modf(arg, iptr); }
 
 		/// Multiply by power of two.
 		/// \param arg number to modify
 		/// \param exp power of two to multiply with
 		/// \return \a arg multplied by 2 raised to \a exp
-		template<typename T> typename enable<half,T>::type scalbn(T arg, int exp) { return functions::scalbln(arg, exp); }
+//		template<typename T> typename enable<half,T>::type scalbn(T arg, int exp) { return functions::scalbln(arg, exp); }
+		inline half scalbn(half arg, int exp) { return functions::scalbln(arg, exp); }
+		inline half scalbn(expr arg, int exp) { return functions::scalbln(arg, exp); }
 
 		/// Multiply by power of two.
 		/// \param arg number to modify
 		/// \param exp power of two to multiply with
 		/// \return \a arg multplied by 2 raised to \a exp	
-		template<typename T> typename enable<half,T>::type scalbln(T arg, long exp) { return functions::scalbln(arg, exp); }
+//		template<typename T> typename enable<half,T>::type scalbln(T arg, long exp) { return functions::scalbln(arg, exp); }
+		inline half scalbln(half arg, long exp) { return functions::scalbln(arg, exp); }
+		inline half scalbln(expr arg, long exp) { return functions::scalbln(arg, exp); }
 
 		/// Extract exponent.
 		/// \param arg number to query
@@ -2081,30 +2209,44 @@ namespace half_float
 		/// \retval FP_ILOGB0 for zero
 		/// \retval FP_ILOGBNAN for NaN
 		/// \retval MAX_INT for infinity
-		template<typename T> typename enable<int,T>::type ilogb(T arg) { return functions::ilogb(arg); }
+//		template<typename T> typename enable<int,T>::type ilogb(T arg) { return functions::ilogb(arg); }
+		inline int ilogb(half arg) { return functions::ilogb(arg); }
+		inline int ilogb(expr arg) { return functions::ilogb(arg); }
 
 		/// Extract exponent.
 		/// \param arg number to query
 		/// \return floating point exponent
-		template<typename T> typename enable<half,T>::type logb(T arg) { return functions::logb(arg); }
+//		template<typename T> typename enable<half,T>::type logb(T arg) { return functions::logb(arg); }
+		inline half logb(half arg) { return functions::logb(arg); }
+		inline half logb(expr arg) { return functions::logb(arg); }
 
 		/// Next representable value.
 		/// \param from value to compute next representable value for
 		/// \param to direction towards which to compute next value
 		/// \return next representable value after \a from in direction towards \a to
-		template<typename T,typename U> typename enable<half,T,U>::type nextafter(T from, U to) { return functions::nextafter(from, to); }
+//		template<typename T,typename U> typename enable<half,T,U>::type nextafter(T from, U to) { return functions::nextafter(from, to); }
+		inline half nextafter(half from, half to) { return functions::nextafter(from, to); }
+		inline half nextafter(half from, expr to) { return functions::nextafter(from, to); }
+		inline half nextafter(expr from, half to) { return functions::nextafter(from, to); }
+		inline half nextafter(expr from, expr to) { return functions::nextafter(from, to); }
 
 		/// Next representable value.
 		/// \param from value to compute next representable value for
 		/// \param to direction towards which to compute next value
 		/// \return next representable value after \a from in direction towards \a to
-		template<typename T> typename enable<half,T>::type nexttoward(T from, long double to) { return functions::nexttoward(from, to); }
+//		template<typename T> typename enable<half,T>::type nexttoward(T from, long double to) { return functions::nexttoward(from, to); }
+		inline half nexttoward(half from, long double to) { return functions::nexttoward(from, to); }
+		inline half nexttoward(expr from, long double to) { return functions::nexttoward(from, to); }
 
 		/// Take sign.
 		/// \param x value to change sign for
 		/// \param y value to take sign from
 		/// \return value equal to \a x in magnitude and to \a y in sign
-		template<typename T,typename U> typename enable<half,T,U>::type copysign(T x, U y) { return functions::copysign(x, y); }
+//		template<typename T,typename U> typename enable<half,T,U>::type copysign(T x, U y) { return functions::copysign(x, y); }
+		inline half copysign(half x, half y) { return functions::copysign(x, y); }
+		inline half copysign(half x, expr y) { return functions::copysign(x, y); }
+		inline half copysign(expr x, half y) { return functions::copysign(x, y); }
+		inline half copysign(expr x, expr y) { return functions::copysign(x, y); }
 
 		/// \}
 		/// \name Floating point classification
