@@ -1,8 +1,8 @@
 Release Notes											{#changelog}
 =============
 
-1.8.0 release (2013-01-
------------------------
+1.8.0 release (2013-01-19):
+---------------------------
 
 - Added support for more C++11 mathematical functions even if single-
   precision versions from `<cmath>` are unsupported, in particular 

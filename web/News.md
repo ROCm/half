@@ -1,7 +1,7 @@
 News														{#news}
 ====
 
-January XX, 2013 - Release 1.8.0
+January 19, 2013 - Release 1.8.0
 --------------------------------
 
 [Version 1.8.0](http://sourceforge.net/projects/half/files/half/1.8.0) of the library has been released. It adds support for a bunch of additional C++11 mathematical functions even if their single-precision counterparts are not supported, in particular exponential and logarithmic functions (exp2(), expm1(), log2(), log1p()), hyperbolic area functions (asinh(), acosh(), atanh()) and the hypotenuse function (hypot()). The fma() function now uses the default single-precision implementation even if the single-precision version from `<cmath>` is available but not faster than the straight-forward implementation. Thus it is now always at least equally fast to the manual half-precision `x*y + z` operation (yet being correctly rounded as a single operation) and thus [FP_FAST_FMAH](\ref FP_FAST_FMAH) practically always defined.
