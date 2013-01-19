@@ -30,7 +30,9 @@
 #include <random>
 #include <bitset>
 #include <limits>
+#include <typeinfo>
 #include <cstdint>
+#include <cmath>
 #if HALF_ENABLE_CPP11_HASH
 	#include <unordered_map>
 #endif
@@ -307,21 +309,21 @@ public:
 		simple_test("round_to_nearest", [&rand32]() mutable -> bool { unsigned int passed = 0; for(unsigned int i=0; i<1e6; ++i) {
 			std::uint32_t u=rand32(); float f = *reinterpret_cast<float*>(&u); half a(f), b(nextafter(a, 
 			copysign(std::numeric_limits<half>::infinity(), a))), h = half_cast<half,std::round_to_nearest>(f);
-			float af(a), bf(b), hf(h); passed += half_float::detail::isnan(f) || 
+			float af(a), bf(b), hf(h); passed += half_float::detail::builtin_isnan(f) || 
 			(std::abs(hf)>std::abs(f)&&comp(h, b)&&(std::abs(f-af)>=std::abs(bf-f)||isinf(h))) || 
 			(std::abs(hf)<=std::abs(f)&&comp(h, a)&&(std::abs(f-af)<std::abs(bf-f)||isinf(h))); } return passed == 1e6; });
 		simple_test("round_toward_zero", [&rand32]() mutable -> bool { unsigned int passed = 0; for(unsigned int i=0; i<1e6; ++i) {
 			std::uint32_t u=rand32(); float f = *reinterpret_cast<float*>(&u); half a(f), h = half_cast<half,std::round_toward_zero>(f);
-			float af(a), hf(h); passed += half_float::detail::isnan(f) || isinf(a) || af == hf; } return passed == 1e6; });
+			float af(a), hf(h); passed += half_float::detail::builtin_isnan(f) || isinf(a) || af == hf; } return passed == 1e6; });
 		simple_test("round_toward_infinity", [&rand32]() mutable -> bool { unsigned int passed = 0; for(unsigned int i=0; i<1e6; ++i) {
 			std::uint32_t u=rand32(); float f = *reinterpret_cast<float*>(&u); half a = half_cast<half,std::round_toward_zero>(f), 
 			b(nextafter(a, copysign(std::numeric_limits<half>::infinity(), a))), h = half_cast<half,std::round_toward_infinity>(f);
-			float hf(h); passed += half_float::detail::isnan(f) || (comp(h, a)&&(signbit(h)||hf==f)) || 
+			float hf(h); passed += half_float::detail::builtin_isnan(f) || (comp(h, a)&&(signbit(h)||hf==f)) || 
 			(comp(h, b)&&!signbit(h)&&hf>f); } return passed == 1e6; });
 		simple_test("round_toward_neg_infinity", [&rand32]() mutable -> bool { unsigned int passed = 0; for(unsigned int i=0; i<1e6; ++i) {
 			std::uint32_t u=rand32(); float f = *reinterpret_cast<float*>(&u); half a = half_cast<half,std::round_toward_zero>(f), 
 			b(nextafter(a, copysign(std::numeric_limits<half>::infinity(), a))), h = half_cast<half,std::round_toward_neg_infinity>(f);
-			float hf(h); passed += half_float::detail::isnan(f) || (comp(h, a)&&(!signbit(h)||hf==f)) || 
+			float hf(h); passed += half_float::detail::builtin_isnan(f) || (comp(h, a)&&(!signbit(h)||hf==f)) || 
 			(comp(h, b)&&signbit(h)&&hf<f); } return passed == 1e6; });
 
 		//test casting
@@ -371,10 +373,10 @@ public:
 		unary_test("hash retrieve", [&map](const half &arg) { return map[arg] == &arg; });
 #endif
 
-#if HALF_ENABLE_CPP11_USER_LITERAL
+#if HALF_ENABLE_CPP11_USER_LITERALS
 		//test literals
-		simple_test("literals", []() { return comp(0.0_h, half(0.0f)) && comp(-1.0_h, half(1.0f)) && 
-			comp(+3.14159265359_h, half(3.14159265359f)) && comp(1e-2_h, half(1e-2f)) && comp(-4.2e3_h, half(-4.2e3)); }
+		simple_test("literals", []() -> bool { using namespace half_float::literal; return comp(0.0_h, half(0.0f)) && comp(-1.0_h, half(-1.0f)) && 
+			comp(+3.14159265359_h, half(3.14159265359f)) && comp(1e-2_h, half(1e-2f)) && comp(-4.2e3_h, half(-4.2e3)); });
 #endif
 
 		if(failed_.empty())
@@ -524,7 +526,14 @@ int main(int argc, char *argv[])
 	std::cout << "Pi: " << pi << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(pi) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(pi))).to_string() << std::endl;
 
-//	std::cout << ilogb(sin(a+b)) << '\n';			//ADL test
+	std::cout << ilogb(sin(a+b)) << '\n';			//ADL test
+
+	using namespace std;
+//	using namespace half_float;
+	auto f = atan2(h, 3);
+	auto g = h + 3LL;
+	std::cout << typeid(f).name() << ", " << typeid(g).name() << '\n';
+	std::cout << exp2(half(1)) << ", " << log2(half(1)) << '\n';
 
 	std::unique_ptr<std::ostream> file;
 	if(argc > 1)

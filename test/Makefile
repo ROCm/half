@@ -21,4 +21,4 @@ asm03: src/test11.cpp ../include/half.hpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -S -o asm/test03.asm src/test03.cpp
 
 clean:
-	rm -rvf *~ asm bin
+	rm -rvf *~ src/*~ asm bin

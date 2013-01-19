@@ -9,10 +9,12 @@ This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.o
 News														{#new}
 ====
 
-October 26, 2012 - Release 1.7.0
+January XX, 2013 - Release 1.8.0
 --------------------------------
 
-[Version 1.7.0](http://sourceforge.net/projects/half/files/half/1.7.0) of the library has been released. It adds support for C++11 `noexcept` specifications. But due to the ongoing discussions about their appropriate usage in practice (and the author's limited experience with them) they are at the moment only used to provide a C++11-conformant `std::numeric_limits` specialization, with all its functions returning half-preicision constants now properly being `noexcept`. Furthermore, the automatic support for C++11 `long long` and the corresponding mathematical functions on *Microsoft* compilers has been extended all the way down to *VC++ 2003*.
+[Version 1.8.0](http://sourceforge.net/projects/half/files/half/1.8.0) of the library has been released. It adds support for a bunch of additional C++11 mathematical functions even if their single-precision counterparts are not supported, in particular exponential and logarithmic functions (exp2(), expm1(), log2(), log1p()), hyperbolic area functions (asinh(), acosh(), atanh()) and the hypotenuse function (hypot()). The fma() function now uses the default single-precision implementation even if the single-precision version from `<cmath>` is available but not faster than the straight-forward implementation. Thus it is now always at least equally fast to the manual half-precision `x*y + z` operation (yet being correctly rounded as a single operation) and thus [FP_FAST_FMAH](\ref FP_FAST_FMAH) practically always defined.
+
+Furthermore, the internal expression implementation has been completely revised and refactored from its CRTP-inheritance-based solution into a completely generic SFINAE-based solution. This fixes issues with overload resolution which could occur when trying to call certain mathematical functions by unqualified invocation (relying on `using` declarations or ADL) and led to ambiguities or the incorrect preference of the standard library functions. Though there are still ambiguity problems with *VS 2012* when trying to call unqualified functions expecting 2 half-precision arguments (like atan2() or fmod()). This is to blame on its standard library implementation [providing overly generic versions of those functions](https://connect.microsoft.com/VisualStudio/feedback/details/776471/c-math-functions-too-generic) due to an [imprecisely worded section of the C++11 standard](http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-defects.html#2086).
 
 [more](news.html)
 
@@ -23,7 +25,7 @@ Download and Installation									{#downloads}
 
 The library in its most recent version can be obtained from here, see the [Release Notes](changelog.html) for further information:
 
-<ul class="tablist"><li>[Download half 1.7.0 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
+<ul class="tablist"><li>[Download half 1.8.0 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
 
 If you are interested in previous versions of the library, see the [SourceForge download page](http://sourceforge.net/projects/half/files/half).
 

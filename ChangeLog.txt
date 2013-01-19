@@ -1,11 +1,18 @@
 Release Notes											{#changelog}
 =============
 
-- Made `fma` function use default implementation if single-precision version 
+1.8.0 release (2013-01-
+-----------------------
+
+- Added support for more C++11 mathematical functions even if single-
+  precision versions from `<cmath>` are unsupported, in particular 
+  exponential and logarithm functions, hyperbolic area functions and the 
+  hypotenuse function. 
+  even if corresponding single-precision versions are unsupported.
+- Made `fma` function use default implementation if single-precision version
   from `<cmath>` is not faster and thus `FP_FAST_FMAH` to be defined always.
-- Fixed declaration of `fma` function.
-- Fixed missing ADL-based resolution of certain functions when called with 
-  temporary values.
+- Fixed overload resolution issues when invoking certain mathematical 
+  functions by unqualified calls.
 
 
 1.7.0 release (2012-10-26):

@@ -355,43 +355,43 @@ namespace half_float
 
 	/// Exponential function.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return e raised to \a arg
 	half exp(half arg);
 
 	/// Binary exponential.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
+	/// \param arg function argument
 	/// \return 2 raised to \a arg
 	half exp2(half arg);
 
 	/// Exponential minus one.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
-	/// \return e raised to \a arg subtracted by 1
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
+	/// \param arg function argument
+	/// \return e raised to \a arg and subtracted by 1
 	half expm1(half arg);
 
 	/// Natural logorithm.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return logarithm of \a arg to base e
 	half log(half arg);
 
 	/// Common logorithm.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return logarithm of \a arg to base 10
 	half log10(half arg);
 
 	/// Natural logorithm.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
-	/// \return logarithm of \a arg plus 1 to base e
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
+	/// \param arg function argument
+	/// \return logarithm of \a arg + 1 to base e
 	half log1p(half arg);
 
 	/// Binary logorithm.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
+	/// \param arg function argument
 	/// \return logarithm of \a arg to base 2
 	half log2(half arg);
 
@@ -401,27 +401,27 @@ namespace half_float
 
 	/// Square root.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return square root of \a arg
 	half sqrt(half arg);
 
 	/// Cubic root.
 	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return cubic root of \a arg
 	half cbrt(half arg);
 
 	/// Hypotenuse function.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param x first operand
-	/// \param y second operand
-	/// \return square root of sum of squares
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
+	/// \param x first argument
+	/// \param y second argument
+	/// \return square root of sum of squares without internal over- or underflows
 	half hypot(half x, half y);
 
 	/// Power function.
 	/// This function uses the underlying single-precision implementation.
-	/// \param base first operand
-	/// \param exp second operand
+	/// \param base first argument
+	/// \param exp second argument
 	/// \return \a base raised to \a exp
 	half pow(half base, half exp);
 
@@ -431,44 +431,44 @@ namespace half_float
 
 	/// Sine function.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return sine value of \a arg
 	half sin(half arg);
 
 	/// Cosine function.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return cosine value of \a arg
 	half cos(half arg);
 
 	/// Tangent function.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return tangent value of \a arg
 	half tan(half arg);
 
 	/// Arc sine.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return arc sine value of \a arg
 	half asin(half arg);
 
 	/// Arc cosine function.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return arc cosine value of \a arg
 	half acos(half arg);
 
 	/// Arc tangent function.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return arc tangent value of \a arg
 	half atan(half arg);
 
 	/// Arc tangent function.
 	/// This function uses the underlying single-precision implementation.
-	/// \param x first operand
-	/// \param y second operand
+	/// \param x first argument
+	/// \param y second argument
 	/// \return arc tangent value
 	half atan2(half x, half y);
 
@@ -478,38 +478,38 @@ namespace half_float
 
 	/// Hyperbolic sine.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return hyperbolic sine value of \a arg
 	half sinh(half arg);
 
 	/// Hyperbolic cosine.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return hyperbolic cosine value of \a arg
 	half cosh(half arg);
 
 	/// Hyperbolic tangent.
 	/// This function uses the underlying single-precision implementation.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return hyperbolic tangent value of \a arg
 	half tanh(half arg);
 
-	/// Hyperbolic arc sine.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
-	/// \return hyperbolic arc sine value of \a arg
+	/// Hyperbolic area sine.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
+	/// \param arg function argument
+	/// \return hyperbolic area sine value of \a arg
 	half asinh(half arg);
 
-	/// Hyperbolic arc cosine.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
-	/// \return hyperbolic arc cosine value of \a arg
+	/// Hyperbolic area cosine.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
+	/// \param arg function argument
+	/// \return hyperbolic area cosine value of \a arg
 	half acosh(half arg);
 
-	/// Hyperbolic arc tangent.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
-	/// \return hyperbolic arc tangent value of \a arg
+	/// Hyperbolic area tangent.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
+	/// \param arg function argument
+	/// \return hyperbolic area tangent value of \a arg
 	half atanh(half arg);
 
 	/// \}
@@ -518,25 +518,25 @@ namespace half_float
 
 	/// Error function.
 	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return error function value of \a arg
 	half erf(half arg);
 
 	/// Complementary error function.
 	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return 1 minus error function value of \a arg
 	half erfc(half arg);
 
 	/// Natural logarithm of gamma function.
 	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return natural logarith of gamma function for \a arg
 	half lgamma(half arg);
 
 	/// Gamma function.
 	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
-	/// \param arg operand
+	/// \param arg function argument
 	/// \return gamma function value of \a arg
 	half tgamma(half arg);
 
