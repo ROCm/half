@@ -19,9 +19,6 @@
 /// \file
 /// Main header file of the library.
 
-#ifndef HALF_HALF_H
-#define HALF_HALF_H
-
 #include <limits>
 #include <functional>
 #include <iosfwd>
@@ -804,9 +801,11 @@ namespace half_float
 	namespace literal
 	{
 		/// Half literal.
-		/// \param d literal value
+		/// While this returns an actual half-precision value, half literals can unfortunately not be constant expressions due 
+		/// to rather involved single-to-half conversion.
+		/// \param value literal value
 		/// \return half with given value (if representable)
-		half operator "" _h(long double d);
+		half operator "" _h(long double value);
 	}
 }
 

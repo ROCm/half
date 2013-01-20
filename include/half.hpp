@@ -19,8 +19,8 @@
 /// \file
 /// Main header file for half precision functionality.
 
-#ifndef HALF_HALF_H
-#define HALF_HALF_H
+#ifndef HALF_HALF_HPP
+#define HALF_HALF_HPP
 
 /// Combined gcc version number.
 #define HALF_GNUC_VERSION (__GNUC__*100+__GNUC_MINOR__)
@@ -941,9 +941,11 @@ namespace half_float
 	namespace literal
 	{
 		/// Half literal.
-		/// \param d literal value
+		/// While this returns an actual half-precision value, half literals can unfortunately not be constant expressions due 
+		/// to rather involved single-to-half conversion.
+		/// \param value literal value
 		/// \return half with given value (if representable)
-		inline half operator "" _h(long double d) { return half(static_cast<float>(d)); }
+		inline half operator "" _h(long double value) { return half(static_cast<float>(value)); }
 	}
 #endif
 
@@ -2572,7 +2574,7 @@ namespace std
 		/// \param arg half to hash
 		/// \return hash value
 		size_t operator()(half_float::half arg) const { return hash<half_float::detail::uint16>()(
-			arg.data_&-static_cast<half_float::detail::uint16>(arg.data_!=0x8000)); }
+			arg.data_&-static_cast<unsigned int>(arg.data_!=0x8000)); }
 	};
 #endif
 }

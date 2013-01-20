@@ -525,6 +525,10 @@ int main(int argc, char *argv[])
 	half pi = half_cast<half,std::round_to_nearest>(3.1415926535897932384626433832795L);
 	std::cout << "Pi: " << pi << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(pi) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(pi))).to_string() << std::endl;
+	half e = half_cast<half,std::round_to_nearest>(std::exp(1.0L));
+	std::cout << "e:  " << e << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(e) << std::dec 
+		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(e))).to_string() << std::endl;
+	return 0;
 
 	std::cout << ilogb(sin(a+b)) << '\n';			//ADL test
 
