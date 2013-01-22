@@ -1,6 +1,12 @@
 News														{#news}
 ====
 
+January 22, 2013 - Release 1.8.1
+--------------------------------
+
+[Version 1.8.1](http://sourceforge.net/projects/half/files/half/1.8.1) of the library has been released. This just fixes a compile error when including `half.hpp` in multiple files, resulting in multiple definitions of the nanh() function due to a missing `inline` specification.
+
+--------------------------------
 January 19, 2013 - Release 1.8.0
 --------------------------------
 

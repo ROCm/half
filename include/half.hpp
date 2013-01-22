@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Version 1.8.0
+// Version 1.8.1
 
 /// \file
 /// Main header file for half precision functionality.
@@ -1834,7 +1834,7 @@ namespace half_float
 		/// Get NaN value.
 		/// \param arg descriptive string (ignored)
 		/// \return quiet NaN
-		half nanh(const char *arg) { return functions::nanh(arg); }
+		inline half nanh(const char *arg) { return functions::nanh(arg); }
 	#if HALF_ENABLE_CPP11_CMATH
 		/// Remainder of division.
 		/// \param x first operand

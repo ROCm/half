@@ -1,6 +1,13 @@
 Release Notes											{#changelog}
 =============
 
+1.8.1 release (2013-01-22):
+---------------------------
+
+- Fixed bug resulting in multiple definitions of the `nanh` function due to 
+  a missing `inline` specification.
+
+
 1.8.0 release (2013-01-19):
 ---------------------------
 
