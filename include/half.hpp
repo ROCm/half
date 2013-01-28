@@ -332,6 +332,7 @@ namespace half_float
 		/// \{
 
 		/// Convert IEEE single-precision to half-precision.
+		/// Credit for this goes to [Jeroen van der Zijp](ftp://ftp.fox-toolkit.org/pub/fasthalffloatconversion.pdf).
 		/// \tparam R rounding mode to use, `std::round_indeterminate` for fastest rounding
 		/// \param value single-precision value
 		/// \return binary representation of half-precision value
@@ -502,6 +503,7 @@ namespace half_float
 		}
 
 		/// Convert half-precision to IEEE single-precision.
+		/// Credit for this goes to [Jeroen van der Zijp](ftp://ftp.fox-toolkit.org/pub/fasthalffloatconversion.pdf).
 		/// \param value binary representation of half-precision value
 		/// \return single-precision value
 		inline float half2float(uint16 value/*, booltype<true>*/)
