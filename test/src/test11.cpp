@@ -528,7 +528,6 @@ int main(int argc, char *argv[])
 	half e = half_cast<half,std::round_to_nearest>(std::exp(1.0L));
 	std::cout << "e:  " << e << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(e) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(e))).to_string() << std::endl;
-	return 0;
 
 	std::cout << ilogb(sin(a+b)) << '\n';			//ADL test
 
@@ -538,6 +537,7 @@ int main(int argc, char *argv[])
 	auto g = h + 3LL;
 	std::cout << typeid(f).name() << ", " << typeid(g).name() << '\n';
 	std::cout << exp2(half(1)) << ", " << log2(half(1)) << '\n';
+	std::cout << logb(h) << ilogb(h) << '\n';
 
 	std::unique_ptr<std::ostream> file;
 	if(argc > 1)

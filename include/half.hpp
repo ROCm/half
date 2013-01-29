@@ -291,7 +291,7 @@ namespace half_float
 		#if HALF_ENABLE_CPP11_CMATH
 			return std::isinf(arg);
 		#elif defined(_MSC_VER)
-			return !_finite(arg) && !_isnan(arg);
+			return !_finite(static_cast<double>(arg)) && !_isnan(static_cast<double>(arg));
 		#else
 			return arg == std::numeric_limits<T>::infinity() || arg == -std::numeric_limits<T>::infinity();
 		#endif
@@ -307,7 +307,7 @@ namespace half_float
 		#if HALF_ENABLE_CPP11_CMATH
 			return std::isnan(arg);
 		#elif defined(_MSC_VER)
-			return _isnan(arg) != 0;
+			return _isnan(static_cast<double>(arg)) != 0;
 		#else
 			return arg != arg;
 		#endif
@@ -1286,14 +1286,13 @@ namespace half_float
 				if(e == 0x7C00 || !(arg.data_&0x7FFF))
 					return *exp = 0, arg;
 				unsigned int m = arg.data_ & 0x3FF;
-				e >>= 10;
-				if(!e)
+				if(!(e>>=10))
 				{
 					for(m<<=1; m<0x400; m<<=1,--e) ;
 					m &= 0x3FF;
 				}
 				*exp = e - 14;
-				return half((arg.data_&0x8000) | 0x3800 | m, true);
+				return half(static_cast<uint16>((arg.data_&0x8000)|0x3800|m), true);
 			}
 
 			/// Decompression implementation.
@@ -1313,7 +1312,7 @@ namespace half_float
 				if(!m)
 					return half(arg.data_&0x8000, true);
 				for(; m<0x400; m<<=1,--e) ;
-				return half((arg.data_&0x8000) | (e<<10) | (m&0x3FF), true);
+				return half(static_cast<uint16>((arg.data_&0x8000)|(e<<10)|(m&0x3FF)), true);
 			}
 
 			/// Scaling implementation.
@@ -1335,7 +1334,7 @@ namespace half_float
 					for(m<<=1; m<0x400; m<<=1,--e) ;
 				}
 				e += exp;
-				unsigned int sign = arg.data_ & 0x8000;
+				uint16 sign = arg.data_ & 0x8000;
 				return (e>30) ? half(sign|0x7C00, true) : half((e>0) ? static_cast<uint16>(sign|(e<<10)|(m&0x3FF)) : 
 					((e<-9) ? sign : static_cast<uint16>(sign|(m>>(1-e)))), true);
 			}
@@ -1345,15 +1344,18 @@ namespace half_float
 			/// \return floating point exponent
 			static int ilogb(half arg)
 			{
-				if(!(arg.data_&0x7FFF))
+				int exp = arg.data_ & 0x7FFF;
+				if(!exp)
 					return FP_ILOGB0;
-				int e = arg.data_ & 0x7C00;
-				if(e == 0x7C00)
-					return (arg.data_&0x3FF) ? FP_ILOGBNAN : INT_MAX;
-				e >>= 10;
-				if(!e)
-					for(unsigned int m=(arg.data_&0x3FF)<<1; m<0x400; m<<=1,--e) ;
-				return e - 15;
+				if(exp < 0x7C00)
+				{
+					if(!(exp>>=10))
+						for(unsigned int m=(arg.data_&0x3FF); m<0x200; m<<=1,--exp) ;
+					return exp - 15;
+				}
+				if(exp > 0x7C00)
+					return FP_ILOGBNAN;
+				return INT_MAX;
 			}
 
 			/// Exponent implementation.
@@ -1361,15 +1363,18 @@ namespace half_float
 			/// \return floating point exponent
 			static half logb(half arg)
 			{
-				if(!(arg.data_&0x7FFF))
+				int exp = arg.data_ & 0x7FFF;
+				if(!exp)
 					return half(0xFC00, true);
-				int e = arg.data_ & 0x7C00;
-				if(e == 0x7C00)
-					return (arg.data_&0x3FF) ? arg : half(0x7C00, true);
-				e >>= 10;
-				if(!e)
-					for(unsigned int m=(arg.data_&0x3FF)<<1; m<0x400; m<<=1,--e) ;
-				return half(static_cast<float>(e-15));
+				if(exp < 0x7C00)
+				{
+					if(!(exp>>=10))
+						for(unsigned int m=(arg.data_&0x3FF); m<0x200; m<<=1,--exp) ;
+					return half(static_cast<float>(exp-15));
+				}
+				if(exp > 0x7C00)
+					return arg;
+				return half(0x7C00, true);
 			}
 
 			/// Enumeration implementation.
@@ -1381,7 +1386,7 @@ namespace half_float
 				uint16 fabs = from.data_ & 0x7FFF, tabs = to.data_ & 0x7FFF;
 				if(fabs > 0x7C00)
 					return from;
-				if(tabs > 0x7C00 || from.data_==to.data_ || !(fabs|tabs))
+				if(tabs > 0x7C00 || from.data_ == to.data_ || !(fabs|tabs))
 					return to;
 				if(!fabs)
 					return half((to.data_&0x8000)+1, true);
@@ -2124,6 +2129,14 @@ namespace half_float
 //		template<typename T> typename enable<long,T>::type lround(T arg) { return functions::lround(arg); }
 		inline long lround(half arg) { return functions::lround(arg); }
 		inline long lround(expr arg) { return functions::lround(arg); }
+	#if HALF_ENABLE_CPP11_LONG_LONG
+		/// Nearest integer.
+		/// \param arg half to round
+		/// \return nearest integer, rounded away from zero in half-way cases
+//		template<typename T> typename enable<long long,T>::type llround(T arg) { return functions::llround(arg); }
+		inline long long llround(half arg) { return functions::llround(arg); }
+		inline long long llround(expr arg) { return functions::llround(arg); }
+	#endif
 	#if HALF_ENABLE_CPP11_CMATH
 		/// Nearest integer.
 		/// \param arg half expression to round
@@ -2153,14 +2166,6 @@ namespace half_float
 		inline long long llrint(half arg) { return functions::llrint(arg); }
 		inline long long llrint(expr arg) { return functions::llrint(arg); }
 	#endif
-	#endif
-	#if HALF_ENABLE_CPP11_LONG_LONG
-		/// Nearest integer.
-		/// \param arg half to round
-		/// \return nearest integer, rounded away from zero in half-way cases
-//		template<typename T> typename enable<long long,T>::type llround(T arg) { return functions::llround(arg); }
-		inline long long llround(half arg) { return functions::llround(arg); }
-		inline long long llround(expr arg) { return functions::llround(arg); }
 	#endif
 
 		/// \}
