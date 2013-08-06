@@ -781,7 +781,6 @@ namespace half_float
 		/// Copy constructor.
 		/// \tparam T type of concrete half expression
 		/// \param rhs half expression to copy from
-//		template<typename T> half(const detail::half_expr<T> &rhs) : data_(detail::float2half<round_style>(static_cast<float>(rhs))) {}
 		half(detail::expr rhs) : data_(detail::float2half<round_style>(rhs)) {}
 
 		/// Conversion constructor.
