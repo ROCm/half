@@ -1,6 +1,13 @@
 Release Notes											{#changelog}
 =============
 
+- Changed behaviour of `nearbyint`, `rint`, `lrint`, and `llrint` to use 
+  rounding mode of half-precision implementation (which is 
+  truncating/indeterminate) instead of single-precision rounding mode.
+- Added support for C++11 `cbrt` function even if single-precision version 
+  from `<cmath>` is unsupported.
+
+
 1.8.1 release (2013-01-22):
 ---------------------------
 
@@ -14,8 +21,7 @@ Release Notes											{#changelog}
 - Added support for more C++11 mathematical functions even if single-
   precision versions from `<cmath>` are unsupported, in particular 
   exponential and logarithm functions, hyperbolic area functions and the 
-  hypotenuse function. 
-  even if corresponding single-precision versions are unsupported.
+  hypotenuse function.
 - Made `fma` function use default implementation if single-precision version
   from `<cmath>` is not faster and thus `FP_FAST_FMAH` to be defined always.
 - Fixed overload resolution issues when invoking certain mathematical 

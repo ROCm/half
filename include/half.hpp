@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Version 1.8.1
+// Version 1.9.0
 
 /// \file
 /// Main header file for half precision functionality.
@@ -1102,6 +1102,18 @@ namespace half_float
 			/// \return function value stored in single-preicision
 			static expr sqrt(float arg) { return expr(std::sqrt(arg)); }
 
+			/// Cubic root implementation.
+			/// \param arg function argument
+			/// \return function value stored in single-preicision
+			static expr cbrt(float arg)
+			{
+			#if HALF_ENABLE_CPP11_CMATH
+				return expr(std::cbrt(arg));
+			#else
+				return expr(std::pow(arg, 1.0f/3.0f));
+			#endif
+			}
+
 			/// Hypotenuse implementation.
 			/// \param x first argument
 			/// \param y second argument
@@ -1269,11 +1281,26 @@ namespace half_float
 			/// \param arg value to round
 			/// \return rounded value
 			static long lround(half arg) { return detail::half2int<std::round_to_nearest,long>(arg.data_); }
+
+			/// Nearest integer implementation.
+			/// \param arg value to round
+			/// \return rounded value stored in single-preicision
+			static half rint(half arg) { return trunc(arg); }
+
+			/// Nearest integer implementation.
+			/// \param arg value to round
+			/// \return rounded value
+			static long lrint(half arg) { return detail::half2int<half::round_style,long>(arg.data_); }
 		#if HALF_ENABLE_CPP11_LONG_LONG
 			/// Nearest integer implementation.
 			/// \param arg value to round
 			/// \return rounded value
 			static long long llround(half arg) { return detail::half2int<std::round_to_nearest,long long>(arg.data_); }
+
+			/// Nearest integer implementation.
+			/// \param arg value to round
+			/// \return rounded value
+			static long long llrint(half arg) { return detail::half2int<half::round_style,long long>(arg.data_); }
 		#endif
 			/// Decompression implementation.
 			/// \param arg number to decompress
@@ -1533,11 +1560,6 @@ namespace half_float
 			/// \return Half-precision division remainder stored in single-precision
 			static expr remquo(float x, float y, int *quo) { return expr(std::remquo(x, y, quo)); }
 
-			/// Cubic root implementation.
-			/// \param arg function argument
-			/// \return function value stored in single-preicision
-			static expr cbrt(float arg) { return expr(std::cbrt(arg)); }
-
 			/// Error function implementation.
 			/// \param arg function argument
 			/// \return function value stored in single-preicision
@@ -1557,27 +1579,6 @@ namespace half_float
 			/// \param arg function argument
 			/// \return function value stored in single-preicision
 			static expr tgamma(float arg) { return expr(std::tgamma(arg)); }
-
-			/// Nearest integer implementation.
-			/// \param arg value to round
-			/// \return rounded value stored in single-preicision
-			static expr nearbyint(float arg) { return expr(std::nearbyint(arg)); }
-
-			/// Nearest integer implementation.
-			/// \param arg value to round
-			/// \return rounded value stored in single-preicision
-			static expr rint(float arg) { return expr(std::rint(arg)); }
-
-			/// Nearest integer implementation.
-			/// \param arg value to round
-			/// \return rounded value
-			static long lrint(float arg) { return expr(std::lrint(arg)); }
-		#if HALF_ENABLE_CPP11_LONG_LONG
-			/// Nearest integer implementation.
-			/// \param arg value to round
-			/// \return rounded value
-			static long long llrint(float arg) { return expr(std::llrint(arg)); }
-		#endif
 		#endif
 		};
 
@@ -1928,6 +1929,13 @@ namespace half_float
 		inline expr sqrt(half arg) { return functions::sqrt(arg); }
 		inline expr sqrt(expr arg) { return functions::sqrt(arg); }
 
+		/// Cubic root.
+		/// \param arg function argument
+		/// \return cubic root of \a arg
+//		template<typename T> typename enable<expr,T>::type cbrt(T arg) { return functions::cbrt(arg); }
+		inline expr cbrt(half arg) { return functions::cbrt(arg); }
+		inline expr cbrt(expr arg) { return functions::cbrt(arg); }
+
 		/// Hypotenuse function.
 		/// \param x first argument
 		/// \param y second argument
@@ -1947,14 +1955,6 @@ namespace half_float
 		inline expr pow(half base, expr exp) { return functions::pow(base, exp); }
 		inline expr pow(expr base, half exp) { return functions::pow(base, exp); }
 		inline expr pow(expr base, expr exp) { return functions::pow(base, exp); }
-	#if HALF_ENABLE_CPP11_CMATH
-		/// Cubic root.
-		/// \param arg function argument
-		/// \return cubic root of \a arg
-//		template<typename T> typename enable<expr,T>::type cbrt(T arg) { return functions::cbrt(arg); }
-		inline expr cbrt(half arg) { return functions::cbrt(arg); }
-		inline expr cbrt(expr arg) { return functions::cbrt(arg); }
-	#endif
 
 		/// \}
 		/// \name Trigonometric functions
@@ -2128,30 +2128,22 @@ namespace half_float
 //		template<typename T> typename enable<long,T>::type lround(T arg) { return functions::lround(arg); }
 		inline long lround(half arg) { return functions::lround(arg); }
 		inline long lround(expr arg) { return functions::lround(arg); }
-	#if HALF_ENABLE_CPP11_LONG_LONG
-		/// Nearest integer.
-		/// \param arg half to round
-		/// \return nearest integer, rounded away from zero in half-way cases
-//		template<typename T> typename enable<long long,T>::type llround(T arg) { return functions::llround(arg); }
-		inline long long llround(half arg) { return functions::llround(arg); }
-		inline long long llround(expr arg) { return functions::llround(arg); }
-	#endif
-	#if HALF_ENABLE_CPP11_CMATH
-		/// Nearest integer.
+
+		/// Nearest integer using half's internal rounding mode.
 		/// \param arg half expression to round
 		/// \return nearest integer using current rounding mode
 //		template<typename T> typename enable<half,T>::type nearbyint(T arg) { return functions::nearbyint(arg); }
-		inline half nearbyint(half arg) { return functions::nearbyint(arg); }
-		inline half nearbyint(expr arg) { return functions::nearbyint(arg); }
+		inline half nearbyint(half arg) { return functions::rint(arg); }
+		inline half nearbyint(expr arg) { return functions::rint(arg); }
 
-		/// Nearest integer.
+		/// Nearest integer using half's internal rounding mode.
 		/// \param arg half expression to round
 		/// \return nearest integer using current rounding mode
 //		template<typename T> typename enable<half,T>::type rint(T arg) { return functions::rint(arg); }
 		inline half rint(half arg) { return functions::rint(arg); }
 		inline half rint(expr arg) { return functions::rint(arg); }
 
-		/// Nearest integer.
+		/// Nearest integer using half's internal rounding mode.
 		/// \param arg half expression to round
 		/// \return nearest integer using current rounding mode
 //		template<typename T> typename enable<long,T>::type lrint(T arg) { return functions::lrint(arg); }
@@ -2159,12 +2151,18 @@ namespace half_float
 		inline long lrint(expr arg) { return functions::lrint(arg); }
 	#if HALF_ENABLE_CPP11_LONG_LONG
 		/// Nearest integer.
+		/// \param arg half to round
+		/// \return nearest integer, rounded away from zero in half-way cases
+//		template<typename T> typename enable<long long,T>::type llround(T arg) { return functions::llround(arg); }
+		inline long long llround(half arg) { return functions::llround(arg); }
+		inline long long llround(expr arg) { return functions::llround(arg); }
+
+		/// Nearest integer using half's internal rounding mode.
 		/// \param arg half expression to round
 		/// \return nearest integer using current rounding mode
 //		template<typename T> typename enable<long long,T>::type llrint(T arg) { return functions::llrint(arg); }
 		inline long long llrint(half arg) { return functions::llrint(arg); }
 		inline long long llrint(expr arg) { return functions::llrint(arg); }
-	#endif
 	#endif
 
 		/// \}
@@ -2412,6 +2410,7 @@ namespace half_float
 	using detail::log1p;
 	using detail::log2;
 	using detail::sqrt;
+	using detail::cbrt;
 	using detail::hypot;
 	using detail::pow;
 	using detail::sin;
@@ -2432,8 +2431,12 @@ namespace half_float
 	using detail::trunc;
 	using detail::round;
 	using detail::lround;
+	using detail::nearbyint;
+	using detail::rint;
+	using detail::lrint;
 #if HALF_ENABLE_CPP11_LONG_LONG
 	using detail::llround;
+	using detail::llrint;
 #endif
 	using detail::frexp;
 	using detail::ldexp;
@@ -2460,17 +2463,10 @@ namespace half_float
 #if HALF_ENABLE_CPP11_CMATH
 	using detail::remainder;
 	using detail::remquo;
-	using detail::cbrt;
 	using detail::erf;
 	using detail::erfc;
 	using detail::lgamma;
 	using detail::tgamma;
-	using detail::nearbyint;
-	using detail::rint;
-	using detail::lrint;
-#if HALF_ENABLE_CPP11_LONG_LONG
-	using detail::llrint;
-#endif
 #endif
 
 	using detail::half_cast;
