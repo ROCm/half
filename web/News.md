@@ -1,6 +1,12 @@
 News														{#news}
 ====
 
+August X, 2013 - Release 1.9.0
+------------------------------
+
+[Version 1.9.0](http://sourceforge.net/projects/half/files/half/1.9.0) of the library has been released. This version fixes the behaviour of the half-precsion C++11 functions `nearbyint`, `rint`, `lrint` and `llrint`. Formerly those functions were implemented in terms of their respective single-precision versions from `<cmath>` (and thus were only supported if the single-precision version were supported, too) and were thus using the current rounding mode of the underlying single-precision implementation. But it is conceptually more correct for those functions to use the rounding mode of the half-precision implementation (truncation). So now those functions are always supported and return the nearest integer according to [half](\ref half_float::half)'s internal rounding mode and thus behave equivalently to trunc() and `static_cast<long>` respectively. Furthermore the C++11 cbrt() function is now supported even if its corresponding single-precision equivalent from `<cmath>` is not supported.
+
+--------------------------------
 January 22, 2013 - Release 1.8.1
 --------------------------------
 

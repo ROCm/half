@@ -736,6 +736,39 @@ namespace half_float
 				m <<= e - 25;
 			return (value&0x8000) ? -m : m;
 		}
+
+		/// Round half-precision number to nearest integer value.
+		/// \tparam R rounding mode to use, `std::round_indeterminate` for fastest rounding
+		/// \param value binary representation of half-precision value
+		/// \return half-precision bits for nearest integral value
+		template<std::float_round_style R> uint16 round_half(uint16 value)
+		{
+			unsigned int e = value & 0x7C00;
+			uint16 result = value;
+			if(e < 0x3C00)
+			{
+				result &= 0x8000;
+				if(R == std::round_to_nearest)
+					result |= 0x3C00 & -static_cast<uint16>((value&0x7FFF)>=0x3800);
+				else if(R == std::round_toward_infinity)
+					result |= 0x3C00 & -static_cast<uint16>(~(value>>15)&((value&0x7FFF)!=0));
+				else if(R == std::round_toward_neg_infinity)
+					result |= 0x3C00 & -static_cast<uint16>((value>>15)&((value&0x7FFF)!=0));
+			}
+			else if(e < 0x6400)
+			{
+				e = 25 - (e>>10);
+				unsigned int mask = (1<<e) - 1;
+				if(R == std::round_to_nearest)
+					result += 1 << (e-1);
+				result &= ~mask;
+				if(R == std::round_toward_infinity)
+					result += (~(value>>15)&((value&mask)!=0)) << e;
+				else if(R == std::round_toward_neg_infinity)
+					result += ((value>>15)&((value&mask)!=0)) << e;
+			}
+			return result;
+		}
 		/// \}
 
 		struct functions;
@@ -1168,59 +1201,22 @@ namespace half_float
 			/// Floor implementation.
 			/// \param arg value to round
 			/// \return rounded value stored in single-preicision
-			static half floor(half arg)
-			{
-				unsigned int e = arg.data_ & 0x7C00;
-				if(e > 0x6000)
-					return arg;
-				if(e < 0x3C00)
-					return half(binary, (arg.data_&0x8000)|(0x3C00&-static_cast<uint16>((arg.data_>>15)&((arg.data_&0x7FFF)!=0))));
-				e = 25 - (e>>10);
-				unsigned int mask = (1<<e) - 1;
-				return half(binary, (arg.data_&~mask)+(((arg.data_>>15)&((arg.data_&mask)!=0))<<e));
-			}
+			static half floor(half arg) { return half(binary, round_half<std::round_toward_neg_infinity>(arg.data_)); }
 
 			/// Ceiling implementation.
 			/// \param arg value to round
 			/// \return rounded value stored in single-preicision
-			static half ceil(half arg)
-			{
-				unsigned int e = arg.data_ & 0x7C00;
-				if(e > 0x6000)
-					return arg;
-				if(e < 0x3C00)
-					return half(binary, (arg.data_&0x8000)|(0x3C00&-static_cast<uint16>(~(arg.data_>>15)&((arg.data_&0x7FFF)!=0))));
-				e = 25 - (e>>10);
-				unsigned int mask = (1<<e) - 1;
-				return half(binary, (arg.data_&~mask)+((~(arg.data_>>15)&((arg.data_&mask)!=0))<<e));
-			}
+			static half ceil(half arg) { return half(binary, round_half<std::round_toward_infinity>(arg.data_)); }
 
 			/// Truncation implementation.
 			/// \param arg value to round
 			/// \return rounded value stored in single-preicision
-			static half trunc(half arg)
-			{
-				unsigned int e = arg.data_ & 0x7C00;
-				if(e > 0x6000)
-					return arg;
-				if(e < 0x3C00)
-					return half(binary, arg.data_&0x8000);
-				return half(binary, arg.data_&~((1<<(25-(e>>10)))-1));
-			}
+			static half trunc(half arg) { return half(binary, round_half<std::round_toward_zero>(arg.data_)); }
 
 			/// Nearest integer implementation.
 			/// \param arg value to round
 			/// \return rounded value stored in single-preicision
-			static half round(half arg)
-			{
-				unsigned int e = arg.data_ & 0x7C00;
-				if(e > 0x6000)
-					return arg;
-				if(e < 0x3C00)
-					return half(binary, (arg.data_&0x8000)|(0x3C00&-static_cast<uint16>((arg.data_&0x7FFF)>=0x3800)));
-				e >>= 10;
-				return half(binary, (arg.data_+(1<<(24-e)))&~((1<<(25-e))-1));
-			}
+			static half round(half arg) { return half(binary, round_half<std::round_to_nearest>(arg.data_)); }
 
 			/// Nearest integer implementation.
 			/// \param arg value to round
@@ -1230,7 +1226,7 @@ namespace half_float
 			/// Nearest integer implementation.
 			/// \param arg value to round
 			/// \return rounded value stored in single-preicision
-			static half rint(half arg) { return trunc(arg); }
+			static half rint(half arg) { return half(binary, round_half<half::round_style>(arg.data_)); }
 
 			/// Nearest integer implementation.
 			/// \param arg value to round
@@ -2005,6 +2001,7 @@ namespace half_float
 //		template<typename T> typename enable<expr,T>::type atanh(T arg) { return functions::atanh(arg); }
 		inline expr atanh(half arg) { return functions::atanh(arg); }
 		inline expr atanh(expr arg) { return functions::atanh(arg); }
+
 	#if HALF_ENABLE_CPP11_CMATH
 		/// \}
 		/// \name Error and gamma functions
@@ -2038,6 +2035,7 @@ namespace half_float
 		inline expr tgamma(half arg) { return functions::tgamma(arg); }
 		inline expr tgamma(expr arg) { return functions::tgamma(arg); }
 	#endif
+
 		/// \}
 		/// \name Rounding
 		/// \{

@@ -1,7 +1,10 @@
 Release Notes											{#changelog}
 =============
 
-- Changed behaviour of `nearbyint`, `rint`, `lrint`, and `llrint` to use 
+1.9.0 release (2013-08-XX):
+---------------------------
+
+- Changed behaviour of `nearbyint`, `rint`, `lrint` and `llrint` to use 
   rounding mode of half-precision implementation (which is 
   truncating/indeterminate) instead of single-precision rounding mode.
 - Added support for C++11 `cbrt` function even if single-precision version 
