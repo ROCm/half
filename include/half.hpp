@@ -233,6 +233,9 @@ namespace half_float
 		/// Helper for tag dispatching.
 		template<bool> struct booltype {};
 */
+		/// Tag for binary construction.
+		const struct binary_t {} binary;
+
 		/// Temporary half-precision expression.
 		/// This class represents a half-precision expression which just stores a single-precision value internally.
 		struct expr
@@ -795,130 +798,72 @@ namespace half_float
 		/// \tparam T type of concrete half expression
 		/// \param rhs half expression to copy from
 		/// \return reference to this half
-		half& operator=(detail::expr rhs)
-		{
-			data_ = detail::float2half<round_style>(rhs);
-			return *this;
-		}
+		half& operator=(detail::expr rhs) { return *this = static_cast<float>(rhs); }
 
 		/// Arithmetic assignment.
 		/// \tparam T type of concrete half expression
 		/// \param rhs half expression to add
 		/// \return reference to this half
-		template<typename T> typename detail::enable<half&,T>::type operator+=(T rhs)
-		{
-			data_ = detail::float2half<round_style>(detail::half2float(data_)+rhs);
-			return *this;
-		}
+		template<typename T> typename detail::enable<half&,T>::type operator+=(T rhs) { return *this += static_cast<float>(rhs); }
 
 		/// Arithmetic assignment.
 		/// \tparam T type of concrete half expression
 		/// \param rhs half expression to subtract
 		/// \return reference to this half
-		template<typename T> typename detail::enable<half&,T>::type operator-=(T rhs)
-		{
-			data_ = detail::float2half<round_style>(detail::half2float(data_)-rhs);
-			return *this;
-		}
+		template<typename T> typename detail::enable<half&,T>::type operator-=(T rhs) { return *this -= static_cast<float>(rhs); }
 
 		/// Arithmetic assignment.
 		/// \tparam T type of concrete half expression
 		/// \param rhs half expression to multiply with
 		/// \return reference to this half
-		template<typename T> typename detail::enable<half&,T>::type operator*=(T rhs)
-		{
-			data_ = detail::float2half<round_style>(detail::half2float(data_)*rhs);
-			return *this;
-		}
+		template<typename T> typename detail::enable<half&,T>::type operator*=(T rhs) { return *this *= static_cast<float>(rhs); }
 
 		/// Arithmetic assignment.
 		/// \tparam T type of concrete half expression
 		/// \param rhs half expression to divide by
 		/// \return reference to this half
-		template<typename T> typename detail::enable<half&,T>::type operator/=(T rhs)
-		{
-			data_ = detail::float2half<round_style>(detail::half2float(data_)/rhs);
-			return *this;
-		}
+		template<typename T> typename detail::enable<half&,T>::type operator/=(T rhs) { return *this /= static_cast<float>(rhs); }
 
 		/// Assignment operator.
 		/// \param rhs single-precision value to copy from
 		/// \return reference to this half
-		half& operator=(float rhs)
-		{
-			data_ = detail::float2half<round_style>(rhs);
-			return *this;
-		}
+		half& operator=(float rhs) { data_ = detail::float2half<round_style>(rhs); return *this; }
 
 		/// Arithmetic assignment.
 		/// \param rhs single-precision value to add
 		/// \return reference to this half
-		half& operator+=(float rhs)
-		{
-			data_ = detail::float2half<round_style>(detail::half2float(data_)+rhs);
-			return *this;
-		}
+		half& operator+=(float rhs) { data_ = detail::float2half<round_style>(detail::half2float(data_)+rhs); return *this; }
 
 		/// Arithmetic assignment.
 		/// \param rhs single-precision value to subtract
 		/// \return reference to this half
-		half& operator-=(float rhs)
-		{
-			data_ = detail::float2half<round_style>(detail::half2float(data_)-rhs);
-			return *this;
-		}
+		half& operator-=(float rhs) { data_ = detail::float2half<round_style>(detail::half2float(data_)-rhs); return *this; }
 
 		/// Arithmetic assignment.
 		/// \param rhs single-precision value to multiply with
 		/// \return reference to this half
-		half& operator*=(float rhs)
-		{
-			data_ = detail::float2half<round_style>(detail::half2float(data_)*rhs);
-			return *this;
-		}
+		half& operator*=(float rhs) { data_ = detail::float2half<round_style>(detail::half2float(data_)*rhs); return *this; }
 
 		/// Arithmetic assignment.
 		/// \param rhs single-precision value to divide by
 		/// \return reference to this half
-		half& operator/=(float rhs)
-		{
-			data_ = detail::float2half<round_style>(detail::half2float(data_)/rhs);
-			return *this;
-		}
+		half& operator/=(float rhs) { data_ = detail::float2half<round_style>(detail::half2float(data_)/rhs); return *this; }
 
 		/// Prefix increment.
 		/// \return incremented half value
-		half& operator++()
-		{
-			data_ = detail::float2half<round_style>(detail::half2float(data_)+1.0f);
-			return *this;
-		}
+		half& operator++() { return *this += 1.0f; }
 
 		/// Prefix decrement.
 		/// \return decremented half value
-		half& operator--()
-		{
-			data_ = detail::float2half<round_style>(detail::half2float(data_)-1.0f);
-			return *this;
-		}
+		half& operator--() { return *this -= 1.0f; }
 
 		/// Postfix increment.
 		/// \return non-incremented half value
-		half operator++(int)
-		{
-			detail::uint16 out = data_;
-			data_ = detail::float2half<round_style>(detail::half2float(data_)+1.0f);
-			return half(out, true);
-		}
+		half operator++(int) { half out(*this); ++*this; return out; }
 
 		/// Postfix decrement.
 		/// \return non-decremented half value
-		half operator--(int)
-		{
-			detail::uint16 out = data_;
-			data_ = detail::float2half<round_style>(detail::half2float(data_)-1.0f);
-			return half(out, true);
-		}
+		half operator--(int) { half out(*this); --*this; return out; }
 	
 	private:
 		/// Rounding mode to use (always `std::round_indeterminate`)
@@ -926,7 +871,7 @@ namespace half_float
 
 		/// Constructor.
 		/// \param bits binary representation to set half to
-		HALF_CONSTEXPR half(detail::uint16 bits, bool) : data_(bits) {}
+		HALF_CONSTEXPR half(detail::binary_t, detail::uint16 bits) : data_(bits) {}
 
 		/// Internal binary representation
 		detail::uint16 data_;
@@ -1032,7 +977,7 @@ namespace half_float
 
 			/// Get NaN.
 			/// \return Half-precision quiet NaN
-			static half nanh(const char*) { return half(0x7FFF, true); }
+			static half nanh(const char*) { return half(binary, 0x7FFF); }
 
 			/// Exponential implementation.
 			/// \param arg function argument
@@ -1229,10 +1174,10 @@ namespace half_float
 				if(e > 0x6000)
 					return arg;
 				if(e < 0x3C00)
-					return half((arg.data_&0x8000)|(0x3C00&-static_cast<uint16>((arg.data_>>15)&((arg.data_&0x7FFF)!=0))), true);
+					return half(binary, (arg.data_&0x8000)|(0x3C00&-static_cast<uint16>((arg.data_>>15)&((arg.data_&0x7FFF)!=0))));
 				e = 25 - (e>>10);
 				unsigned int mask = (1<<e) - 1;
-				return half((arg.data_&~mask)+(((arg.data_>>15)&((arg.data_&mask)!=0))<<e), true);
+				return half(binary, (arg.data_&~mask)+(((arg.data_>>15)&((arg.data_&mask)!=0))<<e));
 			}
 
 			/// Ceiling implementation.
@@ -1244,10 +1189,10 @@ namespace half_float
 				if(e > 0x6000)
 					return arg;
 				if(e < 0x3C00)
-					return half((arg.data_&0x8000)|(0x3C00&-static_cast<uint16>(~(arg.data_>>15)&((arg.data_&0x7FFF)!=0))), true);
+					return half(binary, (arg.data_&0x8000)|(0x3C00&-static_cast<uint16>(~(arg.data_>>15)&((arg.data_&0x7FFF)!=0))));
 				e = 25 - (e>>10);
 				unsigned int mask = (1<<e) - 1;
-				return half((arg.data_&~mask)+((~(arg.data_>>15)&((arg.data_&mask)!=0))<<e), true);
+				return half(binary, (arg.data_&~mask)+((~(arg.data_>>15)&((arg.data_&mask)!=0))<<e));
 			}
 
 			/// Truncation implementation.
@@ -1259,8 +1204,8 @@ namespace half_float
 				if(e > 0x6000)
 					return arg;
 				if(e < 0x3C00)
-					return half(arg.data_&0x8000, true);
-				return half(arg.data_&~((1<<(25-(e>>10)))-1), true);
+					return half(binary, arg.data_&0x8000);
+				return half(binary, arg.data_&~((1<<(25-(e>>10)))-1));
 			}
 
 			/// Nearest integer implementation.
@@ -1272,9 +1217,9 @@ namespace half_float
 				if(e > 0x6000)
 					return arg;
 				if(e < 0x3C00)
-					return half((arg.data_&0x8000)|(0x3C00&-static_cast<uint16>((arg.data_&0x7FFF)>=0x3800)), true);
+					return half(binary, (arg.data_&0x8000)|(0x3C00&-static_cast<uint16>((arg.data_&0x7FFF)>=0x3800)));
 				e >>= 10;
-				return half((arg.data_+(1<<(24-e)))&~((1<<(25-e))-1), true);
+				return half(binary, (arg.data_+(1<<(24-e)))&~((1<<(25-e))-1));
 			}
 
 			/// Nearest integer implementation.
@@ -1291,6 +1236,7 @@ namespace half_float
 			/// \param arg value to round
 			/// \return rounded value
 			static long lrint(half arg) { return detail::half2int<half::round_style,long>(arg.data_); }
+
 		#if HALF_ENABLE_CPP11_LONG_LONG
 			/// Nearest integer implementation.
 			/// \param arg value to round
@@ -1302,6 +1248,7 @@ namespace half_float
 			/// \return rounded value
 			static long long llrint(half arg) { return detail::half2int<half::round_style,long long>(arg.data_); }
 		#endif
+
 			/// Decompression implementation.
 			/// \param arg number to decompress
 			/// \param exp address to store exponent at
@@ -1318,7 +1265,7 @@ namespace half_float
 					m &= 0x3FF;
 				}
 				*exp = e - 14;
-				return half(static_cast<uint16>((arg.data_&0x8000)|0x3800|m), true);
+				return half(binary, static_cast<uint16>((arg.data_&0x8000)|0x3800|m));
 			}
 
 			/// Decompression implementation.
@@ -1329,16 +1276,16 @@ namespace half_float
 			{
 				unsigned int e = arg.data_ & 0x7C00;
 				if(e > 0x6000)
-					return *iptr = arg, (e==0x7C00&&(arg.data_&0x3FF)) ? arg : half(arg.data_&0x8000, true);
+					return *iptr = arg, (e==0x7C00&&(arg.data_&0x3FF)) ? arg : half(binary, arg.data_&0x8000);
 				if(e < 0x3C00)
 					return iptr->data_ = arg.data_ & 0x8000, arg;
 				e >>= 10;
 				unsigned int mask = (1<<(25-e)) - 1, m = arg.data_ & mask;
 				iptr->data_ = arg.data_ & ~mask;
 				if(!m)
-					return half(arg.data_&0x8000, true);
+					return half(binary, arg.data_&0x8000);
 				for(; m<0x400; m<<=1,--e) ;
-				return half(static_cast<uint16>((arg.data_&0x8000)|(e<<10)|(m&0x3FF)), true);
+				return half(binary, static_cast<uint16>((arg.data_&0x8000)|(e<<10)|(m&0x3FF)));
 			}
 
 			/// Scaling implementation.
@@ -1361,8 +1308,8 @@ namespace half_float
 				}
 				e += exp;
 				uint16 sign = arg.data_ & 0x8000;
-				return (e>30) ? half(sign|0x7C00, true) : half((e>0) ? static_cast<uint16>(sign|(e<<10)|(m&0x3FF)) : 
-					((e<-9) ? sign : static_cast<uint16>(sign|(m>>(1-e)))), true);
+				return (e>30) ? half(binary, sign|0x7C00) : half(binary, (e>0) ? static_cast<uint16>(sign|(e<<10)|(m&0x3FF)) : 
+					((e<-9) ? sign : static_cast<uint16>(sign|(m>>(1-e)))));
 			}
 
 			/// Exponent implementation.
@@ -1391,7 +1338,7 @@ namespace half_float
 			{
 				int exp = arg.data_ & 0x7FFF;
 				if(!exp)
-					return half(0xFC00, true);
+					return half(binary, 0xFC00);
 				if(exp < 0x7C00)
 				{
 					if(!(exp>>=10))
@@ -1400,7 +1347,7 @@ namespace half_float
 				}
 				if(exp > 0x7C00)
 					return arg;
-				return half(0x7C00, true);
+				return half(binary, 0x7C00);
 			}
 
 			/// Enumeration implementation.
@@ -1415,10 +1362,10 @@ namespace half_float
 				if(tabs > 0x7C00 || from.data_ == to.data_ || !(fabs|tabs))
 					return to;
 				if(!fabs)
-					return half((to.data_&0x8000)+1, true);
+					return half(binary, (to.data_&0x8000)+1);
 				bool lt = (signbit(from) ? (static_cast<int17>(0x8000)-from.data_) : static_cast<int17>(from.data_)) < 
 					(signbit(to) ? (static_cast<int17>(0x8000)-to.data_) : static_cast<int17>(to.data_));
-				return half(from.data_+(((from.data_>>15)^static_cast<uint16>(lt))<<1)-1, true);
+				return half(binary, from.data_+(((from.data_>>15)^static_cast<uint16>(lt))<<1)-1);
 			}
 
 			/// Enumeration implementation.
@@ -1433,15 +1380,15 @@ namespace half_float
 				if(builtin_isnan(to) || lfrom == to)
 					return half(static_cast<float>(to));
 				if(!(from.data_&0x7FFF))
-					return half((static_cast<detail::uint16>(builtin_signbit(to))<<15)+1, true);
-				return half(from.data_+(((from.data_>>15)^static_cast<uint16>(lfrom<to))<<1)-1, true);
+					return half(binary, (static_cast<detail::uint16>(builtin_signbit(to))<<15)+1);
+				return half(binary, from.data_+(((from.data_>>15)^static_cast<uint16>(lfrom<to))<<1)-1);
 			}
 
 			/// Sign implementation
 			/// \param x first operand
 			/// \param y second operand
 			/// \return composed value
-			static half copysign(half x, half y) { return half(x.data_^((x.data_^y.data_)&0x8000), true); }
+			static half copysign(half x, half y) { return half(binary, x.data_^((x.data_^y.data_)&0x8000)); }
 
 			/// Classification implementation.
 			/// \param arg value to classify
@@ -1546,6 +1493,7 @@ namespace half_float
 			/// \retval true if operand unordered
 			/// \retval false else
 			static bool isunordered(half x, half y) { return isnan(x) || isnan(y); }
+
 		#if HALF_ENABLE_CPP11_CMATH
 			/// Remainder implementation.
 			/// \param x first operand
@@ -1589,12 +1537,12 @@ namespace half_float
 			/// Negation implementation.
 			/// \param arg value to negate
 			/// \return negated value
-			static HALF_CONSTEXPR half negate(half arg) { return half(arg.data_^0x8000, true); }
+			static HALF_CONSTEXPR half negate(half arg) { return half(binary, arg.data_^0x8000); }
 
 			/// Absolute value implementation.
 			/// \param arg function argument
 			/// \return absolute value
-			static half fabs(half arg) { return half(arg.data_&0x7FFF, true); }
+			static half fabs(half arg) { return half(binary, arg.data_&0x7FFF); }
 		};
 		template<> struct unary_specialized<expr>
 		{
@@ -1649,7 +1597,7 @@ namespace half_float
 		template<typename U,std::float_round_style R> struct half_caster<half,U,R>
 		{
 			typedef half type;
-			static half cast(const U &arg) { return half(float2half<R>(static_cast<float>(arg)), true); };
+			static half cast(const U &arg) { return half(binary, float2half<R>(static_cast<float>(arg))); };
 		};
 		template<typename T,std::float_round_style R> struct half_caster<T,half,R>
 		{
@@ -2534,31 +2482,31 @@ namespace std
 		static HALF_CONSTEXPR_CONST int max_exponent10 = 4;
 
 		/// Smallest positive normal value.
-		static HALF_CONSTEXPR half_float::half min() HALF_NOTHROW { return half_float::half(0x0400, true); }
+		static HALF_CONSTEXPR half_float::half min() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0x0400); }
 
 		/// Smallest finite value.
-		static HALF_CONSTEXPR half_float::half lowest() HALF_NOTHROW { return half_float::half(0xFBFF, true); }
+		static HALF_CONSTEXPR half_float::half lowest() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0xFBFF); }
 
 		/// Largest finite value.
-		static HALF_CONSTEXPR half_float::half max() HALF_NOTHROW { return half_float::half(0x7BFF, true); }
+		static HALF_CONSTEXPR half_float::half max() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0x7BFF); }
 
 		/// Difference between one and next representable value.
-		static HALF_CONSTEXPR half_float::half epsilon() HALF_NOTHROW { return half_float::half(0x1400, true); }
+		static HALF_CONSTEXPR half_float::half epsilon() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0x1400); }
 
 		/// Maximum rounding error.
-		static HALF_CONSTEXPR half_float::half round_error() HALF_NOTHROW { return half_float::half(0x3C00, true); }
+		static HALF_CONSTEXPR half_float::half round_error() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0x3C00); }
 
 		/// Positive infinity.
-		static HALF_CONSTEXPR half_float::half infinity() HALF_NOTHROW { return half_float::half(0x7C00, true); }
+		static HALF_CONSTEXPR half_float::half infinity() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0x7C00); }
 
 		/// Quiet NaN.
-		static HALF_CONSTEXPR half_float::half quiet_NaN() HALF_NOTHROW { return half_float::half(0x7FFF, true); }
+		static HALF_CONSTEXPR half_float::half quiet_NaN() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0x7FFF); }
 
 		/// Signalling NaN.
-		static HALF_CONSTEXPR half_float::half signaling_NaN() HALF_NOTHROW { return half_float::half(0x7DFF, true); }
+		static HALF_CONSTEXPR half_float::half signaling_NaN() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0x7DFF); }
 
 		/// Smallest positive subnormal value.
-		static HALF_CONSTEXPR half_float::half denorm_min() HALF_NOTHROW { return half_float::half(0x0001, true); }
+		static HALF_CONSTEXPR half_float::half denorm_min() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0x0001); }
 	};
 
 #if HALF_ENABLE_CPP11_HASH

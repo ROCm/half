@@ -6,6 +6,7 @@ Release Notes											{#changelog}
   truncating/indeterminate) instead of single-precision rounding mode.
 - Added support for C++11 `cbrt` function even if single-precision version 
   from `<cmath>` is unsupported.
+- Minor implementation changes.
 
 
 1.8.1 release (2013-01-22):
