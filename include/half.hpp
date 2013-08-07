@@ -234,7 +234,7 @@ namespace half_float
 		template<bool> struct booltype {};
 */
 		/// Tag for binary construction.
-		const struct binary_t {} binary;
+		HALF_CONSTEXPR_CONST struct binary_t {} binary;
 
 		/// Temporary half-precision expression.
 		/// This class represents a half-precision expression which just stores a single-precision value internally.
@@ -904,7 +904,7 @@ namespace half_float
 
 		/// Constructor.
 		/// \param bits binary representation to set half to
-		HALF_CONSTEXPR half(detail::binary_t, detail::uint16 bits) : data_(bits) {}
+		HALF_CONSTEXPR half(const detail::binary_t&, detail::uint16 bits) : data_(bits) {}
 
 		/// Internal binary representation
 		detail::uint16 data_;
@@ -975,11 +975,87 @@ namespace half_float
 				return in;
 			}
 
-			/// Modulus implementation.
+			/// Modulo implementation.
 			/// \param x first operand
 			/// \param y second operand
 			/// \return Half-precision division remainder stored in single-precision
 			static expr fmod(float x, float y) { return expr(std::fmod(x, y)); }
+
+			/// Remainder implementation.
+			/// \param x first operand
+			/// \param y second operand
+			/// \return Half-precision division remainder stored in single-precision
+			static expr remainder(float x, float y)
+			{
+			#if HALF_ENABLE_CPP11_CMATH
+				return expr(std::remainder(x, y));
+			#else
+				if(builtin_isnan(x) || builtin_isnan(y))
+					return expr(std::numeric_limits<float>::quiet_NaN());
+				bool sign = builtin_signbit(x);
+				x = std::fabs(x);
+				y = std::fabs(y);
+				if(x >= 65536.0f || y<ldexp(1.0f, -24))
+					return expr(std::numeric_limits<float>::quiet_NaN());
+				if(x == y)
+					return expr(sign ? -0.0f : 0.0f);
+				x = std::fmod(x, y+y);
+				float y2 = 0.5f * y;
+				if(x > y2)
+				{
+					x -= y;
+					if(x >= y2)
+						x -= y;
+				}
+				return expr(sign ? -x : x);
+			#endif
+			}
+
+			/// Remainder implementation.
+			/// \param x first operand
+			/// \param y second operand
+			/// \param quo address to store quotient bits at
+			/// \return Half-precision division remainder stored in single-precision
+			static expr remquo(float x, float y, int *quo)
+			{
+			#if HALF_ENABLE_CPP11_CMATH
+				return expr(std::remquo(x, y, quo));
+			#else
+				if(builtin_isnan(x) || builtin_isnan(y))
+					return expr(std::numeric_limits<float>::quiet_NaN());
+				bool sign = builtin_signbit(x), qsign = static_cast<bool>(sign^builtin_signbit(y));
+				x = std::fabs(x);
+				y = std::fabs(y);
+				if(x >= 65536.0f || y<ldexp(1.0f, -24))
+					return expr(std::numeric_limits<float>::quiet_NaN());
+				if(x == y)
+					return *quo = qsign ? -1 : 1, expr(sign ? -0.0f : 0.0f);
+				x = std::fmod(x, 8.0f*y);
+				int cquo = 0;
+				if(x >= 4.0f * y)
+				{
+					x -= 4.0f * y;
+					cquo += 4;
+				}
+				if(x >= 2.0f * y)
+				{
+					x -= 2.0f * y;
+					cquo += 2;
+				}
+				float y2 = 0.5f * y;
+				if(x > y2)
+				{
+					x -= y;
+					++cquo;
+					if(x >= y2)
+					{
+						x -= y;
+						++cquo;
+					}
+				}
+				return *quo = qsign ? -cquo : cquo, expr(sign ? -x : x);
+			#endif
+			}
 
 			/// Positive difference implementation.
 			/// \param x first operand
@@ -1025,7 +1101,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::expm1(arg));
 			#else
-				return expr(std::exp(arg)-1.0f);
+				return expr(static_cast<float>(std::exp(arg)-1.0));
 			#endif
 			}
 
@@ -1037,7 +1113,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::exp2(arg));
 			#else
-				return expr(std::exp(arg*0.69314718055994530941723212145818f));
+				return expr(static_cast<float>(std::exp(arg*0.69314718055994530941723212145818)));
 			#endif
 			}
 
@@ -1059,7 +1135,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::log1p(arg));
 			#else
-				return expr(std::log(1.0f+arg));
+				return expr(static_cast<float>(std::log(1.0+arg)));
 			#endif
 			}
 
@@ -1071,7 +1147,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::log2(arg));
 			#else
-				return expr(std::log(arg)*1.4426950408889634073599246810019f);
+				return expr(static_cast<float>(std::log(arg)*1.4426950408889634073599246810019));
 			#endif
 			}
 
@@ -1085,10 +1161,12 @@ namespace half_float
 			/// \return function value stored in single-preicision
 			static expr cbrt(float arg)
 			{
-			#if HALF_ENABLE_CPP11_CMATH
+			#if !HALF_ENABLE_CPP11_CMATH
 				return expr(std::cbrt(arg));
 			#else
-				return expr(std::pow(arg, 1.0f/3.0f));
+				if(builtin_isnan(arg) || builtin_isinf(arg) || arg==0.0f)
+					return expr(arg);
+				return expr(builtin_signbit(arg) ? -static_cast<float>(std::pow(std::fabs(arg), 1.0/3.0)) : static_cast<float>(std::pow(arg, 1.0/3.0)));
 			#endif
 			}
 
@@ -1101,7 +1179,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::hypot(x, y));
 			#else
-				return expr(std::sqrt(x*x+y*y));
+				return expr(static_cast<float>(std::sqrt(static_cast<double>(x)*x+static_cast<double>(y)*y)));
 			#endif
 			}
 
@@ -1170,7 +1248,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::asinh(arg));
 			#else
-				return expr((arg==-std::numeric_limits<float>::infinity()) ? arg : static_cast<float>(std::log(arg+std::sqrt(arg*arg+1.0))));	//double!
+				return expr((arg==-std::numeric_limits<float>::infinity()) ? arg : static_cast<float>(std::log(arg+std::sqrt(arg*arg+1.0))));
 			#endif
 			}
 
@@ -1182,7 +1260,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::acosh(arg));
 			#else
-				return expr((arg<-1.0f) ? std::numeric_limits<float>::quiet_NaN() : std::log(arg+std::sqrt(arg*arg-1.0f)));
+				return expr((arg<-1.0f) ? std::numeric_limits<float>::quiet_NaN() : static_cast<float>(std::log(arg+std::sqrt(arg*arg-1.0))));
 			#endif
 			}
 
@@ -1194,7 +1272,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::atanh(arg));
 			#else
-				return expr(0.5f*std::log((1.0f+arg)/(1.0f-arg)));
+				return expr(static_cast<float>(0.5*std::log((1.0+arg)/(1.0-arg))));
 			#endif
 			}
 
@@ -1498,72 +1576,6 @@ namespace half_float
 			static bool isunordered(half x, half y) { return isnan(x) || isnan(y); }
 
 		#if HALF_ENABLE_CPP11_CMATH
-			/// Remainder implementation.
-			/// \param x first operand
-			/// \param y second operand
-			/// \return Half-precision division remainder stored in single-precision
-			static expr remainder(float x, float y)
-			{
-				if(builtin_isnan(x) || builtin_isnan(y) || x >= 65536.0f || y<ldexp(1.0f, -23))
-					return expr(std::numeric_limits<float>::quiet_NaN());
-				bool sign = builtin_signbit(x);
-				x = std::fabs(x);
-				y = std::fabs(y);
-				if(x == y)
-					return expr(sign ? -0.0f : 0.0f);
-				x = std::fmod(x, y+y);
-				float y2 = 0.5f * y;
-				if(x > y2)
-				{
-					x -= y;
-					if(x >= y2)
-						x -= y;
-				}
-				return sign ? -x : x;
-				return expr(std::remainder(x, y));
-			}
-
-			/// Remainder implementation.
-			/// \param x first operand
-			/// \param y second operand
-			/// \param quo address to store quotient bits at
-			/// \return Half-precision division remainder stored in single-precision
-			static expr remquo(float x, float y, int *quo)
-			{
-				if(builtin_isnan(x) || builtin_isnan(y) || x >= 65536.0f || y<ldexp(1.0f, -23))
-					return expr(std::numeric_limits<float>::quiet_NaN());
-				bool sign = builtin_signbit(x), bool qsign = static_cast<bool>(sign^builtin_signbit(y));
-				x = std::fabs(x);
-				y = std::fabs(y);
-				if(x == y)
-					return *quo = qsign ? -1 : 1, expr(sign ? -0.0f : 0.0f);
-				x = std::fmod(x, 8.0f*y);
-				int cquo = 0;
-				if(x >= 4.0f * y)
-				{
-					x -= 4.0f * y;
-					cquo += 4;
-				}
-				if(x >= 2.0f * y)
-				{
-					x -= 2.0f * y;
-					cquo += 2;
-				}
-				float y2 = 0.5f * y;
-				if(x > y2)
-				{
-					x -= y;
-					++cquo;
-					if(x >= y2)
-					{
-						x -= y;
-						++cquo;
-					}
-				}
-				return *quo = qsign ? -cquo : cquo, sign ? -x : x;
-				return expr(std::remquo(x, y, quo));
-			}
-
 			/// Error function implementation.
 			/// \param arg function argument
 			/// \return function value stored in single-preicision
@@ -1797,6 +1809,27 @@ namespace half_float
 		inline expr fmod(expr x, half y) { return functions::fmod(x, y); }
 		inline expr fmod(expr x, expr y) { return functions::fmod(x, y); }
 
+		/// Remainder of division.
+		/// \param x first operand
+		/// \param y second operand
+		/// \return remainder of floating point division.
+//		template<typename T,typename U> typename enable<expr,T,U>::type remainder(T x, U y) { return functions::remainder(x, y); }
+		inline expr remainder(half x, half y) { return functions::remainder(x, y); }
+		inline expr remainder(half x, expr y) { return functions::remainder(x, y); }
+		inline expr remainder(expr x, half y) { return functions::remainder(x, y); }
+		inline expr remainder(expr x, expr y) { return functions::remainder(x, y); }
+
+		/// Remainder of division.
+		/// \param x first operand
+		/// \param y second operand
+		/// \param quo address to store some bits of quotient at
+		/// \return remainder of floating point division.
+//		template<typename T,typename U> typename enable<expr,T,U>::type remquo(T x, U y, int *quo) { return functions::remquo(x, y, quo); }
+		inline expr remquo(half x, half y, int *quo) { return functions::remquo(x, y, quo); }
+		inline expr remquo(half x, expr y, int *quo) { return functions::remquo(x, y, quo); }
+		inline expr remquo(expr x, half y, int *quo) { return functions::remquo(x, y, quo); }
+		inline expr remquo(expr x, expr y, int *quo) { return functions::remquo(x, y, quo); }
+
 		/// Fused multiply add.
 		/// \param x first operand
 		/// \param y second operand
@@ -1846,28 +1879,6 @@ namespace half_float
 		/// \param arg descriptive string (ignored)
 		/// \return quiet NaN
 		inline half nanh(const char *arg) { return functions::nanh(arg); }
-	#if HALF_ENABLE_CPP11_CMATH
-		/// Remainder of division.
-		/// \param x first operand
-		/// \param y second operand
-		/// \return remainder of floating point division.
-//		template<typename T,typename U> typename enable<expr,T,U>::type remainder(T x, U y) { return functions::remainder(x, y); }
-		inline expr remainder(half x, half y) { return functions::remainder(x, y); }
-		inline expr remainder(half x, expr y) { return functions::remainder(x, y); }
-		inline expr remainder(expr x, half y) { return functions::remainder(x, y); }
-		inline expr remainder(expr x, expr y) { return functions::remainder(x, y); }
-
-		/// Remainder of division.
-		/// \param x first operand
-		/// \param y second operand
-		/// \param quo address to store some bits of quotient at
-		/// \return remainder of floating point division.
-//		template<typename T,typename U> typename enable<expr,T,U>::type remquo(T x, U y, int *quo) { return functions::remquo(x, y, quo); }
-		inline expr remquo(half x, half y, int *quo) { return functions::remquo(x, y, quo); }
-		inline expr remquo(half x, expr y, int *quo) { return functions::remquo(x, y, quo); }
-		inline expr remquo(expr x, half y, int *quo) { return functions::remquo(x, y, quo); }
-		inline expr remquo(expr x, expr y, int *quo) { return functions::remquo(x, y, quo); }
-	#endif
 
 		/// \}
 		/// \name Exponential functions
@@ -2403,6 +2414,8 @@ namespace half_float
 	using detail::abs;
 	using detail::fabs;
 	using detail::fmod;
+	using detail::remainder;
+	using detail::remquo;
 	using detail::fma;
 	using detail::fmax;
 	using detail::fmin;
@@ -2467,8 +2480,6 @@ namespace half_float
 	using detail::islessgreater;
 	using detail::isunordered;
 #if HALF_ENABLE_CPP11_CMATH
-	using detail::remainder;
-	using detail::remquo;
 	using detail::erf;
 	using detail::erfc;
 	using detail::lgamma;
