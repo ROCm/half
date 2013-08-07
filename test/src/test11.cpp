@@ -228,7 +228,7 @@ public:
 		binary_test("remainder", [](half a, half b) { return comp(remainder(a, b), 
 			static_cast<half>(std::remainder(static_cast<float>(a), static_cast<float>(b)))); });
 		binary_test("remquo", [](half a, half b) -> bool { int qh, qf; bool eq = comp(remquo(a, b, &qh), 
-			static_cast<half>(std::remquo(static_cast<float>(a), static_cast<float>(b), &qf))); return eq && qh==qf; });
+			static_cast<half>(std::remquo(static_cast<float>(a), static_cast<float>(b), &qf))); return eq && (qh&7)==(qf&7); });
 		binary_test("fmin", [](half a, half b) -> bool { half c = fmin(a, b); return ((isnan(a) || isnan(b)) && isnan(c)) || 
 			comp(c, static_cast<half>(std::fmin(static_cast<float>(a), static_cast<float>(b)))); });
 		binary_test("fmax", [](half a, half b) -> bool { half c = fmax(a, b); return ((isnan(a) || isnan(b)) && isnan(c)) || 
@@ -465,7 +465,7 @@ private:
 	template<typename F>
 	bool binary_test(const std::string &name, F test)
 	{
-		auto rand = std::bind(std::uniform_int_distribution<std::size_t>(0, 63), std::minstd_rand());
+		auto rand = std::bind(std::uniform_int_distribution<std::size_t>(0, 63), std::default_random_engine());
 		unsigned int tests = 0, count = 0;
 		log_ << "testing " << name << ": ";
 		for(auto iterB1=halfs_.begin(); iterB1!=halfs_.end(); ++iterB1)

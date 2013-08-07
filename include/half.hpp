@@ -1481,7 +1481,14 @@ namespace half_float
 			/// \param y second operand
 			/// \retval true neither \a x > \a y nor \a x < \a y
 			/// \retval false else
-			static bool islessgreater(half x, half y) { return isless(x, y) || isgreater(x, y); }
+			static bool islessgreater(half x, half y)
+			{
+				if(isnan(x) || isnan(y))
+					return false;
+				int17 a = signbit(x) ? (static_cast<int17>(0x8000)-x.data_) : static_cast<int17>(x.data_);
+				int17 b = signbit(y) ? (static_cast<int17>(0x8000)-y.data_) : static_cast<int17>(y.data_);
+				return a < b || a > b;
+			}
 
 			/// Comparison implementation.
 			/// \param x first operand
@@ -1495,14 +1502,67 @@ namespace half_float
 			/// \param x first operand
 			/// \param y second operand
 			/// \return Half-precision division remainder stored in single-precision
-			static expr remainder(float x, float y) { return expr(std::remainder(x, y)); }
+			static expr remainder(float x, float y)
+			{
+				if(builtin_isnan(x) || builtin_isnan(y) || x >= 65536.0f || y<ldexp(1.0f, -23))
+					return expr(std::numeric_limits<float>::quiet_NaN());
+				bool sign = builtin_signbit(x);
+				x = std::fabs(x);
+				y = std::fabs(y);
+				if(x == y)
+					return expr(sign ? -0.0f : 0.0f);
+				x = std::fmod(x, y+y);
+				float y2 = 0.5f * y;
+				if(x > y2)
+				{
+					x -= y;
+					if(x >= y2)
+						x -= y;
+				}
+				return sign ? -x : x;
+				return expr(std::remainder(x, y));
+			}
 
 			/// Remainder implementation.
 			/// \param x first operand
 			/// \param y second operand
 			/// \param quo address to store quotient bits at
 			/// \return Half-precision division remainder stored in single-precision
-			static expr remquo(float x, float y, int *quo) { return expr(std::remquo(x, y, quo)); }
+			static expr remquo(float x, float y, int *quo)
+			{
+				if(builtin_isnan(x) || builtin_isnan(y) || x >= 65536.0f || y<ldexp(1.0f, -23))
+					return expr(std::numeric_limits<float>::quiet_NaN());
+				bool sign = builtin_signbit(x), bool qsign = static_cast<bool>(sign^builtin_signbit(y));
+				x = std::fabs(x);
+				y = std::fabs(y);
+				if(x == y)
+					return *quo = qsign ? -1 : 1, expr(sign ? -0.0f : 0.0f);
+				x = std::fmod(x, 8.0f*y);
+				int cquo = 0;
+				if(x >= 4.0f * y)
+				{
+					x -= 4.0f * y;
+					cquo += 4;
+				}
+				if(x >= 2.0f * y)
+				{
+					x -= 2.0f * y;
+					cquo += 2;
+				}
+				float y2 = 0.5f * y;
+				if(x > y2)
+				{
+					x -= y;
+					++cquo;
+					if(x >= y2)
+					{
+						x -= y;
+						++cquo;
+					}
+				}
+				return *quo = qsign ? -cquo : cquo, sign ? -x : x;
+				return expr(std::remquo(x, y, quo));
+			}
 
 			/// Error function implementation.
 			/// \param arg function argument
