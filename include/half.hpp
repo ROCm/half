@@ -1161,7 +1161,7 @@ namespace half_float
 			/// \return function value stored in single-preicision
 			static expr cbrt(float arg)
 			{
-			#if !HALF_ENABLE_CPP11_CMATH
+			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::cbrt(arg));
 			#else
 				if(builtin_isnan(arg) || builtin_isinf(arg) || arg==0.0f)

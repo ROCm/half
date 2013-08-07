@@ -300,14 +300,14 @@ namespace half_float
 	half fmod(half x, half y);
 
 	/// Remainder of division.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
 	/// \param x first operand
 	/// \param y second operand
 	/// \return remainder of floating point division.
 	half remainder(half x, half y);
 
 	/// Remainder of division.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
 	/// \param x first operand
 	/// \param y second operand
 	/// \param quo address to store some bits of quotient at
@@ -403,7 +403,7 @@ namespace half_float
 	half sqrt(half arg);
 
 	/// Cubic root.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
 	/// \param arg function argument
 	/// \return cubic root of \a arg
 	half cbrt(half arg);
@@ -573,29 +573,25 @@ namespace half_float
 	long long llround(half arg);
 
 	/// Nearest integer.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
 	/// \return nearest integer using current single-precision rounding mode
 	half nearbyint(half arg);
 
 	/// Nearest integer.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
 	/// \return nearest integer using current single-precision rounding mode
 	half rint(half arg);
 
 	/// Nearest integer.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
 	/// \return nearest integer using current single-precision rounding mode
 	long lrint(half arg);
 
 	/// Nearest integer.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions 
-	/// and C++11 `long long`.
+	/// This function requires support for C++11 `long long`.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
 	/// \return nearest integer using current single-precision rounding mode

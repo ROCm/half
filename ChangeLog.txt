@@ -1,14 +1,15 @@
 Release Notes											{#changelog}
 =============
 
-1.9.0 release (2013-08-XX):
+1.9.0 release (2013-08-07):
 ---------------------------
 
 - Changed behaviour of `nearbyint`, `rint`, `lrint` and `llrint` to use 
   rounding mode of half-precision implementation (which is 
   truncating/indeterminate) instead of single-precision rounding mode.
-- Added support for C++11 `cbrt` function even if single-precision version 
-  from `<cmath>` is unsupported.
+- Added support for more C++11 mathematical functions even if single-
+  precision versions from `<cmath>` are unsupported, in particular 
+  `remainder`, `remquo` and `cbrt`.
 - Minor implementation changes.
 
 
