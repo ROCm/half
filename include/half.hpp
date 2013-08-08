@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Version 1.9.0
+// Version 1.9.1
 
 /// \file
 /// Main header file for half precision functionality.
@@ -151,7 +151,6 @@
 #include <iostream>
 #include <limits>
 #include <climits>
-#include <cfloat>
 #include <cmath>
 #include <cstring>
 #if HALF_ENABLE_CPP11_HASH
@@ -665,8 +664,8 @@ namespace half_float
 		/// \return single-precision value
 		inline float half2float_impl(uint16 value, booltype<false>)
 		{
-			int exp = value & 0x7C00;
 			float out;
+			int exp = value & 0x7C00;
 			if(exp == 0x7C00)
 			{
 				if(value & 0x3FF)
@@ -706,15 +705,12 @@ namespace half_float
 		/// \return integral value
 		template<std::float_round_style R,typename T> T half2int(uint16 value)
 		{
-		#if HALF_ENABLE_CPP11_STATIC_ASSERT
-			static_assert(std::numeric_limits<T>::digits>=16, "half only convertible to integers with at least 16 bits precision (excluding sign)");
-		#endif
 			unsigned int e = value & 0x7C00;
 			if(e == 0x7C00)
 				return (value&0x8000) ? std::numeric_limits<T>::min() : std::numeric_limits<T>::max();
 			if(e < 0x3800)
 				return T();
-			T m = (value&0x3FF) | 0x400;
+			int17 m = (value&0x3FF) | 0x400;
 			e >>= 10;
 			if(e < 25)
 			{
@@ -722,7 +718,7 @@ namespace half_float
 					m >>= 25 - e;
 				else
 				{
-					T frac = m & ((1<<(25-e))-1);
+					int17 frac = m & ((1<<(25-e))-1);
 					m >>= 25 - e;
 					if(R == std::round_to_nearest)
 						m += frac >> (24-e);
@@ -734,7 +730,9 @@ namespace half_float
 			}
 			else
 				m <<= e - 25;
-			return (value&0x8000) ? -m : m;
+//			if(std::numeric_limits<T>::digits < 16)
+//				return std::min(std::max(m, static_cast<int17>(std::numeric_limits<T>::min())), static_cast<int17>(std::numeric_limits<T>::max()));
+			return static_cast<T>((value&0x8000) ? -m : m);
 		}
 
 		/// Round half-precision number to nearest integer value.
@@ -995,7 +993,7 @@ namespace half_float
 				bool sign = builtin_signbit(x);
 				x = std::fabs(x);
 				y = std::fabs(y);
-				if(x >= 65536.0f || y<ldexp(1.0f, -24))
+				if(x >= 65536.0f || y<std::ldexp(1.0f, -24))
 					return expr(std::numeric_limits<float>::quiet_NaN());
 				if(x == y)
 					return expr(sign ? -0.0f : 0.0f);
@@ -1026,7 +1024,7 @@ namespace half_float
 				bool sign = builtin_signbit(x), qsign = static_cast<bool>(sign^builtin_signbit(y));
 				x = std::fabs(x);
 				y = std::fabs(y);
-				if(x >= 65536.0f || y<ldexp(1.0f, -24))
+				if(x >= 65536.0f || y<std::ldexp(1.0f, -24))
 					return expr(std::numeric_limits<float>::quiet_NaN());
 				if(x == y)
 					return *quo = qsign ? -1 : 1, expr(sign ? -0.0f : 0.0f);
@@ -2524,7 +2522,8 @@ namespace std
 		/// Due to the mix of internal single-precision computations (using the rounding mode of the underlying 
 		/// single-precision implementation) with explicit truncation of the single-to-half conversions, the actual rounding 
 		/// mode is indeterminate.
-		static HALF_CONSTEXPR_CONST float_round_style round_style = round_indeterminate;
+		static HALF_CONSTEXPR_CONST float_round_style round_style = (std::numeric_limits<float>::round_style==
+			half_float::half::round_style) ? half_float::half::round_style : round_indeterminate;
 
 		/// Significant digits.
 		static HALF_CONSTEXPR_CONST int digits = 11;
@@ -2592,8 +2591,8 @@ namespace std
 		/// Compute hash function.
 		/// \param arg half to hash
 		/// \return hash value
-		size_t operator()(half_float::half arg) const { return hash<half_float::detail::uint16>()(
-			arg.data_&-static_cast<unsigned int>(arg.data_!=0x8000)); }
+		size_t operator()(half_float::half arg) const
+			{ return hash<half_float::detail::uint16>()(arg.data_&-static_cast<unsigned int>(arg.data_!=0x8000)); }
 	};
 #endif
 }

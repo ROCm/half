@@ -1,6 +1,9 @@
 Release Notes											{#changelog}
 =============
 
+- Small fix to non-C++11 implementations of `remainder` and `remquo`.
+
+
 1.9.0 release (2013-08-07):
 ---------------------------
 
