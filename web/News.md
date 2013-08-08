@@ -1,10 +1,10 @@
 News														{#news}
 ====
 
-August X, 2013 - Release 1.9.1
+August 8, 2013 - Release 1.9.1
 ------------------------------
 
-[Version 1.9.1](http://sourceforge.net/projects/half/files/half/1.9.1) of the library has been released. It just adds a small fix to the non-C++11 implementations of remainder() and remquo(), which could cause a missing symbol on implementations that do not bring `<cmath>` functions into global namespace.
+[Version 1.9.1](http://sourceforge.net/projects/half/files/half/1.9.1) of the library has been released. It fixes compilation problems with older *gcc* and *MSVC* versions. Furthermore it adds a small fix to the non-C++11 implementations of remainder() and remquo(), which could cause a missing symbol on implementations that do not bring `<cmath>` functions into global namespace.
 
 ------------------------------
 August 7, 2013 - Release 1.9.0

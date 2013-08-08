@@ -1167,7 +1167,8 @@ namespace half_float
 			#else
 				if(builtin_isnan(arg) || builtin_isinf(arg) || arg==0.0f)
 					return expr(arg);
-				return expr(builtin_signbit(arg) ? -static_cast<float>(std::pow(std::fabs(arg), 1.0/3.0)) : static_cast<float>(std::pow(arg, 1.0/3.0)));
+				return expr(builtin_signbit(arg) ? -static_cast<float>(std::pow(static_cast<double>(std::fabs(arg)), 1.0/3.0)) : 
+					static_cast<float>(std::pow(static_cast<double>(arg), 1.0/3.0)));
 			#endif
 			}
 

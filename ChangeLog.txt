@@ -1,6 +1,10 @@
 Release Notes											{#changelog}
 =============
 
+1.9.1 release (2013-08-08):
+---------------------------
+
+- Fixed problems with older gcc and MSVC versions.
 - Small fix to non-C++11 implementations of `remainder` and `remquo`.
 
 
