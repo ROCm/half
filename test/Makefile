@@ -1,4 +1,4 @@
-CC       = /usr/bin/g++-4.7
+CC       = /usr/bin/g++
 CFLAGS	 = -Wall -pedantic -g -O2
 C11FLAGS = -std=c++0x $(CFLAGS)
 CPPFLAGS = -I../include
