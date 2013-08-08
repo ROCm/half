@@ -232,8 +232,11 @@ namespace half_float
 		/// Helper for tag dispatching.
 		template<bool> struct booltype {};
 */
+		/// Tag type for binary construction.
+		struct binary_t {};
+
 		/// Tag for binary construction.
-		HALF_CONSTEXPR_CONST struct binary_t {} binary;
+		HALF_CONSTEXPR_CONST binary_t binary = binary_t();
 
 		/// Temporary half-precision expression.
 		/// This class represents a half-precision expression which just stores a single-precision value internally.
@@ -902,7 +905,7 @@ namespace half_float
 
 		/// Constructor.
 		/// \param bits binary representation to set half to
-		HALF_CONSTEXPR half(const detail::binary_t&, detail::uint16 bits) : data_(bits) {}
+		HALF_CONSTEXPR half(detail::binary_t, detail::uint16 bits) : data_(bits) {}
 
 		/// Internal binary representation
 		detail::uint16 data_;
