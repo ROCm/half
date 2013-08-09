@@ -305,12 +305,18 @@ public:
 
 		//test rounding
 		auto rand32 = std::bind(std::uniform_int_distribution<std::uint32_t>(0, std::numeric_limits<std::uint32_t>::max()), std::default_random_engine());
-		simple_test("round_to_nearest", [&rand32]() mutable -> bool { unsigned int passed = 0; for(unsigned int i=0; i<1e6; ++i) {
+/*		simple_test("round_to_nearest", [&rand32]() mutable -> bool { unsigned int passed = 0; for(unsigned int i=0; i<1e6; ++i) {
 			std::uint32_t u=rand32(); float f = *reinterpret_cast<float*>(&u); half a(f), b(nextafter(a, 
 			copysign(std::numeric_limits<half>::infinity(), a))), h = half_cast<half,std::round_to_nearest>(f);
 			float af(a), bf(b), hf(h); passed += half_float::detail::builtin_isnan(f) || 
 			(std::abs(hf)>std::abs(f)&&comp(h, b)&&(std::abs(f-af)>=std::abs(bf-f)||isinf(h))) || 
 			(std::abs(hf)<=std::abs(f)&&comp(h, a)&&(std::abs(f-af)<std::abs(bf-f)||isinf(h))); } return passed == 1e6; });
+*/		simple_test("round_to_nearest", [&rand32]() mutable -> bool { unsigned int passed = 0; for(unsigned int i=0; i<1e6; ++i) {
+			std::uint32_t u=rand32(); float f = *reinterpret_cast<float*>(&u); half a(f), b(nextafter(a, 
+			copysign(std::numeric_limits<half>::infinity(), a))), h = half_cast<half,std::round_to_nearest>(f);
+			float af(a), bf(b), hf(h); passed += half_float::detail::builtin_isnan(f) || 
+			(std::abs(hf)>std::abs(f)&&comp(h, b)&&(std::abs(f-af)>=std::abs(bf-f)||isinf(h))) || 
+			(std::abs(hf)<=std::abs(f)&&comp(h, a)&&(std::abs(f-af)<=std::abs(bf-f)||isinf(h))); } return passed == 1e6; });
 		simple_test("round_toward_zero", [&rand32]() mutable -> bool { unsigned int passed = 0; for(unsigned int i=0; i<1e6; ++i) {
 			std::uint32_t u=rand32(); float f = *reinterpret_cast<float*>(&u); half a(f), h = half_cast<half,std::round_toward_zero>(f);
 			float af(a), hf(h); passed += half_float::detail::builtin_isnan(f) || isinf(a) || af == hf; } return passed == 1e6; });

@@ -401,7 +401,8 @@ namespace half_float
 			std::memcpy(&bits, &value, sizeof(float));
 			uint16 hbits = base_table[bits>>23] + ((bits&0x7FFFFF)>>shift_table[bits>>23]);
 			if(R == std::round_to_nearest)
-				hbits += (((bits&0x7FFFFF)>>(shift_table[bits>>23]-1))|(((bits>>23)&0xFF)==102)) & ((hbits&0x7C00)!=0x7C00);
+				hbits += (((bits&0x7FFFFF)>>(shift_table[bits>>23]-1))|(((bits>>23)&0xFF)==102)) & 
+					/*(((((1<<(shift_table[bits>>23]-1))-1)&bits)!=0)|hbits)*/ & ((hbits&0x7C00)!=0x7C00);
 			else if(R == std::round_toward_zero)
 				hbits -= ((hbits&0x7FFF)==0x7C00) & ~shift_table[bits>>23];
 			else if(R == std::round_toward_infinity)
