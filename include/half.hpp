@@ -750,11 +750,11 @@ namespace half_float
 			{
 				result &= 0x8000;
 				if(R == std::round_to_nearest)
-					result |= 0x3C00 & -static_cast<uint16>((value&0x7FFF)>=0x3800);
+					result |= 0x3C00U & -((value&0x7FFF)>=0x3800);
 				else if(R == std::round_toward_infinity)
-					result |= 0x3C00 & -static_cast<uint16>(~(value>>15)&((value&0x7FFF)!=0));
+					result |= 0x3C00U & -(~(value>>15)&((value&0x7FFF)!=0));
 				else if(R == std::round_toward_neg_infinity)
-					result |= 0x3C00 & -static_cast<uint16>((value>>15)&((value&0x7FFF)!=0));
+					result |= 0x3C00U & -((value>>15)&((value&0x7FFF)!=0));
 			}
 			else if(e < 0x6400)
 			{
@@ -762,11 +762,11 @@ namespace half_float
 				unsigned int mask = (1<<e) - 1;
 				if(R == std::round_to_nearest)
 					result += 1 << (e-1);
-				result &= ~mask;
-				if(R == std::round_toward_infinity)
-					result += (~(value>>15)&((value&mask)!=0)) << e;
+				else if(R == std::round_toward_infinity)
+					result += mask & ((value>>15)-1);
 				else if(R == std::round_toward_neg_infinity)
-					result += ((value>>15)&((value&mask)!=0)) << e;
+					result += mask & -(value>>15);
+				result &= ~mask;
 			}
 			return result;
 		}
@@ -1102,7 +1102,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::expm1(arg));
 			#else
-				return expr(static_cast<float>(std::exp(arg)-1.0));
+				return expr(static_cast<float>(std::exp(static_cast<double>(arg))-1.0));
 			#endif
 			}
 
@@ -1148,7 +1148,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::log2(arg));
 			#else
-				return expr(static_cast<float>(std::log(arg)*1.4426950408889634073599246810019));
+				return expr(static_cast<float>(std::log(static_cast<double>(arg))*1.4426950408889634073599246810019));
 			#endif
 			}
 
@@ -1340,8 +1340,7 @@ namespace half_float
 					for(m<<=1; m<0x400; m<<=1,--e) ;
 					m &= 0x3FF;
 				}
-				*exp = e - 14;
-				return half(binary, static_cast<uint16>((arg.data_&0x8000)|0x3800|m));
+				return *exp = e-14, half(binary, static_cast<uint16>((arg.data_&0x8000)|0x3800|m));
 			}
 
 			/// Decompression implementation.
@@ -2378,8 +2377,8 @@ namespace half_float
 		/// \tparam U source type
 		/// \param arg value to cast
 		/// \return \a arg converted to destination type
-		template<typename T,typename U> typename half_caster<T,U,std::round_indeterminate>::type
-			half_cast(const U &arg) { return half_caster<T,U,std::round_indeterminate>::cast(arg); }
+		template<typename T,typename U> typename half_caster<T,U,std::round_indeterminate>::type half_cast(const U &arg)
+			{ return half_caster<T,U,std::round_indeterminate>::cast(arg); }
 
 		/// Cast to or from half-precision floating point number with specified rounding.
 		/// This casts between [half](\ref half_float::half) and any type convertible to/from `float` via an explicit cast of this 
@@ -2395,8 +2394,8 @@ namespace half_float
 		/// \tparam U source type
 		/// \param arg value to cast
 		/// \return \a arg converted to destination type
-		template<typename T,std::float_round_style R,typename U> typename half_caster<T,U,R>::type
-			half_cast(const U &arg) { return half_caster<T,U,R>::cast(arg); }
+		template<typename T,std::float_round_style R,typename U> typename half_caster<T,U,R>::type half_cast(const U &arg)
+			{ return half_caster<T,U,R>::cast(arg); }
 		/// \}
 	}
 
@@ -2596,7 +2595,7 @@ namespace std
 		/// \param arg half to hash
 		/// \return hash value
 		size_t operator()(half_float::half arg) const
-			{ return hash<half_float::detail::uint16>()(arg.data_&-static_cast<unsigned int>(arg.data_!=0x8000)); }
+			{ return hash<half_float::detail::uint16>()(static_cast<unsigned int>(arg.data_)&-(arg.data_!=0x8000)); }
 	};
 #endif
 }
