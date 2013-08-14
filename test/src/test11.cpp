@@ -237,8 +237,8 @@ public:
 			comp(c, static_cast<half>(std::fmin(static_cast<float>(a), static_cast<float>(b)))); });
 		binary_test("fmax", [](half a, half b) -> bool { half c = fmax(a, b); return ((isnan(a) || isnan(b)) && isnan(c)) || 
 			comp(c, static_cast<half>(std::fmax(static_cast<float>(a), static_cast<float>(b)))); });
-		binary_test("fdim", [](half a, half b) -> bool { if(! /*return*/ comp(fdim(a, b), static_cast<half>(
-			std::fdim(static_cast<float>(a), static_cast<float>(b)))) ) std::cout << a << " - " << b << '\n'; return true; });
+		binary_test("fdim", [](half a, half b) { return comp(fdim(a, b), static_cast<half>(
+			std::fdim(static_cast<float>(a), static_cast<float>(b)))); });
 
 		//test exponential functions
 		unary_test("exp2", [](half arg) { return comp(exp2(arg), static_cast<half>(std::exp2(static_cast<float>(arg)))); });
