@@ -997,7 +997,7 @@ namespace half_float
 				bool sign = builtin_signbit(x);
 				x = std::fabs(x);
 				y = std::fabs(y);
-				if(x >= 65536.0f || y<std::ldexp(1.0f, -24))
+				if(x >= 65536.0f || y < std::ldexp(1.0f, -24))
 					return expr(std::numeric_limits<float>::quiet_NaN());
 				if(x == y)
 					return expr(sign ? -0.0f : 0.0f);
@@ -1028,7 +1028,7 @@ namespace half_float
 				bool sign = builtin_signbit(x), qsign = static_cast<bool>(sign^builtin_signbit(y));
 				x = std::fabs(x);
 				y = std::fabs(y);
-				if(x >= 65536.0f || y<std::ldexp(1.0f, -24))
+				if(x >= 65536.0f || y < std::ldexp(1.0f, -24))
 					return expr(std::numeric_limits<float>::quiet_NaN());
 				if(x == y)
 					return *quo = qsign ? -1 : 1, expr(sign ? -0.0f : 0.0f);
