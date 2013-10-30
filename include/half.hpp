@@ -129,6 +129,9 @@
 			#define HALF_ENABLE_CPP11_HASH 1
 		#endif
 	#endif
+	#if _CPPLIB_VER >= 610
+		#define HALF_ENABLE_CPP11_CMATH 1
+	#endif
 #endif
 #undef HALF_GNUC_VERSION
 
