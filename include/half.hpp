@@ -77,6 +77,9 @@
 	#if _MSC_VER >= 1310 && !defined(HALF_ENABLE_CPP11_LONG_LONG)
 		#define HALF_ENABLE_CPP11_LONG_LONG 1
 	#endif
+	#define HALF_POP_WARNINGS 1
+	#pragma warning(push)
+	#pragma warning(disable : 4127 4099)	//constant in if, struct vs class
 #endif
 
 //check C++11 library features
@@ -2606,5 +2609,9 @@ namespace std
 #undef HALF_CONSTEXPR_CONST
 #undef HALF_NOEXCEPT
 #undef HALF_NOTHROW
+#ifdef HALF_POP_WARNINGS
+	#pragma warning(pop)
+	#undef HALF_POP_WARNINGS
+#endif
 
 #endif

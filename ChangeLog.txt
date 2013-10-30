@@ -1,6 +1,9 @@
 Release Notes											{#changelog}
 =============
 
+- Removed unnecessary warnings in *MSVC*.
+
+
 1.9.1 release (2013-08-08):
 ---------------------------
 
