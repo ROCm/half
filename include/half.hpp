@@ -2288,37 +2288,49 @@ namespace half_float
 		/// \retval FP_INFINITY for positive and negative infinity
 		/// \retval FP_NAN for NaNs
 		/// \retval FP_NORMAL for all other (normal) values
-		template<typename T> typename enable<int,T>::type fpclassify(T arg) { return functions::fpclassify(arg); }
+//		template<typename T> typename enable<int,T>::type fpclassify(T arg) { return functions::fpclassify(arg); }
+		inline int fpclassify(half arg) { return functions::fpclassify(arg); }
+		inline int fpclassify(expr arg) { return functions::fpclassify(arg); }
 
 		/// Check if finite number.
 		/// \param arg number to check
 		/// \retval true if neither infinity nor NaN
 		/// \retval false else
-		template<typename T> typename enable<bool,T>::type isfinite(T arg) { return functions::isfinite(arg); }
+//		template<typename T> typename enable<bool,T>::type isfinite(T arg) { return functions::isfinite(arg); }
+		inline bool isfinite(half arg) { return functions::isfinite(arg); }
+		inline bool isfinite(expr arg) { return functions::isfinite(arg); }
 
 		/// Check for infinity.
 		/// \param arg number to check
 		/// \retval true for positive or negative infinity
 		/// \retval false else
-		template<typename T> typename enable<bool,T>::type isinf(T arg) { return functions::isinf(arg); }
+//		template<typename T> typename enable<bool,T>::type isinf(T arg) { return functions::isinf(arg); }
+		inline bool isinf(half arg) { return functions::isinf(arg); }
+		inline bool isinf(expr arg) { return functions::isinf(arg); }
 
 		/// Check for NaN.
 		/// \param arg number to check
 		/// \retval true for NaNs
 		/// \retval false else
-		template<typename T> typename enable<bool,T>::type isnan(T arg) { return functions::isnan(arg); }
+//		template<typename T> typename enable<bool,T>::type isnan(T arg) { return functions::isnan(arg); }
+		inline bool isnan(half arg) { return functions::isnan(arg); }
+		inline bool isnan(expr arg) { return functions::isnan(arg); }
 
 		/// Check if normal number.
 		/// \param arg number to check
 		/// \retval true if normal number
 		/// \retval false if either subnormal, zero, infinity or NaN
-		template<typename T> typename enable<bool,T>::type isnormal(T arg) { return functions::isnormal(arg); }
+//		template<typename T> typename enable<bool,T>::type isnormal(T arg) { return functions::isnormal(arg); }
+		inline bool isnormal(half arg) { return functions::isnormal(arg); }
+		inline bool isnormal(expr arg) { return functions::isnormal(arg); }
 
 		/// Check sign.
 		/// \param arg number to check
 		/// \retval true for negative number
 		/// \retval false for positive number
-		template<typename T> typename enable<bool,T>::type signbit(T arg) { return functions::signbit(arg); }
+//		template<typename T> typename enable<bool,T>::type signbit(T arg) { return functions::signbit(arg); }
+		inline bool signbit(half arg) { return functions::signbit(arg); }
+		inline bool signbit(expr arg) { return functions::signbit(arg); }
 
 		/// \}
 		/// \name Comparison
@@ -2329,42 +2341,66 @@ namespace half_float
 		/// \param y second operand
 		/// \retval true if \a x greater than \a y
 		/// \retval false else
-		template<typename T,typename U> typename enable<bool,T,U>::type isgreater(T x, U y) { return functions::isgreater(x, y); }
+//		template<typename T,typename U> typename enable<bool,T,U>::type isgreater(T x, U y) { return functions::isgreater(x, y); }
+		inline bool isgreater(half x, half y) { return functions::isgreater(x, y); }
+		inline bool isgreater(half x, expr y) { return functions::isgreater(x, y); }
+		inline bool isgreater(expr x, half y) { return functions::isgreater(x, y); }
+		inline bool isgreater(expr x, expr y) { return functions::isgreater(x, y); }
 
 		/// Comparison for greater equal.
 		/// \param x first operand
 		/// \param y second operand
 		/// \retval true if \a x greater equal \a y
 		/// \retval false else
-		template<typename T,typename U> typename enable<bool,T,U>::type isgreaterequal(T x, U y) { return functions::isgreaterequal(x, y); }
+//		template<typename T,typename U> typename enable<bool,T,U>::type isgreaterequal(T x, U y) { return functions::isgreaterequal(x, y); }
+		inline bool isgreaterequal(half x, half y) { return functions::isgreaterequal(x, y); }
+		inline bool isgreaterequal(half x, expr y) { return functions::isgreaterequal(x, y); }
+		inline bool isgreaterequal(expr x, half y) { return functions::isgreaterequal(x, y); }
+		inline bool isgreaterequal(expr x, expr y) { return functions::isgreaterequal(x, y); }
 
 		/// Comparison for less than.
 		/// \param x first operand
 		/// \param y second operand
 		/// \retval true if \a x less than \a y
 		/// \retval false else
-		template<typename T,typename U> typename enable<bool,T,U>::type isless(T x, U y) { return functions::isless(x, y); }
+//		template<typename T,typename U> typename enable<bool,T,U>::type isless(T x, U y) { return functions::isless(x, y); }
+		inline bool isless(half x, half y) { return functions::isless(x, y); }
+		inline bool isless(half x, expr y) { return functions::isless(x, y); }
+		inline bool isless(expr x, half y) { return functions::isless(x, y); }
+		inline bool isless(expr x, expr y) { return functions::isless(x, y); }
 
 		/// Comparison for less equal.
 		/// \param x first operand
 		/// \param y second operand
 		/// \retval true if \a x less equal \a y
 		/// \retval false else
-		template<typename T,typename U> typename enable<bool,T,U>::type islessequal(T x, U y) { return functions::islessequal(x, y); }
+//		template<typename T,typename U> typename enable<bool,T,U>::type islessequal(T x, U y) { return functions::islessequal(x, y); }
+		inline bool islessequal(half x, half y) { return functions::islessequal(x, y); }
+		inline bool islessequal(half x, expr y) { return functions::islessequal(x, y); }
+		inline bool islessequal(expr x, half y) { return functions::islessequal(x, y); }
+		inline bool islessequal(expr x, expr y) { return functions::islessequal(x, y); }
 
 		/// Comarison for less or greater.
 		/// \param x first operand
 		/// \param y second operand
 		/// \retval true if either less or greater
 		/// \retval false else
-		template<typename T,typename U> typename enable<bool,T,U>::type islessgreater(T x, U y) { return functions::islessgreater(x, y); }
+//		template<typename T,typename U> typename enable<bool,T,U>::type islessgreater(T x, U y) { return functions::islessgreater(x, y); }
+		inline bool islessgreater(half x, half y) { return functions::islessgreater(x, y); }
+		inline bool islessgreater(half x, expr y) { return functions::islessgreater(x, y); }
+		inline bool islessgreater(expr x, half y) { return functions::islessgreater(x, y); }
+		inline bool islessgreater(expr x, expr y) { return functions::islessgreater(x, y); }
 
 		/// Check if unordered.
 		/// \param x first operand
 		/// \param y second operand
 		/// \retval true if unordered (one or two NaN operands)
 		/// \retval false else
-		template<typename T,typename U> typename enable<bool,T,U>::type isunordered(T x, U y) { return functions::isunordered(x, y); }
+//		template<typename T,typename U> typename enable<bool,T,U>::type isunordered(T x, U y) { return functions::isunordered(x, y); }
+		inline bool isunordered(half x, half y) { return functions::isunordered(x, y); }
+		inline bool isunordered(half x, expr y) { return functions::isunordered(x, y); }
+		inline bool isunordered(expr x, half y) { return functions::isunordered(x, y); }
+		inline bool isunordered(expr x, expr y) { return functions::isunordered(x, y); }
 
 		/// \name Casting
 		/// \{

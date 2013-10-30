@@ -1,6 +1,7 @@
 Release Notes											{#changelog}
 =============
 
+- Tested and fixed for *VC++ 2013*.
 - Removed unnecessary warnings in *MSVC*.
 
 
