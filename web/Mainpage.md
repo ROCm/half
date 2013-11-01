@@ -9,10 +9,10 @@ This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.o
 News														{#new}
 ====
 
-August 8, 2013 - Release 1.9.1
-------------------------------
+November 1, 2013 - Release 1.9.2
+--------------------------------
 
-[Version 1.9.1](http://sourceforge.net/projects/half/files/half/1.9.1) of the library has been released. It fixes compilation problems with older *gcc* and *MSVC* versions. Furthermore it adds a small fix to the non-C++11 implementations of remainder() and remquo(), which could cause a missing symbol on implementations that do not bring `<cmath>` functions into global namespace.
+[Version 1.9.2](http://sourceforge.net/projects/half/files/half/1.9.2) of the library has been released. It was tested and fixed for *MS Visual C++ 2013* and *gcc 4.8*. In addition to that it removes some warnings on *MSVC* compilers in general.
 
 August 7, 2013 - Release 1.9.0
 ------------------------------
@@ -28,7 +28,7 @@ Download and Installation									{#downloads}
 
 The library in its most recent version can be obtained from here, see the [Release Notes](changelog.html) for further information:
 
-<ul class="tablist"><li>[Download half 1.9.1 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
+<ul class="tablist"><li>[Download half 1.9.2 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
 
 If you are interested in previous versions of the library, see the [SourceForge download page](http://sourceforge.net/projects/half/files/half).
 
@@ -47,7 +47,7 @@ sized integer types from `<cstdint>` | more flexible type sizes        | *VC++ 2
 certain new `<cmath>` functions      | corresponding half functions    | *VC++ 2013*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_CMATH`
 `std::hash` from `<functional>`      | hash function for halfs         | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_HASH`
 
-The library has been tested successfully with *Visual C++ 2005* - *2013*, *gcc 4.4* - *4.7* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
+The library has been tested successfully with *Visual C++ 2005* - *2013*, *gcc 4.4* - *4.8* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 
 
 -------------

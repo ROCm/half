@@ -4,7 +4,7 @@ News														{#news}
 November 1, 2013 - Release 1.9.2
 --------------------------------
 
-[Version 1.9.2](http://sourceforge.net/projects/half/files/half/1.9.2) of the library has been released. It was tested and fixed for *MS Visual C++ 2013*. In addition to that it removes some warnings on *MSVC* compilers in general.
+[Version 1.9.2](http://sourceforge.net/projects/half/files/half/1.9.2) of the library has been released. It was tested and fixed for *MS Visual C++ 2013* and *gcc 4.8*. In addition to that it removes some warnings on *MSVC* compilers in general.
 
 ------------------------------
 August 8, 2013 - Release 1.9.1
