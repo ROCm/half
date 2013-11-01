@@ -1,6 +1,9 @@
 Release Notes											{#changelog}
 =============
 
+1.9.2 release (2013-11-01):
+---------------------------
+
 - Tested and fixed for *VC++ 2013*.
 - Removed unnecessary warnings in *MSVC*.
 

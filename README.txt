@@ -1,4 +1,4 @@
-HALF-PRECISION FLOATING POINT LIBRARY (Version 1.9.1)
+HALF-PRECISION FLOATING POINT LIBRARY (Version 1.9.2)
 -----------------------------------------------------
 
 This is a C++ header-only library to provide an IEEE 754 conformant 16-bit 
@@ -44,13 +44,13 @@ should be explicitly disabled:
     libc++ and newer, overridable with 'HALF_ENABLE_CPP11_CSTDINT').
 
   - Certain C++11 single-precision mathematical functions from <cmath> for 
-    their half-precision counterparts to work (enabled for libstdc++ 4.3, 
-    libc++ and newer, overridable with 'HALF_ENABLE_CPP11_CMATH').
+    their half-precision counterparts to work (enabled for VC++ 2013, 
+    libstdc++ 4.3, libc++ and newer, overridable with 'HALF_ENABLE_CPP11_CMATH').
 
   - Hash functor 'std::hash' from <functional> (enabled for VC++ 2010, 
     libstdc++ 4.3, libc++ and newer, overridable with 'HALF_ENABLE_CPP11_HASH').
 
-The library has been tested successfully with Visual C++ 2005-2012, gcc 4.4-4.7 
+The library has been tested successfully with Visual C++ 2005-2013, gcc 4.4-4.7 
 and clang 3.1. Please contact me if you have any problems, suggestions or even 
 just success testing it on other platforms.
 

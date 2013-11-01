@@ -19,11 +19,6 @@
 /// \file
 /// Main header file of the library.
 
-#include <limits>
-#include <functional>
-#include <iosfwd>
-#include <cstdint>
-
 
 /// Value signaling overflow.
 /// In correspondence with `HUGE_VAL[F|L]` from `<cmath>` this symbol expands to a positive value signaling the overflow of an 

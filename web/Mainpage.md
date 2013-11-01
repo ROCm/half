@@ -44,10 +44,10 @@ generalized constant expressions     | constant operations             | *gcc 4.
 `noexcept` specifications            | proper `noexcept` functions     | *gcc 4.6*, *clang 3.0*                      | `HALF_ENABLE_CPP11_NOEXCEPT`
 user-defined literals                | half-precision literals         | *gcc 4.7*, *clang 3.1*                      | `HALF_ENABLE_CPP11_USER_LITERALS`
 sized integer types from `<cstdint>` | more flexible type sizes        | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_CSTDINT`
-certain new `<cmath>` functions      | corresponding half functions    | *libstdc++ 4.3*, <i>libc++</i>              | `HALF_ENABLE_CPP11_CMATH`
+certain new `<cmath>` functions      | corresponding half functions    | *VC++ 2013*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_CMATH`
 `std::hash` from `<functional>`      | hash function for halfs         | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_HASH`
 
-The library has been tested successfully with *Visual C++ 2005* - *2012*, *gcc 4.4* - *4.7* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
+The library has been tested successfully with *Visual C++ 2005* - *2013*, *gcc 4.4* - *4.7* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 
 
 -------------
