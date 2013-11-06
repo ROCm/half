@@ -2637,7 +2637,7 @@ namespace std
 		/// Compute hash function.
 		/// \param arg half to hash
 		/// \return hash value
-		size_t operator()(half_float::half arg) const
+		result_type operator()(argument_type arg) const
 			{ return hash<half_float::detail::uint16>()(static_cast<unsigned int>(arg.data_)&-(arg.data_!=0x8000)); }
 	};
 #endif
