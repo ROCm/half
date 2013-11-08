@@ -1,6 +1,13 @@
 Release Notes											{#changelog}
 =============
 
+- Added `HALF_ENABLE_CPP11_TYPE_TRAITS` preprocessor flag for checking 
+  support for C++11 type traits and TMP features.
+- Restricted `half_cast` to support built-in arithmetic types only.
+- Changed behaviour of `half_cast` to respect rounding mode when casting 
+  to/from integer types.
+
+
 1.9.2 release (2013-11-01):
 ---------------------------
 

@@ -1,4 +1,4 @@
-HALF-PRECISION FLOATING POINT LIBRARY (Version 1.9.2)
+HALF-PRECISION FLOATING POINT LIBRARY (Version 1.10.0)
 -----------------------------------------------------
 
 This is a C++ header-only library to provide an IEEE 754 conformant 16-bit 
@@ -39,6 +39,10 @@ should be explicitly disabled:
 
   - User-defined literals for half-precision literals to work (enabled for 
     gcc 4.7, clang 3.1 and newer, overridable with 'HALF_ENABLE_CPP11_USER_LITERALS').
+
+  - Type traits and template meta-programming features from <type_traits> 
+    (enabled for VC++ 2010, libstdc++ 4.3, libc++ and newer, overridable with 
+    'HALF_ENABLE_CPP11_TYPE_TRAITS').
 
   - Special integer types from <cstdint> (enabled for VC++ 2010, libstdc++ 4.3, 
     libc++ and newer, overridable with 'HALF_ENABLE_CPP11_CSTDINT').

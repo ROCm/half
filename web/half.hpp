@@ -751,31 +751,35 @@ namespace half_float
 	/// \{
 
 	/// Cast to or from half-precision floating point number.
-	/// This casts between [half](\ref half_float::half) and any type convertible to/from `float` via an explicit cast of this 
-	/// type to/from `float`. It uses the fastest rounding possible when performing a float-to-half conversion (if any) and is 
-	/// thus equivalent to half_cast<T,std::round_indeterminate,U>() or a simple `static_cast`, but suppressing any possible 
-	/// warnings due to an otherwise implicit conversion to/from `float`.
+	/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. Floating point types are 
+	/// converted via an explicit cast to/from `float` (using the rounding mode of the built-in single precision 
+	/// implementation) and thus any possible warnings due to an otherwise implicit conversion to/from `float` will be 
+	/// suppressed. Integer types are converted directly using the given rounding mode, without any roundtrip over `float` 
+	/// that a `static_cast` would otherwise do. It uses the fastest rounding possible and is thus equivalent to 
+	/// half_cast<T,std::round_indeterminate,U>().
 	///
-	/// Using this cast with neither of the two types being a [half](\ref half_float::half) results in a compiler error and 
-	/// casting between [half](\ref half_float::half)s is just a no-op.
-	/// \tparam T destination type
-	/// \tparam U source type
+	/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types 
+	/// not being a built-in arithmetic type (apart from [half](\ref half_float::half), of course) results in a compiler 
+	/// error and casting between [half](\ref half_float::half)s is just a no-op.
+	/// \tparam T destination type (half or built-in arithmetic type)
+	/// \tparam U source type (half or built-in arithmetic type)
 	/// \param arg value to cast
 	/// \return \a arg converted to destination type
 	template<typename T,typename U> T half_cast(const U &arg);
 
-	/// Cast to or from half-precision floating point number with specified rounding.
-	/// This casts between [half](\ref half_float::half) and any type convertible to/from `float` via an explicit cast of this 
-	/// type to/from `float`. The rounding mode used for the internal float-to-half conversion (if any) can be specified 
-	/// explicitly, or chosen to be the fastest possible rounding using `std::round_indeterminate`, which would be equivalent 
-	/// to half_cast<T,U>() or a simple `static_cast`, but suppressing any possible warnings due to an otherwise implicit 
-	/// conversion to/from `float`.
+	/// Cast to or from half-precision floating point number.
+	/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. Floating point types are 
+	/// converted via an explicit cast to/from `float` (using the rounding mode of the built-in single precision 
+	/// implementation) and thus any possible warnings due to an otherwise implicit conversion to/from `float` will be 
+	/// suppressed. Integer types are converted directly using the given rounding mode, without any roundtrip over `float` 
+	/// that a `static_cast` would otherwise do.
 	///
-	/// Using this cast with neither of the two types being a [half](\ref half_float::half) results in a compiler error and 
-	/// casting between [half](\ref half_float::half)s is just a no-op.
-	/// \tparam T destination type
+	/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types 
+	/// not being a built-in arithmetic type (apart from [half](\ref half_float::half), of course) results in a compiler 
+	/// error and casting between [half](\ref half_float::half)s is just a no-op.
+	/// \tparam T destination type (half or built-in arithmetic type)
 	/// \tparam R rounding mode to use (see [std::float_round_style](http://en.cppreference.com/w/cpp/types/numeric_limits/float_round_style))
-	/// \tparam U source type
+	/// \tparam U source type (half or built-in arithmetic type)
 	/// \param arg value to cast
 	/// \return \a arg converted to destination type
 	template<typename T,std::float_round_style R,typename U> T half_cast(const U &arg);

@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Version 1.9.2
+// Version 1.10.0
 
 /// \file
 /// Main header file for half precision functionality.
@@ -86,6 +86,9 @@
 #include <utility>
 #if defined(_LIBCPP_VERSION)								//libc++
 	#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103
+		#ifndef HALF_ENABLE_CPP11_TYPE_TRAITS
+			#define HALF_ENABLE_CPP11_TYPE_TRAITS 1
+		#endif
 		#ifndef HALF_ENABLE_CPP11_CSTDINT
 			#define HALF_ENABLE_CPP11_CSTDINT 1
 		#endif
@@ -99,6 +102,9 @@
 #elif defined(__GLIBCXX__)									//libstdc++
 	#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103
 		#ifdef __clang__
+			#if __GLIBCXX__ >= 20080606 && !defined(HALF_ENABLE_CPP11_TYPE_TRAITS)
+				#define HALF_ENABLE_CPP11_TYPE_TRAITS 1
+			#endif
 			#if __GLIBCXX__ >= 20080606 && !defined(HALF_ENABLE_CPP11_CSTDINT)
 				#define HALF_ENABLE_CPP11_CSTDINT 1
 			#endif
@@ -122,6 +128,9 @@
 	#endif
 #elif defined(_CPPLIB_VER)									//Dinkumware/Visual C++
 	#if _CPPLIB_VER >= 520
+		#ifndef HALF_ENABLE_CPP11_TYPE_TRAITS
+			#define HALF_ENABLE_CPP11_TYPE_TRAITS 1
+		#endif
 		#ifndef HALF_ENABLE_CPP11_CSTDINT
 			#define HALF_ENABLE_CPP11_CSTDINT 1
 		#endif
@@ -159,11 +168,14 @@
 #include <climits>
 #include <cmath>
 #include <cstring>
-#if HALF_ENABLE_CPP11_HASH
-	#include <functional>
+#if HALF_ENABLE_CPP11_TYPE_TRAITS
+	#include <type_traits>
 #endif
 #if HALF_ENABLE_CPP11_CSTDINT
 	#include <cstdint>
+#endif
+#if HALF_ENABLE_CPP11_HASH
+	#include <functional>
 #endif
 
 
@@ -211,6 +223,37 @@ namespace half_float
 	/// \brief Implementation details.
 	namespace detail
 	{
+	#if HALF_ENABLE_CPP11_TYPE_TRAITS
+		/// Conditional type.
+		template<bool B,typename T,typename F> struct conditional : std::conditional<B,T,F> {};
+
+		/// Helper for tag dispatching.
+		template<bool B> struct bool_type : std::integral_constant<bool,B> {};
+		using std::true_type;
+		using std::false_type;
+
+		/// Type traits for floating point types.
+		template<typename T> struct is_float : std::is_floating_point<T> {};
+	#else
+		/// Conditional type.
+		template<bool,typename T,typename> struct conditional { typedef T type; };
+		template<typename T,typename F> struct conditional<false,T,F> { typedef F type; };
+
+		/// Helper for tag dispatching.
+		template<bool> struct bool_type {};
+		typedef booltype<true> true_type;
+		typedef booltype<false> false_type;
+
+		/// Type traits for floating point types.
+		template<typename> struct is_float : false_type {};
+		template<typename T> struct is_float<const T> : is_float<T> {};
+		template<typename T> struct is_float<volatile T> : is_float<T> {};
+		template<typename T> struct is_float<const volatile T> : is_float<T> {};
+		template<> struct is_float<float> : true_type {};
+		template<> struct is_float<double> : true_type {};
+		template<> struct is_float<long double> : true_type {};
+	#endif
+
 	#if HALF_ENABLE_CPP11_CSTDINT
 		/// Unsigned integer of (at least) 16 bits width.
 		typedef std::uint_least16_t uint16;
@@ -224,20 +267,13 @@ namespace half_float
 		/// Unsigned integer of (at least) 16 bits width.
 		typedef unsigned short uint16;
 
-		/// Conditional type.
-		template<bool,typename T,typename> struct conditional { typedef T type; };
-		template<typename T,typename F> struct conditional<false,T,F> { typedef F type; };
-
 		/// Unsigned integer of (at least) 32 bits width.
 		typedef conditional<std::numeric_limits<unsigned int>::digits>=32,unsigned int,unsigned long>::type uint32;
 
 		/// Fastest signed integer capable of holding all values of type uint16.
 		typedef conditional<std::numeric_limits<int>::digits>=16,int,long>::type int17;
 	#endif
-/*
-		/// Helper for tag dispatching.
-		template<bool> struct booltype {};
-*/
+
 		/// Tag type for binary construction.
 		struct binary_t {};
 
@@ -423,7 +459,7 @@ namespace half_float
 		/// Convert non-IEEE single-precision to half-precision.
 		/// \param value single-precision value
 		/// \return binary representation of half-precision value
-		template<std::float_round_style R> uint16 float2half_impl(float value, booltype<false>)
+		template<std::float_round_style R> uint16 float2half_impl(float value, false_type)
 		{
 			uint16 hbits = builtin_signbit(value) << 15;
 			if(value == 0.0f)
@@ -467,39 +503,44 @@ namespace half_float
 		/// \return binary representation of half-precision value
 		template<std::float_round_style R> uint16 float2half(float value)
 		{
-			return float2half_impl<R>(value, booltype<std::numeric_limits<float>::is_iec559&&sizeof(uint32)==sizeof(float)>());
+			return float2half_impl<R>(value, bool_type<std::numeric_limits<float>::is_iec559&&sizeof(uint32)==sizeof(float)>());
 		}
 */
-		/// Convert unsigned integer to half-precision floating point.
-		/// \tparam S `true` if actual value negative, `false` else
+		/// Convert integer to half-precision floating point.
 		/// \tparam R rounding mode to use, `std::round_indeterminate` for fastest rounding
+		/// \tparam S `true` if value negative, `false` else
 		/// \tparam T type to convert (builtin integer type)
 		/// \param value non-negative integral value
 		/// \return binary representation of half-precision value
-		template<bool S,std::float_round_style R,typename T> uint16 uint2half(T value)
+		template<std::float_round_style R,bool S,typename T> uint16 int2half_impl(T value)
 		{
-			if(!value)
-				return 0;
+			if(S)
+				value = -value;
+			uint16 bits = S << 15;
 			if(value > 65504)
 			{
 				if(R == std::round_toward_infinity)
-					return 0x7C00 - S;
+					bits |= 0x7C00 - S;
 				else if(R == std::round_toward_neg_infinity)
-					return 0x7BFF + S;
-				return 0x7BFF + (R!=std::round_toward_zero);
+					bits |= 0x7BFF + S;
+				else
+					bits |= 0x7BFF + (R!=std::round_toward_zero);
 			}
-			unsigned int m = value, exp = 25;
-			for(; m<0x400; m<<=1,--exp) ;
-			for(; m>0x7FF; m>>=1,++exp) ;
-			uint16 bits = (exp<<10) | (m&0x3FF);
-			if(exp > 25)
+			else if(value)
 			{
-				if(R == std::round_to_nearest)
-					bits += (value>>(exp-26)) & 1;
-				else if(R == std::round_toward_infinity)
-					bits += static_cast<uint16>((value&((1<<(exp-25))-1))!=0) & !S;
-				else if(R == std::round_toward_neg_infinity)
-					bits += static_cast<uint16>((value&((1<<(exp-25))-1))!=0) & S;
+				unsigned int m = value, exp = 25;
+				for(; m<0x400; m<<=1,--exp) ;
+				for(; m>0x7FF; m>>=1,++exp) ;
+				bits |= (exp<<10) | (m&0x3FF);
+				if(exp > 25)
+				{
+					if(R == std::round_to_nearest)
+						bits += (value>>(exp-26)) & 1;
+					else if(R == std::round_toward_infinity)
+						bits += static_cast<uint16>((value&((1<<(exp-25))-1))!=0) & !S;
+					else if(R == std::round_toward_neg_infinity)
+						bits += static_cast<uint16>((value&((1<<(exp-25))-1))!=0) & S;
+				}
 			}
 			return bits;
 		}
@@ -511,7 +552,7 @@ namespace half_float
 		/// \return binary representation of half-precision value
 		template<std::float_round_style R,typename T> uint16 int2half(T value)
 		{
-			return (value<0) ? static_cast<uint16>(0x8000|uint2half<true,R>(-value)) : uint2half<false,R>(value);
+			return (value<0) ? int2half_impl<R,true>(value) : int2half_impl<R,false>(value);
 		}
 
 		/// Convert half-precision to IEEE single-precision.
@@ -672,7 +713,7 @@ namespace half_float
 		/// Convert half-precision to non-IEEE single-precision.
 		/// \param value binary representation of half-precision value
 		/// \return single-precision value
-		inline float half2float_impl(uint16 value, booltype<false>)
+		inline float half2float_impl(uint16 value, false_type)
 		{
 			float out;
 			int exp = value & 0x7C00;
@@ -705,7 +746,7 @@ namespace half_float
 		/// \return single-precision value
 		inline float half2float(uint16 value)
 		{
-			return half2float_impl(value, booltype<std::numeric_limits<float>::is_iec559&&sizeof(uint32)==sizeof(float)>());
+			return half2float_impl(value, bool_type<std::numeric_limits<float>::is_iec559&&sizeof(uint32)==sizeof(float)>());
 		}
 */
 		/// Convert half-precision floating point to integer.
@@ -1672,13 +1713,29 @@ namespace half_float
 		template<typename T,typename U,std::float_round_style R> struct half_caster {};
 		template<typename U,std::float_round_style R> struct half_caster<half,U,R>
 		{
+		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
+			static_assert(std::is_arithmetic<U>::value, "half_cast from non-arithmetic type unsupported");
+		#endif
+
 			typedef half type;
-			static half cast(const U &arg) { return half(binary, float2half<R>(static_cast<float>(arg))); };
+			static half cast(U arg) { return cast_impl(arg, is_float<U>()); };
+
+		private:
+			static half cast_impl(U arg, true_type) { return half(binary, float2half<R>(static_cast<float>(arg))); }
+			static half cast_impl(U arg, false_type) { return half(binary, int2half<R>(arg)); }
 		};
 		template<typename T,std::float_round_style R> struct half_caster<T,half,R>
 		{
+		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
+			static_assert(std::is_arithmetic<T>::value, "half_cast to non-arithmetic type unsupported");
+		#endif
+
 			typedef T type;
-			static T cast(float arg) { return static_cast<T>(arg); }
+			template<typename U> static T cast(U arg) { return cast_impl(arg, is_float<T>()); }
+
+		private:
+			static T cast_impl(float arg, true_type) { return static_cast<T>(arg); }
+			static T cast_impl(half arg, false_type) { return half2int<R,T>(arg.data_); }
 		};
 		template<typename T,std::float_round_style R> struct half_caster<T,expr,R> : public half_caster<T,half,R> {};
 		template<std::float_round_style R> struct half_caster<half,half,R>
@@ -2409,35 +2466,39 @@ namespace half_float
 		/// \{
 
 		/// Cast to or from half-precision floating point number.
-		/// This casts between [half](\ref half_float::half) and any type convertible to/from `float` via an explicit cast of this 
-		/// type to/from `float`. It uses the fastest rounding possible when performing a float-to-half conversion (if any) and is 
-		/// thus equivalent to half_cast<T,std::round_indeterminate,U>() or a simple `static_cast`, but suppressing any possible 
-		/// warnings due to an otherwise implicit conversion to/from `float`.
+		/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. Floating point types are 
+		/// converted via an explicit cast to/from `float` (using the rounding mode of the built-in single precision 
+		/// implementation) and thus any possible warnings due to an otherwise implicit conversion to/from `float` will be 
+		/// suppressed. Integer types are converted directly using the given rounding mode, without any roundtrip over `float` 
+		/// that a `static_cast` would otherwise do. It uses the fastest rounding possible and is thus equivalent to 
+		/// half_cast<T,std::round_indeterminate,U>().
 		///
-		/// Using this cast with neither of the two types being a [half](\ref half_float::half) results in a compiler error and 
-		/// casting between [half](\ref half_float::half)s is just a no-op.
-		/// \tparam T destination type
-		/// \tparam U source type
+		/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types 
+		/// not being a built-in arithmetic type (apart from [half](\ref half_float::half), of course) results in a compiler 
+		/// error and casting between [half](\ref half_float::half)s is just a no-op.
+		/// \tparam T destination type (half or built-in arithmetic type)
+		/// \tparam U source type (half or built-in arithmetic type)
 		/// \param arg value to cast
 		/// \return \a arg converted to destination type
-		template<typename T,typename U> typename half_caster<T,U,std::round_indeterminate>::type half_cast(const U &arg)
+		template<typename T,typename U> typename half_caster<T,U,std::round_indeterminate>::type half_cast(U arg)
 			{ return half_caster<T,U,std::round_indeterminate>::cast(arg); }
 
-		/// Cast to or from half-precision floating point number with specified rounding.
-		/// This casts between [half](\ref half_float::half) and any type convertible to/from `float` via an explicit cast of this 
-		/// type to/from `float`. The rounding mode used for the internal float-to-half conversion (if any) can be specified 
-		/// explicitly, or chosen to be the fastest possible rounding using `std::round_indeterminate`, which would be equivalent 
-		/// to half_cast<T,U>() or a simple `static_cast`, but suppressing any possible warnings due to an otherwise implicit 
-		/// conversion to/from `float`.
+		/// Cast to or from half-precision floating point number.
+		/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. Floating point types are 
+		/// converted via an explicit cast to/from `float` (using the rounding mode of the built-in single precision 
+		/// implementation) and thus any possible warnings due to an otherwise implicit conversion to/from `float` will be 
+		/// suppressed. Integer types are converted directly using the given rounding mode, without any roundtrip over `float` 
+		/// that a `static_cast` would otherwise do.
 		///
-		/// Using this cast with neither of the two types being a [half](\ref half_float::half) results in a compiler error and 
-		/// casting between [half](\ref half_float::half)s is just a no-op.
-		/// \tparam T destination type
-		/// \tparam R rounding mode to use
-		/// \tparam U source type
+		/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types 
+		/// not being a built-in arithmetic type (apart from [half](\ref half_float::half), of course) results in a compiler 
+		/// error and casting between [half](\ref half_float::half)s is just a no-op.
+		/// \tparam T destination type (half or built-in arithmetic type)
+		/// \tparam R rounding mode to use.
+		/// \tparam U source type (half or built-in arithmetic type)
 		/// \param arg value to cast
 		/// \return \a arg converted to destination type
-		template<typename T,std::float_round_style R,typename U> typename half_caster<T,U,R>::type half_cast(const U &arg)
+		template<typename T,std::float_round_style R,typename U> typename half_caster<T,U,R>::type half_cast(U arg)
 			{ return half_caster<T,U,R>::cast(arg); }
 		/// \}
 	}
