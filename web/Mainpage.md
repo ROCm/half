@@ -34,7 +34,7 @@ If you are interested in previous versions of the library, see the [SourceForge 
 
 Comfortably enough, the library consists of just a single header file containing all the functionality, which can be directly included by your projects, without the neccessity to build anything or link to anything.
 
-The library needs an IEEE-754-conformant single-precision `float` type, but this should be the case on most modern platforms. Whereas the library is fully C++98-compatible, it can profit from certain C++11 features. Support for those features is checked and enabled automatically at compile (or rather preprocessing) time, but can be explicitly enabled or disabled by defining the corresponding preprocessor symbols to either 1 or 0 yourself. This is useful when the automatic detection fails (for more exotic implementations) or when a feature should be explicitly disabled:
+Whereas this library is fully C++98-compatible, it can profit from certain C++11 features. Support for those features is checked and enabled automatically at compile (or rather preprocessing) time, but can be explicitly enabled or disabled by defining the corresponding preprocessor symbols to either 1 or 0 yourself. This is useful when the automatic detection fails (for more exotic implementations) or when a feature should be explicitly disabled:
 
 C++11 feature                        | Used for                        | Enabled for (and newer)                     | Override with
 -------------------------------------|---------------------------------|---------------------------------------------|----------------------------------
