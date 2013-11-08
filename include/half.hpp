@@ -179,6 +179,25 @@
 #endif
 
 
+/// Default rounding mode.
+/// This specifies the rounding mode used for all conversions between [half](\ref half_float::half)s and `float`s as well as 
+/// for the half_cast() if not specifying a rounding mode explicitly. It can be redefined (before including `half.hpp`) to one 
+/// of the standard rounding modes using their respective constants or the equivalent values of `std::float_round_style`:
+///
+/// `std::float_round_style`         | value | rounding
+/// ---------------------------------|-------|-------------------------
+/// `std::round_indeterminate`       | -1    | indeterminable
+/// `std::round_toward_zero`         | 0     | toward zero
+/// `std::round_to_nearest`          | 1     | to nearest
+/// `std::round_toward_infinity`     | 2     | toward positive infinity
+/// `std::round_toward_neg_infinity` | 3     | toward negative infinity
+///
+/// By default this is set to `-1` (`std::round_indeterminate`), which uses truncation (round toward zero, but with overflows 
+/// set to infinity) and is the fastest rounding mode possible.
+#ifndef HALF_ROUND_STYLE
+	#define HALF_ROUND_STYLE	-1			// = std::round_indeterminate
+#endif
+
 /// Value signaling overflow.
 /// In correspondence with `HUGE_VAL[F|L]` from `<cmath>` this symbol expands to a positive value signaling the overflow of an 
 /// operation, in particular it just evaluates to positive infinity.
@@ -941,7 +960,7 @@ namespace half_float
 	
 	private:
 		/// Rounding mode to use (always `std::round_indeterminate`)
-		static const std::float_round_style round_style = std::round_indeterminate;
+		static const std::float_round_style round_style = (std::float_round_style)(HALF_ROUND_STYLE);
 
 		/// Constructor.
 		/// \param bits binary representation to set half to
@@ -1702,7 +1721,7 @@ namespace half_float
 		/// \tparam T destination type
 		/// \tparam U source type
 		/// \tparam R rounding mode to use
-		template<typename T,typename U,std::float_round_style R> struct half_caster {};
+		template<typename T,typename U,std::float_round_style R=(std::float_round_style)(HALF_ROUND_STYLE)> struct half_caster {};
 		template<typename U,std::float_round_style R> struct half_caster<half,U,R>
 		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
@@ -2472,8 +2491,7 @@ namespace half_float
 		/// \tparam U source type (half or built-in arithmetic type)
 		/// \param arg value to cast
 		/// \return \a arg converted to destination type
-		template<typename T,typename U> typename half_caster<T,U,std::round_indeterminate>::type half_cast(U arg)
-			{ return half_caster<T,U,std::round_indeterminate>::cast(arg); }
+		template<typename T,typename U> typename half_caster<T,U>::type half_cast(U arg) { return half_caster<T,U>::cast(arg); }
 
 		/// Cast to or from half-precision floating point number.
 		/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. Floating point types are 

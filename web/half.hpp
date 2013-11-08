@@ -20,6 +20,23 @@
 /// Main header file of the library.
 
 
+/// Default rounding mode.
+/// This specifies the rounding mode used for all conversions between [half](\ref half_float::half)s and `float`s as well as 
+/// for the half_cast() if not specifying a rounding mode explicitly. It can be redefined (before including `half.hpp`) to one 
+/// of the standard rounding modes using their respective constants or the equivalent values of `std::float_round_style`:
+///
+/// `std::float_round_style`         | value | meaning
+/// ---------------------------------|-------|-------------------------
+/// `std::round_indeterminate`       | -1    | indeterminable
+/// `std::round_toward_zero`         | 0     | toward zero
+/// `std::round_to_nearest`          | 1     | to nearest
+/// `std::round_toward_infinity`     | 2     | toward positive infinity
+/// `std::round_toward_neg_infinity` | 3     | toward negative infinity
+///
+/// By default this is set to `-1` (`std::round_indeterminate`), which uses truncation (round toward zero, but with overflows 
+/// set to infinity) and is the fastest rounding mode possible.
+#define HALF_ROUND_STYLE	-1
+
 /// Value signaling overflow.
 /// In correspondence with `HUGE_VAL[F|L]` from `<cmath>` this symbol expands to a positive value signaling the overflow of an 
 /// operation, in particular it just evaluates to positive infinity.

@@ -1,6 +1,7 @@
 Release Notes											{#changelog}
 =============
 
+- Made default rounding mode configurable by `HALF_ROUND_STYLE` macro.
 - Added support for non-IEEE single-precision implementations.
 - Added `HALF_ENABLE_CPP11_TYPE_TRAITS` preprocessor flag for checking 
   support for C++11 type traits and TMP features.
