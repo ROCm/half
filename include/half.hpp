@@ -261,8 +261,8 @@ namespace half_float
 
 		/// Helper for tag dispatching.
 		template<bool> struct bool_type {};
-		typedef booltype<true> true_type;
-		typedef booltype<false> false_type;
+		typedef bool_type<true> true_type;
+		typedef bool_type<false> false_type;
 
 		/// Type traits for floating point types.
 		template<typename> struct is_float : false_type {};
