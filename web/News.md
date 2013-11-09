@@ -1,6 +1,12 @@
 News														{#news}
 ====
 
+November 9, 2013 - Release 1.10.0
+---------------------------------
+
+[Version 1.10.0](http://sourceforge.net/projects/half/files/half/1.10.0) of the library has been released. It adds the possibility of changing the default rounding mode for halfs (used for any float-to-half conversion) at compile-time by redefining the [HALF_ROUND_STYLE](\ref HALF_ROUND_STYLE) preprocessor symbol. In addition to that the behaviour of the half_cast() function was adjusted to respect the specified rounding mode for conversions to/from integer types, without a roundtrip over an additional conversion to/from `float`. The half_cast() now only supports built-in arithmetic types (apart from [half](\ref half_float::half)s, of course) and any further conversions from them to custom types have to be done explicitly. The usage and checks of C++11 features has been extended by support for type traits and TMP facilities from `<type_traits>`, controllable with the `HALF_ENABLE_CPP11_TYPE_TRAITS` symbol. Last but not least, the library now supports non-IEEE single-precision implementations, which are pretty unlikely nowadays, though.
+
+--------------------------------
 November 1, 2013 - Release 1.9.2
 --------------------------------
 
