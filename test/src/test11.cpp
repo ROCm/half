@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#define HALF_ROUND_STYLE 2
+#define HALF_ROUND_STYLE 0
 #include <half.hpp>
 
 #include <utility>
@@ -218,8 +218,8 @@ public:
 		//test float functions
 		unary_test("frexp", [](half arg) -> bool { int eh, ef; bool eq = comp(frexp(arg, &eh), 
 			static_cast<half>(std::frexp(static_cast<float>(arg), &ef))); return eq && eh==ef; });
-		unary_test("ldexp", [](half arg) -> bool { unsigned int passed = 0; for(int i=-2; i<50; ++i) passed += 
-			comp(ldexp(arg, i), static_cast<half>(std::ldexp(static_cast<float>(arg), i))); return passed==52; });
+		unary_test("ldexp", [](half arg) -> bool { unsigned int passed = 0; for(int i=-50; i<50; ++i) passed += 
+			comp(ldexp(arg, i), static_cast<half>(std::ldexp(static_cast<float>(arg), i))); return passed==100; });
 		unary_test("modf", [](half arg) -> bool { half h; float f; bool eq = comp(modf(arg, &h), static_cast<half>(
 			std::modf(static_cast<float>(arg), &f))); return eq && comp(h, static_cast<half>(f)); });
 		binary_test("nextafter", [](half a, half b) -> bool { half c = nextafter(a, b); std::int16_t d = std::abs(
@@ -227,7 +227,7 @@ public:
 			(comp(a, b) && comp(b, c)) || ((d==1||d==0x7FFF) && (a<b)==(a<c)); });
 		binary_test("copysign", [](half a, half b) -> bool { half h = copysign(a, b); 
 			return comp(abs(h), abs(a)) && signbit(h)==signbit(b); });
-/*
+
 #if HALF_ENABLE_CPP11_CMATH
 		//test basic functions
 		binary_test("remainder", [](half a, half b) { return comp(remainder(a, b), 
@@ -303,7 +303,7 @@ public:
 		binary_test("isunordered", [](half a, half b) { return isunordered(a, b) == 
 			std::isunordered(static_cast<float>(a), static_cast<float>(b)); });
 #endif
-*/
+
 		//test rounding
 		auto rand32 = std::bind(std::uniform_int_distribution<std::uint32_t>(0, std::numeric_limits<std::uint32_t>::max()), std::default_random_engine());
 /*		simple_test("round_to_nearest", [&rand32]() mutable -> bool { unsigned int passed = 0; for(unsigned int i=0; i<1e6; ++i) {

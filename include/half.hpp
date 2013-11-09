@@ -1466,6 +1466,10 @@ namespace half_float
 						m += ((1<<(1-e))-1) & ~((value>>15)-1U);
 					value |= m >> (1-e);
 				}
+				else if(half::round_style == std::round_toward_infinity)
+					value |= ((value>>15)-1) & 1;
+				else if(half::round_style == std::round_toward_neg_infinity)
+					value |= value >> 15;
 				return half(binary, value);
 			}
 
