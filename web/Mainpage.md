@@ -80,6 +80,13 @@ half s = sin(abs(a));
 long l = lround(s);
 ~~~~
 
+You may also specify explicit half-precision literals, since the library provides a user-defined literal inside the half_float::literal namespace, which you just need to import (assuming support for C++11 user-defined literals):
+
+~~~~{.cpp}
+using namespace half_float::literal;
+half x = 1.0_h;
+~~~~
+
 Furthermore the library provides proper specializations for `std::numeric_limits`, defining various implementation properties, and `std::hash` for hashing half-precision numbers (assuming support for C++11 `std::hash`). Similar to the corresponding preprocessor symbols from `<cmath>` the library also defines the [HUGE_VALH](\ref HUGE_VALH) constant and maybe the [FP_FAST_FMAH](\ref FP_FAST_FMAH) symbol.
 
 Conversions													{#conversions}
@@ -87,19 +94,26 @@ Conversions													{#conversions}
 
 The [half](\ref half_float::half) is explicitly constructible/convertible from a single-precision `float` argument. Thus it is also explicitly constructible/convertible from any type implicitly convertible to `float`, but constructing it from types like `double` or `int` will involve the usual warnings arising when implicitly converting those to `float` because of the lost precision. On the one hand those warnings are intentional, because converting those types to [half](\ref half_float::half) neccessarily also reduces precision. But on the other hand they are raised for explicit conversions from those types, when the user knows what he is doing. So if those warnings keep bugging you, then you won't get around first explicitly converting to `float` before converting to [half](\ref half_float::half), or use the half_cast() described below. In addition you can also directly assign `float` values to [half](\ref half_float::half)s.
 
-For performance reasons the conversion from `float` to [half](\ref half_float::half) uses truncation (round toward zero, but mapping overflows to infinity) for rounding values not representable exactly in half-precision. If you are in need for other rounding behaviour (though this should rarely be the case), you can use the half_cast(). In addition to performning an explicit cast between [half](\ref half_float::half) and any other type convertible to/from `float` via an explicit cast to/from `float` (and thus without any warnings due to possible precision-loss), it let's you explicitly specify the rounding mode to use for the float-to-half conversion. You can even synchronize it with the bultin single-precision implementation's rounding mode:
-
-~~~~{.cpp}
-half a = half_float::half_cast<half,std::numeric_limits<float>::round_style>(4.2);
-~~~~
-
 In contrast to the float-to-half conversion, which reduces precision, the conversion from [half](\ref half_float::half) to `float` (and thus to any other type implicitly convertible to `float`) is implicit, because all values represetable with half-precision are also representable with single-precision. This way the half-to-float conversion behaves similar to the builtin float-to-double conversion and all arithmetic expressions involving both half-precision and single-precision arguments will be of single-precision type. This way you can also directly use the mathematical functions of the C++ standard library, though in this case you will invoke the single-precision versions which will also return single-precision values, which is (even if maybe performing the exact same computation, see below) not as conceptually clean when working in a half-precision environment.
 
-You may also specificy explicit half-precision literals, since the library provides a user-defined literal inside the half_float::literal namespace, which you just need to import (assuming support for C++11 user-defined literals):
+The default rounding mode for conversions from `float` to [half](\ref half_float::half) uses truncation (round toward zero, but mapping overflows to infinity) for rounding values not representable exactly in half-precision. This is the fastest rounding possible and is usually sufficient. But by redefining the [HALF_ROUND_STYLE](\ref HALF_ROUND_STYLE) preprocessor symbol (before including half.hpp) this default can be overridden with one of the other standard rounding modes using their respective constants or the equivalent values of `std::float_round_style` (it can even be synchronized with the underlying single-precision implementation by defining it to `std::numeric_limits<float>::round_style`):
+
+`std::float_round_style`         | value | rounding
+---------------------------------|-------|-------------------------
+`std::round_indeterminate`       | -1    | fastest (default)
+`std::round_toward_zero`         | 0     | toward zero
+`std::round_to_nearest`          | 1     | to nearest
+`std::round_toward_infinity`     | 2     | toward positive infinity
+`std::round_toward_neg_infinity` | 3     | toward negative infinity
+
+In addition to changing the overall default rounding mode one can also use the half_cast(). This converts between [half](\ref half_float::half) and any built-in arithmetic type using a configurable rounding mode (or the default rounding mode if none is specified). In addition to a configurable rounding mode, half_cast() has two other differences to a mere `static_cast`: (1) Floating point types are explicitly cast to `float` before being converted to half-precision and thus any warnings for narrowing conversions are suppressed. (2) Conversions to/from integer types are performed directly using the given rounding mode, without any intermediate conversion to/from `float`.
 
 ~~~~{.cpp}
-using namespace half_float::literal;
-half x = 1.0_h;
+half a = half_cast<half>(4.2);
+half b = half_cast<half,std::numeric_limits<float>::round_style>(4.2f);
+assert( half_cast<int, std::round_to_nearest>( 0.7_h )     == 1 );
+assert( half_cast<half,std::round_toward_zero>( 4097 )     == 4096.0_h );
+assert( half_cast<half,std::round_toward_infinity>( 4097 ) == 4100.0_h );
 ~~~~
 
 Implementation												{#implementation}
@@ -122,12 +136,12 @@ IEEE conformance											{#ieee}
 
 The [half](\ref half_float::half) type uses the standard IEEE representation with 1 sign bit, 5 exponent bits and 10 mantissa bits (11 when counting the hidden bit). It supports all types of special values, like subnormal values, infinity and NaNs. But there are some limitations to the complete conformance to the IEEE 754 standard:
 
--	The implementation does not differentiate between signalling and quiet NaNs, this means operations on [half](\ref half_float::half)s are not specified to trap on signalling NaNs (though they may, see last point).
--	Though arithmetic operations are internally rounded to single-precision using the underlying single-precision implementation's current rounding mode, those values are then converted to half-precision using truncation (round toward zero, but with overflows mapped to infinity). This mixture of rounding modes is also the reason why [std::numeric_limits<half>::round_style](\ref std::numeric_limits<half_float::half>::round_style) actually returns `std::round_indeterminate`.
--	Because of this truncation it may also be that certain single-precision NaNs will be wrongly converted to half-precision infinity, though this is very unlikely to happen, since most single-precision implementations don't tend to only set the lowest bits of a NaN mantissa.
--	The implementation does not provide any floating point exceptions, thus arithmetic operations or mathematical functions are not specified to invoke proper floating point exceptions. But due to many functions implemented in single-precision, those may still invoke floating point exceptions of the underlying single-precision implementation.
+- The implementation does not differentiate between signalling and quiet NaNs, this means operations on [half](\ref half_float::half)s are not specified to trap on signalling NaNs (though they may, see last point).
+- Though arithmetic operations are internally rounded to single-precision using the underlying single-precision implementation's current rounding mode, those values are then converted to half-precision using the default half-precision rounding mode (changed by defining [HALF_ROUND_STYLE](\ref HALF_ROUND_STYLE) accordingly). This mixture of rounding modes is also the reason why [std::numeric_limits<half>::round_style](\ref std::numeric_limits<half_float::half>::round_style) may actually return `std::round_indeterminate` when half- and single-precision rounding modes don't match.
+- Because of internal truncation it may also be that certain single-precision NaNs will be wrongly converted to half-precision infinity, though this is very unlikely to happen, since most single-precision implementations don't tend to only set the lowest bits of a NaN mantissa.
+- The implementation does not provide any floating point exceptions, thus arithmetic operations or mathematical functions are not specified to invoke proper floating point exceptions. But due to many functions implemented in single-precision, those may still invoke floating point exceptions of the underlying single-precision implementation.
 
-Some of those points could have been circumvented by controlling the floating point environment using `<cfenv>` or implementing a similar exception mechanism. But this would have required excessive runtime checks giving two high an impact on performance for something that is rarely ever needed. If you really need to rely on proper floating point exceptions, it is recommended to explicitly perform computations using the builtin floating point types to be on the safe side. In the same way, if you really need to rely on a particular rounding behaviour, it is recommended to use single-precision computations and explicitly convert the result to half-precision using half_cast() and specifying the desired rounding mode. But those are really considered expert-scenarios rarely encountered in practice, since actually working with half-precision usually comes with a certain tolerance/ignorance of exactness considerations.
+Some of those points could have been circumvented by controlling the floating point environment using `<cfenv>` or implementing a similar exception mechanism. But this would have required excessive runtime checks giving two high an impact on performance for something that is rarely ever needed. If you really need to rely on proper floating point exceptions, it is recommended to explicitly perform computations using the built-in floating point types to be on the safe side. In the same way, if you really need to rely on a particular rounding behaviour, it is recommended to use single-precision computations and explicitly convert the result to half-precision using half_cast() and specifying the desired rounding mode. But those are really considered expert-scenarios rarely encountered in practice, since actually working with half-precision usually comes with a certain tolerance/ignorance of exactness considerations.
 
 
 -------------------

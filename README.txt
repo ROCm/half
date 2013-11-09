@@ -91,6 +91,13 @@ directly through ADL:
     half s = sin(abs(a));
     long l = lround(s);
 
+You may also specify explicit half-precision literals, since the library 
+provides a user-defined literal inside the 'half_float::literal' namespace, 
+which you just need to import (assuming support for C++11 user-defined literals):
+
+    using namespace half_float::literal;
+    half x = 1.0_h;
+
 Furthermore the library provides proper specializations for 
 'std::numeric_limits', defining various implementation properties, and 
 'std::hash' for hashing half-precision numbers (assuming support for C++11 
@@ -125,24 +132,41 @@ also return single-precision values, which is (even if maybe performing the
 exact same computation, see below) not as conceptually clean when working in a 
 half-precision environment.
 
-For performance reasons the conversion from float to half uses truncation 
+The default rounding mode for conversions from float to half uses truncation 
 (round toward zero, but mapping overflows to infinity) for rounding values not 
-representable exactly in half-precision. If you are in need for other rounding 
-behaviour (though this should rarely be the case), you can use the 'half_cast'. 
-In addition to performning an explicit cast between half and any other type 
-convertible to/from float via an explicit cast to/from float (and thus without 
-any warnings due to possible precision-loss), it let's you explicitly specify 
-the rounding mode to use for the float-to-half conversion. You can even 
-synchronize it with the bultin single-precision implementation's rounding mode:
+representable exactly in half-precision. This is the fastest rounding possible 
+and is usually sufficient. But by redefining the 'HALF_ROUND_STYLE' 
+preprocessor symbol (before including half.hpp) this default can be overridden 
+with one of the other standard rounding modes using their respective constants 
+or the equivalent values of 'std::float_round_style' (it can even be 
+synchronized with the underlying single-precision implementation by defining it 
+to 'std::numeric_limits<float>::round_style'):
 
-	half a = half_float::half_cast<half,std::numeric_limits<float>::round_style>(4.2);
+  - 'std::round_indeterminate' or -1 for the fastest rounding (default).
 
-You may also specify explicit half-precision literals, since the library 
-provides a user-defined literal inside the 'half_float::literal' namespace, 
-which you just need to import (assuming support for C++11 user-defined literals):
+  - 'std::round_toward_zero' or 0 for rounding toward zero.
 
-    using namespace half_float::literal;
-    half x = 1.0_h;
+  - std::round_to_nearest' or 1 for rounding to the nearest value.
+
+  - std::round_toward_infinity' or 2 for rounding toward positive infinity.
+
+  - std::round_toward_neg_infinity' or 3 for rounding toward negative infinity.
+
+In addition to changing the overall default rounding mode one can also use the 
+'half_cast'. This converts between half and any built-in arithmetic type using 
+a configurable rounding mode (or the default rounding mode if none is 
+specified). In addition to a configurable rounding mode, 'half_cast' has two 
+other differences to a mere 'static_cast': (1) Floating point types are 
+explicitly cast to float before being converted to half-precision and thus any 
+warnings for narrowing conversions are suppressed. (2) Conversions to/from 
+integer types are performed directly using the given rounding mode, without any 
+intermediate conversion to/from float.
+
+    half a = half_cast<half>(4.2);
+    half b = half_cast<half,std::numeric_limits<float>::round_style>(4.2f);
+    assert( half_cast<int, std::round_to_nearest>( 0.7_h )     == 1 );
+    assert( half_cast<half,std::round_toward_zero>( 4097 )     == 4096.0_h );
+    assert( half_cast<half,std::round_toward_infinity>( 4097 ) == 4100.0_h );
 
 IMPLEMENTATION
 
@@ -198,12 +222,14 @@ are some limitations to the complete conformance to the IEEE 754 standard:
 
   - Though arithmetic operations are internally rounded to single-precision 
     using the underlying single-precision implementation's current rounding 
-    mode, those values are then converted to half-precision using truncation 
-    (round toward zero, but with overflows mapped to infinity). This is also 
-    the reason why 'std::numeric_limits<half_float::half>::round_style' 
-    actually returns 'std::round_indeterminate'.
+    mode, those values are then converted to half-precision using the default 
+    half-precision rounding mode (changed by defining 'HALF_ROUND_STYLE' 
+    accordingly). This mixture of rounding modes is also the reason why 
+    'std::numeric_limits<half>::round_style' may actually return 
+    'std::round_indeterminate' when half- and single-precision rounding modes 
+    don't match.
 
-  - Because of this truncation it may also be that certain single-precision 
+  - Because of internal truncation it may also be that certain single-precision 
     NaNs will be wrongly converted to half-precision infinity, though this is 
     very unlikely to happen, since most single-precision implementations don't 
     tend to only set the lowest bits of a NaN mantissa.

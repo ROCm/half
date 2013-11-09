@@ -186,14 +186,15 @@
 ///
 /// `std::float_round_style`         | value | rounding
 /// ---------------------------------|-------|-------------------------
-/// `std::round_indeterminate`       | -1    | indeterminable
+/// `std::round_indeterminate`       | -1    | fastest (default)
 /// `std::round_toward_zero`         | 0     | toward zero
 /// `std::round_to_nearest`          | 1     | to nearest
 /// `std::round_toward_infinity`     | 2     | toward positive infinity
 /// `std::round_toward_neg_infinity` | 3     | toward negative infinity
 ///
 /// By default this is set to `-1` (`std::round_indeterminate`), which uses truncation (round toward zero, but with overflows 
-/// set to infinity) and is the fastest rounding mode possible.
+/// set to infinity) and is the fastest rounding mode possible. It can even be set to `std::numeric_limits<float>::round_style` 
+/// to synchronize the rounding mode with that of the underlying single-precision implementation.
 #ifndef HALF_ROUND_STYLE
 	#define HALF_ROUND_STYLE	-1			// = std::round_indeterminate
 #endif
@@ -1339,22 +1340,22 @@ namespace half_float
 
 			/// Floor implementation.
 			/// \param arg value to round
-			/// \return rounded value stored in single-preicision
+			/// \return rounded value
 			static half floor(half arg) { return half(binary, round_half<std::round_toward_neg_infinity>(arg.data_)); }
 
 			/// Ceiling implementation.
 			/// \param arg value to round
-			/// \return rounded value stored in single-preicision
+			/// \return rounded value
 			static half ceil(half arg) { return half(binary, round_half<std::round_toward_infinity>(arg.data_)); }
 
 			/// Truncation implementation.
 			/// \param arg value to round
-			/// \return rounded value stored in single-preicision
+			/// \return rounded value
 			static half trunc(half arg) { return half(binary, round_half<std::round_toward_zero>(arg.data_)); }
 
 			/// Nearest integer implementation.
 			/// \param arg value to round
-			/// \return rounded value stored in single-preicision
+			/// \return rounded value
 			static half round(half arg) { return half(binary, round_half<std::round_to_nearest>(arg.data_)); }
 
 			/// Nearest integer implementation.
@@ -1364,7 +1365,7 @@ namespace half_float
 
 			/// Nearest integer implementation.
 			/// \param arg value to round
-			/// \return rounded value stored in single-preicision
+			/// \return rounded value
 			static half rint(half arg) { return half(binary, round_half<half::round_style>(arg.data_)); }
 
 			/// Nearest integer implementation.
@@ -1441,9 +1442,31 @@ namespace half_float
 					for(m<<=1; m<0x400; m<<=1,--e) ;
 				}
 				e += exp;
-				uint16 sign = arg.data_ & 0x8000;
-				return (e>30) ? half(binary, sign|0x7C00) : half(binary, (e>0) ? static_cast<uint16>(sign|(e<<10)|(m&0x3FF)) : 
-					((e<-9) ? sign : static_cast<uint16>(sign|(m>>(1-e)))));
+				uint16 value = arg.data_ & 0x8000;
+				if(e > 30)
+				{
+					if(half::round_style == std::round_toward_zero)
+						value |= 0x7BFF;
+					else if(half::round_style == std::round_toward_infinity)
+						value |= 0x7C00 - (value>>15);
+					else if(half::round_style == std::round_toward_neg_infinity)
+						value |= 0x7BFF + (value>>15);
+					else
+						value |= 0x7C00;
+				}
+				else if(e > 0)
+					value |= (e<<10) | (m&0x3FF);
+				else if(e > -11)
+				{
+					if(half::round_style == std::round_to_nearest)
+						m += 1 << -e;
+					else if(half::round_style == std::round_toward_infinity)
+						m += ((1<<(1-e))-1) & ((value>>15)-1U);
+					else if(half::round_style == std::round_toward_neg_infinity)
+						m += ((1<<(1-e))-1) & ~((value>>15)-1U);
+					value |= m >> (1-e);
+				}
+				return half(binary, value);
 			}
 
 			/// Exponent implementation.
@@ -2224,21 +2247,21 @@ namespace half_float
 
 		/// Nearest integer using half's internal rounding mode.
 		/// \param arg half expression to round
-		/// \return nearest integer using current rounding mode
+		/// \return nearest integer using default rounding mode
 //		template<typename T> typename enable<half,T>::type nearbyint(T arg) { return functions::nearbyint(arg); }
 		inline half nearbyint(half arg) { return functions::rint(arg); }
 		inline half nearbyint(expr arg) { return functions::rint(arg); }
 
 		/// Nearest integer using half's internal rounding mode.
 		/// \param arg half expression to round
-		/// \return nearest integer using current rounding mode
+		/// \return nearest integer using default rounding mode
 //		template<typename T> typename enable<half,T>::type rint(T arg) { return functions::rint(arg); }
 		inline half rint(half arg) { return functions::rint(arg); }
 		inline half rint(expr arg) { return functions::rint(arg); }
 
 		/// Nearest integer using half's internal rounding mode.
 		/// \param arg half expression to round
-		/// \return nearest integer using current rounding mode
+		/// \return nearest integer using default rounding mode
 //		template<typename T> typename enable<long,T>::type lrint(T arg) { return functions::lrint(arg); }
 		inline long lrint(half arg) { return functions::lrint(arg); }
 		inline long lrint(expr arg) { return functions::lrint(arg); }
@@ -2252,7 +2275,7 @@ namespace half_float
 
 		/// Nearest integer using half's internal rounding mode.
 		/// \param arg half expression to round
-		/// \return nearest integer using current rounding mode
+		/// \return nearest integer using default rounding mode
 //		template<typename T> typename enable<long long,T>::type llrint(T arg) { return functions::llrint(arg); }
 		inline long long llrint(half arg) { return functions::llrint(arg); }
 		inline long long llrint(expr arg) { return functions::llrint(arg); }
@@ -2481,8 +2504,7 @@ namespace half_float
 		/// converted via an explicit cast to/from `float` (using the rounding mode of the built-in single precision 
 		/// implementation) and thus any possible warnings due to an otherwise implicit conversion to/from `float` will be 
 		/// suppressed. Integer types are converted directly using the given rounding mode, without any roundtrip over `float` 
-		/// that a `static_cast` would otherwise do. It uses the fastest rounding possible and is thus equivalent to 
-		/// half_cast<T,std::round_indeterminate,U>().
+		/// that a `static_cast` would otherwise do. It uses the default rounding mode.
 		///
 		/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types 
 		/// not being a built-in arithmetic type (apart from [half](\ref half_float::half), of course) results in a compiler 
@@ -2679,7 +2701,8 @@ namespace std
 		static HALF_CONSTEXPR half_float::half epsilon() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0x1400); }
 
 		/// Maximum rounding error.
-		static HALF_CONSTEXPR half_float::half round_error() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0x3C00); }
+		static HALF_CONSTEXPR half_float::half round_error() HALF_NOTHROW
+			{ return half_float::half(half_float::detail::binary, (round_style==std::round_to_nearest) ? 0x3800 : 0x3C00); }
 
 		/// Positive infinity.
 		static HALF_CONSTEXPR half_float::half infinity() HALF_NOTHROW { return half_float::half(half_float::detail::binary, 0x7C00); }

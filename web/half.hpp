@@ -23,18 +23,21 @@
 /// Default rounding mode.
 /// This specifies the rounding mode used for all conversions between [half](\ref half_float::half)s and `float`s as well as 
 /// for the half_cast() if not specifying a rounding mode explicitly. It can be redefined (before including `half.hpp`) to one 
-/// of the standard rounding modes using their respective constants or the equivalent values of `std::float_round_style`:
+/// of the standard rounding modes using their respective constants or the equivalent values of 
+/// [std::float_round_style](http://en.cppreference.com/w/cpp/types/numeric_limits/float_round_style):
 ///
-/// `std::float_round_style`         | value | meaning
+/// `std::float_round_style`         | value | rounding
 /// ---------------------------------|-------|-------------------------
-/// `std::round_indeterminate`       | -1    | indeterminable
+/// `std::round_indeterminate`       | -1    | fastest (default)
 /// `std::round_toward_zero`         | 0     | toward zero
 /// `std::round_to_nearest`          | 1     | to nearest
 /// `std::round_toward_infinity`     | 2     | toward positive infinity
 /// `std::round_toward_neg_infinity` | 3     | toward negative infinity
 ///
 /// By default this is set to `-1` (`std::round_indeterminate`), which uses truncation (round toward zero, but with overflows 
-/// set to infinity) and is the fastest rounding mode possible.
+/// set to infinity) and is the fastest rounding mode possible. It can even be set to 
+/// [std::numeric_limits<float>::round_style](http://en.cppreference.com/w/cpp/types/numeric_limits/round_style) to synchronize 
+/// the rounding mode with that of the underlying single-precision implementation.
 #define HALF_ROUND_STYLE	-1
 
 /// Value signaling overflow.
@@ -587,26 +590,26 @@ namespace half_float
 	/// Nearest integer.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
-	/// \return nearest integer using current single-precision rounding mode
+	/// \return nearest integer using default rounding mode
 	half nearbyint(half arg);
 
 	/// Nearest integer.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
-	/// \return nearest integer using current single-precision rounding mode
+	/// \return nearest integer using default rounding mode
 	half rint(half arg);
 
 	/// Nearest integer.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
-	/// \return nearest integer using current single-precision rounding mode
+	/// \return nearest integer using default rounding mode
 	long lrint(half arg);
 
 	/// Nearest integer.
 	/// This function requires support for C++11 `long long`.
 	/// \tparam E type of half expression
 	/// \param arg half expression to round
-	/// \return nearest integer using current single-precision rounding mode
+	/// \return nearest integer using default rounding mode
 	long long llrint(half arg);
 
 	/// \}
@@ -772,8 +775,7 @@ namespace half_float
 	/// converted via an explicit cast to/from `float` (using the rounding mode of the built-in single precision 
 	/// implementation) and thus any possible warnings due to an otherwise implicit conversion to/from `float` will be 
 	/// suppressed. Integer types are converted directly using the given rounding mode, without any roundtrip over `float` 
-	/// that a `static_cast` would otherwise do. It uses the fastest rounding possible and is thus equivalent to 
-	/// half_cast<T,std::round_indeterminate,U>().
+	/// that a `static_cast` would otherwise do. It uses the default rounding mode.
 	///
 	/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types 
 	/// not being a built-in arithmetic type (apart from [half](\ref half_float::half), of course) results in a compiler 
