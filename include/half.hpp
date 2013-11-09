@@ -79,7 +79,7 @@
 	#endif
 	#define HALF_POP_WARNINGS 1
 	#pragma warning(push)
-	#pragma warning(disable : 4127 4099)	//constant in if, struct vs class
+	#pragma warning(disable : 4099 4127 4146)	//struct vs class, constant in if, negative unsigned
 #endif
 
 //check C++11 library features
@@ -772,7 +772,13 @@ namespace half_float
 			if(e == 0x7C00)
 				return (value&0x8000) ? std::numeric_limits<T>::min() : std::numeric_limits<T>::max();
 			if(e < 0x3800)
+			{
+				if(R == std::round_toward_infinity)
+					return T(~(value>>15)&((value&0x7FFF)!=0));
+				else if(R == std::round_toward_neg_infinity)
+					return -T((value>>15)&((value&0x7FFF)!=0));
 				return T();
+			}
 			int17 m = (value&0x3FF) | 0x400;
 			e >>= 10;
 			if(e < 25)
@@ -781,14 +787,13 @@ namespace half_float
 					m >>= 25 - e;
 				else
 				{
-					int17 frac = m & ((1<<(25-e))-1);
-					m >>= 25 - e;
 					if(R == std::round_to_nearest)
-						m += frac >> (24-e);
+						m += 1 << (24-e);
 					else if(R == std::round_toward_infinity)
-						m += ~(value>>15) & (frac!=0);
+						m += ((value>>15)-1U) & ((1<<(25-e))-1);
 					else if(R == std::round_toward_neg_infinity)
-						m += (value>>15) & (frac!=0);
+						m += -static_cast<unsigned int>(value>>15) & ((1<<(25-e))-1);
+					m >>= 25 - e;
 				}
 			}
 			else
@@ -1463,7 +1468,7 @@ namespace half_float
 					else if(half::round_style == std::round_toward_infinity)
 						m += ((1<<(1-e))-1) & ((value>>15)-1U);
 					else if(half::round_style == std::round_toward_neg_infinity)
-						m += ((1<<(1-e))-1) & ~((value>>15)-1U);
+						m += ((1<<(1-e))-1) & -static_cast<unsigned int>(value>>15);
 					value |= m >> (1-e);
 				}
 				else if(half::round_style == std::round_toward_infinity)

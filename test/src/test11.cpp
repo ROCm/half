@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#define HALF_ROUND_STYLE 0
+#define HALF_ROUND_STYLE -1
 #include <half.hpp>
 
 #include <utility>
@@ -367,7 +367,8 @@ public:
 		simple_test("numeric_limits::epsilon", []() { return nextafter(static_cast<half>(1.0f), 
 			std::numeric_limits<half>::infinity())-static_cast<half>(1.0f) == std::numeric_limits<half>::epsilon(); });
 		binary_test("numeric_limits::round_error", [](half a, half b) -> bool { double c = static_cast<double>(a) + 
-			static_cast<double>(b); return !isfinite(a) || !isfinite(b) || std::abs(c-static_cast<double>(
+			static_cast<double>(b); return !isfinite(a) || !isfinite(b) || c>static_cast<double>(std::numeric_limits<half>::max()) || 
+			c<static_cast<double>(std::numeric_limits<half>::lowest()) || std::abs(c-static_cast<double>(
 			static_cast<half>(c)))<=std::ldexp(static_cast<double>(std::numeric_limits<half>::round_error()), 
 			ilogb(static_cast<half>(c))-std::numeric_limits<half>::digits+1); });
 
