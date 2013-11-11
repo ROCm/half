@@ -1446,16 +1446,13 @@ namespace half_float
 			/// \return normalized significant
 			static half frexp(half arg, int *exp)
 			{
-				int e = arg.data_ & 0x7C00;
-				if(e == 0x7C00 || !(arg.data_&0x7FFF))
+				unsigned int m = arg.data_ & 0x7FFF;
+				if(m >= 0x7C00 || !m)
 					return *exp = 0, arg;
-				unsigned int m = arg.data_ & 0x3FF;
-				if(!(e>>=10))
-				{
+				int e = m >> 10;
+				if(!e)
 					for(m<<=1; m<0x400; m<<=1,--e) ;
-					m &= 0x3FF;
-				}
-				return *exp = e-14, half(binary, static_cast<uint16>((arg.data_&0x8000)|0x3800|m));
+				return *exp = e-14, half(binary, static_cast<uint16>((arg.data_&0x8000)|0x3800|(m&0x3FF)));
 			}
 
 			/// Decompression implementation.
@@ -1617,12 +1614,14 @@ namespace half_float
 			/// \retval false else
 			static int fpclassify(half arg)
 			{
-				unsigned int e = arg.data_ & 0x7C00;
-				if(e == 0)
-					return (arg.data_&0x3FF) ? FP_SUBNORMAL : FP_ZERO;
-				if(e == 0x7C00)
-					return (arg.data_&0x3FF) ? FP_NAN : FP_INFINITE;
-				return FP_NORMAL;
+				unsigned int abs = arg.data_ & 0x7FFF;
+				if(abs > 0x7C00)
+					return FP_NAN;
+				if(abs == 0x7C00)
+					return FP_INFINITE;
+				if(abs > 0x3FF)
+					return FP_NORMAL;
+				return abs ? FP_SUBNORMAL : FP_ZERO;
 			}
 
 			/// Classification implementation.
