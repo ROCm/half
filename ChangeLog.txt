@@ -1,6 +1,10 @@
 Release Notes											{#changelog}
 =============
 
+- Made tie-breaking behaviour in round to nearest configurable by 
+  `HALF_ROUND_TIES_TO_EVEN` macro.
+
+
 1.10.0 release (2013-11-09):
 ----------------------------
 

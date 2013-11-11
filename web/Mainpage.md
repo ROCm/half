@@ -84,8 +84,8 @@ half x = 1.0_h;
 
 Furthermore the library provides proper specializations for `std::numeric_limits`, defining various implementation properties, and `std::hash` for hashing half-precision numbers (assuming support for C++11 `std::hash`). Similar to the corresponding preprocessor symbols from `<cmath>` the library also defines the [HUGE_VALH](\ref HUGE_VALH) constant and maybe the [FP_FAST_FMAH](\ref FP_FAST_FMAH) symbol.
 
-Conversions													{#conversions}
------------
+Conversions	and rounding									{#conversions}
+------------------------
 
 The [half](\ref half_float::half) is explicitly constructible/convertible from a single-precision `float` argument. Thus it is also explicitly constructible/convertible from any type implicitly convertible to `float`, but constructing it from types like `double` or `int` will involve the usual warnings arising when implicitly converting those to `float` because of the lost precision. On the one hand those warnings are intentional, because converting those types to [half](\ref half_float::half) neccessarily also reduces precision. But on the other hand they are raised for explicit conversions from those types, when the user knows what he is doing. So if those warnings keep bugging you, then you won't get around first explicitly converting to `float` before converting to [half](\ref half_float::half), or use the half_cast() described below. In addition you can also directly assign `float` values to [half](\ref half_float::half)s.
 
@@ -109,6 +109,16 @@ half b = half_cast<half,std::numeric_limits<float>::round_style>(4.2f);
 assert( half_cast<int, std::round_to_nearest>( 0.7_h )     == 1 );
 assert( half_cast<half,std::round_toward_zero>( 4097 )     == 4096.0_h );
 assert( half_cast<half,std::round_toward_infinity>( 4097 ) == 4100.0_h );
+~~~~
+
+When using round to nearest (either as default or thorugh half_cast()) ties are by default resolved by rounding them away from zero (and thus equal to the behaviour of the round() function). But by redefining the [HALF_ROUND_TIES_TO_EVEN](\ref HALF_ROUND_TIES_TO_EVEN) preprocessor symbol to `1` (before including half.hpp) this default can be changed to the slightly slower but less biased and more IEEE-conformant behaviour of rounding half-way cases to the nearest even value.
+
+~~~~{.cpp}
+#define HALF_ROUND_TIES_TO_EVEN 1
+#include <half.hpp>
+...
+assert( half_cast<int,std::round_to_nearest>(3.5_h) 
+     == half_cast<int,std::round_to_nearest>(4.5_h) );
 ~~~~
 
 Implementation												{#implementation}

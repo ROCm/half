@@ -40,6 +40,13 @@
 /// the rounding mode with that of the underlying single-precision implementation.
 #define HALF_ROUND_STYLE	-1
 
+/// Tie-breaking behaviour for round to nearest.
+/// This specifies if ties in round to nearest should be resolved by rounding to the nearest even value. By default this is 
+/// defined to `0` resulting in the faster but slightly more biased behaviour of rounding away from zero in half-way cases (and 
+/// thus equal to the round() function), but can be redefined to `1` (before including half.hpp) if more IEEE-conformant 
+/// behaviour is needed.
+#define HALF_ROUND_TIES_TO_EVEN	0
+
 /// Value signaling overflow.
 /// In correspondence with `HUGE_VAL[F|L]` from `<cmath>` this symbol expands to a positive value signaling the overflow of an 
 /// operation, in particular it just evaluates to positive infinity.
@@ -50,7 +57,7 @@
 /// Fast half-precision fma function.
 /// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate 
 /// half-precision multiplication followed by an addition. Due to the internal single-precision implementation of all 
-/// arithmetic operations, this is usually always the case.
+/// arithmetic operations, this is in fact always the case.
 ///
 /// **See also:** Documentation for [FP_FAST_FMA](http://en.cppreference.com/w/cpp/numeric/math/fma)
 #define FP_FAST_FMAH	1

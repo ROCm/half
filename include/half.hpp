@@ -181,7 +181,7 @@
 
 /// Default rounding mode.
 /// This specifies the rounding mode used for all conversions between [half](\ref half_float::half)s and `float`s as well as 
-/// for the half_cast() if not specifying a rounding mode explicitly. It can be redefined (before including `half.hpp`) to one 
+/// for the half_cast() if not specifying a rounding mode explicitly. It can be redefined (before including half.hpp) to one 
 /// of the standard rounding modes using their respective constants or the equivalent values of `std::float_round_style`:
 ///
 /// `std::float_round_style`         | value | rounding
@@ -199,6 +199,15 @@
 	#define HALF_ROUND_STYLE	-1			// = std::round_indeterminate
 #endif
 
+/// Tie-breaking behaviour for round to nearest.
+/// This specifies if ties in round to nearest should be resolved by rounding to the nearest even value. By default this is 
+/// defined to `0` resulting in the faster but slightly more biased behaviour of rounding away from zero in half-way cases (and 
+/// thus equal to the round() function), but can be redefined to `1` (before including half.hpp) if more IEEE-conformant 
+/// behaviour is needed.
+#ifndef HALF_ROUND_TIES_TO_EVEN
+	#define HALF_ROUND_TIES_TO_EVEN	0		// ties away from zero
+#endif
+
 /// Value signaling overflow.
 /// In correspondence with `HUGE_VAL[F|L]` from `<cmath>` this symbol expands to a positive value signaling the overflow of an 
 /// operation, in particular it just evaluates to positive infinity.
@@ -207,7 +216,7 @@
 /// Fast half-precision fma function.
 /// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate 
 /// half-precision multiplication followed by an addition. Due to the internal single-precision implementation of all 
-/// arithmetic operations, this is usually always the case.
+/// arithmetic operations, this is in fact always the case.
 #define FP_FAST_FMAH	1
 
 #ifndef FP_ILOGB0
@@ -463,8 +472,11 @@ namespace half_float
 			std::memcpy(&bits, &value, sizeof(float));
 			uint16 hbits = base_table[bits>>23] + static_cast<uint16>((bits&0x7FFFFF)>>shift_table[bits>>23]);
 			if(R == std::round_to_nearest)
-				hbits += (((bits&0x7FFFFF)>>(shift_table[bits>>23]-1))|(((bits>>23)&0xFF)==102)) & 
-					/*(((((static_cast<uint32>(1)<<(shift_table[bits>>23]-1))-1)&bits)!=0)|hbits) &*/ ((hbits&0x7C00)!=0x7C00);
+				hbits += (((bits&0x7FFFFF)>>(shift_table[bits>>23]-1))|(((bits>>23)&0xFF)==102)) & ((hbits&0x7C00)!=0x7C00)
+				#if HALF_ROUND_TIES_TO_EVEN
+					& (((((static_cast<uint32>(1)<<(shift_table[bits>>23]-1))-1)&bits)!=0)|hbits)
+				#endif
+				;
 			else if(R == std::round_toward_zero)
 				hbits -= ((hbits&0x7FFF)==0x7C00) & ~shift_table[bits>>23];
 			else if(R == std::round_toward_infinity)
@@ -510,7 +522,14 @@ namespace half_float
 			int ival = static_cast<int>(value);
 			hbits |= static_cast<uint16>(std::abs(ival)&0x3FF);
 			if(R == std::round_to_nearest)
-				hbits += std::abs(value-static_cast<float>(ival)) >= 0.5f;
+			{
+				float diff = std::abs(value-static_cast<float>(ival));
+				#if HALF_ROUND_TIES_TO_EVEN
+					hbits += (diff>0.5f) | ((diff==0.5f)&hbits);
+				#else
+					hbits += diff >= 0.5f;
+				#endif
+			}
 			else if(R == std::round_toward_infinity)
 				hbits += value > static_cast<float>(ival);
 			else if(R == std::round_toward_neg_infinity)
@@ -555,11 +574,16 @@ namespace half_float
 				if(exp > 25)
 				{
 					if(R == std::round_to_nearest)
-						bits += (value>>(exp-26)) & 1;
+						bits += (value>>(exp-26))
+						#if HALF_ROUND_TIES_TO_EVEN
+							& (((((1<<(exp-26))-1)&value)!=0)|bits);
+						#else
+							& 1;
+						#endif
 					else if(R == std::round_toward_infinity)
-						bits += static_cast<uint16>((value&((1<<(exp-25))-1))!=0) & !S;
+						bits += ((value&((1<<(exp-25))-1))!=0) & !S;
 					else if(R == std::round_toward_neg_infinity)
-						bits += static_cast<uint16>((value&((1<<(exp-25))-1))!=0) & S;
+						bits += ((value&((1<<(exp-25))-1))!=0) & S;
 				}
 			}
 			return bits;
@@ -763,10 +787,11 @@ namespace half_float
 
 		/// Convert half-precision floating point to integer.
 		/// \tparam R rounding mode to use, `std::round_indeterminate` for fastest rounding
+		/// \tparam E `true` for round to even, `false` for round away from zero
 		/// \tparam T type to convert to (buitlin integer type with at least 16 bits precision, excluding any implicit sign bits)
 		/// \param value binary representation of half-precision value
 		/// \return integral value
-		template<std::float_round_style R,typename T> T half2int(uint16 value)
+		template<std::float_round_style R,bool E,typename T> T half2int_impl(uint16 value)
 		{
 			unsigned int e = value & 0x7C00;
 			if(e == 0x7C00)
@@ -788,11 +813,11 @@ namespace half_float
 				else
 				{
 					if(R == std::round_to_nearest)
-						m += 1 << (24-e);
+						m += (1<<(24-e)) - (~(m>>(25-e))&E);
 					else if(R == std::round_toward_infinity)
-						m += ((value>>15)-1U) & ((1<<(25-e))-1);
+						m += ((value>>15)-1) & ((1<<(25-e))-1U);
 					else if(R == std::round_toward_neg_infinity)
-						m += -static_cast<unsigned int>(value>>15) & ((1<<(25-e))-1);
+						m += -(value>>15) & ((1<<(25-e))-1U);
 					m >>= 25 - e;
 				}
 			}
@@ -803,11 +828,25 @@ namespace half_float
 			return static_cast<T>((value&0x8000) ? -m : m);
 		}
 
+		/// Convert half-precision floating point to integer.
+		/// \tparam R rounding mode to use, `std::round_indeterminate` for fastest rounding
+		/// \tparam T type to convert to (buitlin integer type with at least 16 bits precision, excluding any implicit sign bits)
+		/// \param value binary representation of half-precision value
+		/// \return integral value
+		template<std::float_round_style R,typename T> T half2int(uint16 value) { return half2int_impl<R,HALF_ROUND_TIES_TO_EVEN,T>(value); }
+
+		/// Convert half-precision floating point to integer using round-to-nearest-away-from-zero.
+		/// \tparam T type to convert to (buitlin integer type with at least 16 bits precision, excluding any implicit sign bits)
+		/// \param value binary representation of half-precision value
+		/// \return integral value
+		template<typename T> T half2int_up(uint16 value) { return half2int_impl<std::round_to_nearest,0,T>(value); }
+
 		/// Round half-precision number to nearest integer value.
 		/// \tparam R rounding mode to use, `std::round_indeterminate` for fastest rounding
+		/// \tparam E `true` for round to even, `false` for round away from zero
 		/// \param value binary representation of half-precision value
 		/// \return half-precision bits for nearest integral value
-		template<std::float_round_style R> uint16 round_half(uint16 value)
+		template<std::float_round_style R,bool E> uint16 round_half_impl(uint16 value)
 		{
 			unsigned int e = value & 0x7C00;
 			uint16 result = value;
@@ -815,7 +854,7 @@ namespace half_float
 			{
 				result &= 0x8000;
 				if(R == std::round_to_nearest)
-					result |= 0x3C00U & -((value&0x7FFF)>=0x3800);
+					result |= 0x3C00U & -((value&0x7FFF)>=(0x3800+E));
 				else if(R == std::round_toward_infinity)
 					result |= 0x3C00U & -(~(value>>15)&((value&0x7FFF)!=0));
 				else if(R == std::round_toward_neg_infinity)
@@ -826,7 +865,7 @@ namespace half_float
 				e = 25 - (e>>10);
 				unsigned int mask = (1<<e) - 1;
 				if(R == std::round_to_nearest)
-					result += 1 << (e-1);
+					result += (1<<(e-1)) - (~(result>>e)&E);
 				else if(R == std::round_toward_infinity)
 					result += mask & ((value>>15)-1);
 				else if(R == std::round_toward_neg_infinity)
@@ -835,6 +874,17 @@ namespace half_float
 			}
 			return result;
 		}
+
+		/// Round half-precision number to nearest integer value.
+		/// \tparam R rounding mode to use, `std::round_indeterminate` for fastest rounding
+		/// \param value binary representation of half-precision value
+		/// \return half-precision bits for nearest integral value
+		template<std::float_round_style R> uint16 round_half(uint16 value) { return round_half_impl<R,HALF_ROUND_TIES_TO_EVEN>(value); }
+
+		/// Round half-precision number to nearest integer value using round-to-nearest-away-from-zero.
+		/// \param value binary representation of half-precision value
+		/// \return half-precision bits for nearest integral value
+		inline uint16 round_half_up(uint16 value) { return round_half_impl<std::round_to_nearest,0>(value); }
 		/// \}
 
 		struct functions;
@@ -1361,12 +1411,12 @@ namespace half_float
 			/// Nearest integer implementation.
 			/// \param arg value to round
 			/// \return rounded value
-			static half round(half arg) { return half(binary, round_half<std::round_to_nearest>(arg.data_)); }
+			static half round(half arg) { return half(binary, round_half_up(arg.data_)); }
 
 			/// Nearest integer implementation.
 			/// \param arg value to round
 			/// \return rounded value
-			static long lround(half arg) { return detail::half2int<std::round_to_nearest,long>(arg.data_); }
+			static long lround(half arg) { return detail::half2int_up<long>(arg.data_); }
 
 			/// Nearest integer implementation.
 			/// \param arg value to round
@@ -1382,7 +1432,7 @@ namespace half_float
 			/// Nearest integer implementation.
 			/// \param arg value to round
 			/// \return rounded value
-			static long long llround(half arg) { return detail::half2int<std::round_to_nearest,long long>(arg.data_); }
+			static long long llround(half arg) { return detail::half2int_up<long long>(arg.data_); }
 
 			/// Nearest integer implementation.
 			/// \param arg value to round
@@ -1464,11 +1514,16 @@ namespace half_float
 				else if(e > -11)
 				{
 					if(half::round_style == std::round_to_nearest)
+					{
 						m += 1 << -e;
+						#if HALF_ROUND_TIES_TO_EVEN
+							m -= m >> (1-e);
+						#endif
+					}
 					else if(half::round_style == std::round_toward_infinity)
-						m += ((1<<(1-e))-1) & ((value>>15)-1U);
+						m += ((value>>15)-1) & ((1<<(1-e))-1U);
 					else if(half::round_style == std::round_toward_neg_infinity)
-						m += ((1<<(1-e))-1) & -static_cast<unsigned int>(value>>15);
+						m += -(value>>15) & ((1<<(1-e))-1U);
 					value |= m >> (1-e);
 				}
 				else if(half::round_style == std::round_toward_infinity)

@@ -168,6 +168,19 @@ intermediate conversion to/from float.
     assert( half_cast<half,std::round_toward_zero>( 4097 )     == 4096.0_h );
     assert( half_cast<half,std::round_toward_infinity>( 4097 ) == 4100.0_h );
 
+When using round to nearest (either as default or thorugh 'half_cast') ties are 
+by default resolved by rounding them away from zero (and thus equal to the 
+behaviour of the 'round' function). But by redefining the 
+'HALF_ROUND_TIES_TO_EVEN' preprocessor symbol to 1 (before including half.hpp) 
+this default can be changed to the slightly slower but less biased and more 
+IEEE-conformant behaviour of rounding half-way cases to the nearest even value.
+
+    #define HALF_ROUND_TIES_TO_EVEN 1
+    #include <half.hpp>
+    ...
+    assert( half_cast<int,std::round_to_nearest>(3.5_h) 
+         == half_cast<int,std::round_to_nearest>(4.5_h) );
+
 IMPLEMENTATION
 
 For performance reasons (and ease of implementation) many of the mathematical 
