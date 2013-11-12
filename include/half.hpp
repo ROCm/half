@@ -1513,9 +1513,9 @@ namespace half_float
 					if(half::round_style == std::round_to_nearest)
 					{
 						m += 1 << -e;
-						#if HALF_ROUND_TIES_TO_EVEN
-							m -= m >> (1-e);
-						#endif
+					#if HALF_ROUND_TIES_TO_EVEN
+						m -= (m>>(1-e)) & 1;
+					#endif
 					}
 					else if(half::round_style == std::round_toward_infinity)
 						m += ((value>>15)-1) & ((1<<(1-e))-1U);
