@@ -574,12 +574,11 @@ namespace half_float
 				if(exp > 25)
 				{
 					if(R == std::round_to_nearest)
-						bits += (value>>(exp-26))
+						bits += (value>>(exp-26)) & 1
 						#if HALF_ROUND_TIES_TO_EVEN
-							& (((((1<<(exp-26))-1)&value)!=0)|bits);
-						#else
-							& 1;
+							& (((((1<<(exp-26))-1)&value)!=0)|bits)
 						#endif
+						;
 					else if(R == std::round_toward_infinity)
 						bits += ((value&((1<<(exp-25))-1))!=0) & !S;
 					else if(R == std::round_toward_neg_infinity)

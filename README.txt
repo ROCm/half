@@ -258,14 +258,17 @@ point environment using <cfenv> or implementing a similar exception mechanism.
 But this would have required excessive runtime checks giving two high an impact 
 on performance for something that is rarely ever needed. If you really need to 
 rely on proper floating point exceptions, it is recommended to explicitly 
-perform computations using the builtin floating point types to be on the safe 
+perform computations using the built-in floating point types to be on the safe 
 side. In the same way, if you really need to rely on a particular rounding 
-behaviour, it is recommended to use single-precision computations and 
+behaviour, it is recommended to either use single-precision computations and 
 explicitly convert the result to half-precision using 'half_cast' and 
-specifying the desired rounding mode. But those are really considered 
-expert-scenarios rarely encountered in practice, since actually working with 
-half-precision usually comes with a certain tolerance/ignorance of exactness 
-considerations.
+specifying the desired rounding mode, or synchronize the default half-precision 
+rounding mode to the rounding mode of the single-precision implementation (most 
+likely 'HALF_ROUND_STYLE=1', 'HALF_ROUND_TIES_TO_EVEN=1'). But this is really 
+considered an expert-scenario that should be used only when necessary, since 
+actually working with half-precision usually comes with a certain 
+tolerance/ignorance of exactness considerations and proper rounding comes with 
+a certain performance cost.
 
 
 CREDITS AND CONTACT
