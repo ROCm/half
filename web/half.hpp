@@ -536,13 +536,13 @@ namespace half_float
 	/// \{
 
 	/// Error function.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
 	/// \param arg function argument
 	/// \return error function value of \a arg
 	half erf(half arg);
 
 	/// Complementary error function.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
 	/// \param arg function argument
 	/// \return 1 minus error function value of \a arg
 	half erfc(half arg);

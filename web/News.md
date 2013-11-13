@@ -4,7 +4,7 @@ News														{#news}
 November X, 2013 - Release 1.11.0
 ---------------------------------
 
-[Version 1.10.0](http://sourceforge.net/projects/half/files/half/1.10.0) of the library has been released. It further increases the flexibility of the rounding, by allowing the round to nearest behaviour to be configured more precisely. By default half-way cases during round to nearest are rounded away from zero (and thus analogous to the round() function), but by redefining [HALF_ROUND_TIES_TO_EVEN](\ref HALF_ROUND_TIES_TO_EVEN) to `1` this can be changed to the slower but less biased round to even.
+[Version 1.10.0](http://sourceforge.net/projects/half/files/half/1.10.0) of the library has been released. It further increases the flexibility of the rounding, by allowing the round to nearest behaviour to be configured more precisely. By default half-way cases during round to nearest are rounded away from zero (and thus analogous to the round() function), but by redefining [HALF_ROUND_TIES_TO_EVEN](\ref HALF_ROUND_TIES_TO_EVEN) to `1` this can be changed to the slower but less biased round to even. In addition to that the support for C++11 mathematical functions in light of unsupported single-precision versions has been increased further, by providing erf() and erfc() even if their `<cmath>` counterparts are unavailable. Furthermore, it fixes a bug that made it impossible to disable support for C++11 mathematical functions in *VC++ 2013*.
 
 ---------------------------------
 November 9, 2013 - Release 1.10.0

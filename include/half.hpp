@@ -43,13 +43,16 @@
 		#define HALF_ENABLE_CPP11_LONG_LONG 1
 	#endif
 /*#elif defined(__INTEL_COMPILER)								//Intel C++
-	#if __INTEL_COMPILER >= 1100 && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)
+	#if __INTEL_COMPILER >= 1100 && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)		????????
 		#define HALF_ENABLE_CPP11_STATIC_ASSERT 1
 	#endif
-	#if __INTEL_COMPILER >= 1300 && !defined(HALF_ENABLE_CPP11_CONSTEXPR)
+	#if __INTEL_COMPILER >= 1300 && !defined(HALF_ENABLE_CPP11_CONSTEXPR)			????????
 		#define HALF_ENABLE_CPP11_CONSTEXPR 1
 	#endif
-	#if !defined(HALF_ENABLE_CPP11_LONG_LONG)
+	#if __INTEL_COMPILER >= 1300 && !defined(HALF_ENABLE_CPP11_NOEXCEPT)			????????
+		#define HALF_ENABLE_CPP11_NOEXCEPT 1
+	#endif
+	#if __INTEL_COMPILER >= 1100 && !defined(HALF_ENABLE_CPP11_LONG_LONG)			????????
 		#define HALF_ENABLE_CPP11_LONG_LONG 1
 	#endif*/
 #elif defined(__GNUC__)										//gcc
@@ -139,7 +142,9 @@
 		#endif
 	#endif
 	#if _CPPLIB_VER >= 610
-		#define HALF_ENABLE_CPP11_CMATH 1
+		#ifndef HALF_ENABLE_CPP11_CMATH
+			#define HALF_ENABLE_CPP11_CMATH 1
+		#endif
 	#endif
 #endif
 #undef HALF_GNUC_VERSION
@@ -759,20 +764,15 @@ namespace half_float
 		inline float half2float_impl(uint16 value, false_type)
 		{
 			float out;
-			int exp = value & 0x7C00;
-			if(exp == 0x7C00)
-			{
-				if(value & 0x3FF)
-					out = std::numeric_limits<float>::has_quiet_NaN ? std::numeric_limits<float>::quiet_NaN() : 0.0f;
-				else
-					out = std::numeric_limits<float>::has_infinity ? std::numeric_limits<float>::infinity() : 
-						std::numeric_limits<float>::max();
-			}
+			int abs = value & 0x7FFF;
+			if(abs > 0x7C00)
+				out = std::numeric_limits<float>::has_quiet_NaN ? std::numeric_limits<float>::quiet_NaN() : 0.0f;
+			else if(abs == 0x7C00)
+				out = std::numeric_limits<float>::has_infinity ? std::numeric_limits<float>::infinity() : std::numeric_limits<float>::max();
+			else if(abs > 0x3FF)
+				out = std::ldexp(static_cast<float>((value&0x3FF)|0x400), (abs>>10)-25);
 			else
-			{
-				unsigned int mant = value & 0x3FF;
-				out = exp ? std::ldexp(static_cast<float>(mant|0x400), (exp>>10)-25) : std::ldexp(static_cast<float>(mant), -24);
-			}
+				out = std::ldexp(static_cast<float>(abs), -24);
 			return (value&0x8000) ? -out : out;
 		}
 
@@ -792,15 +792,15 @@ namespace half_float
 		/// \return integral value
 		template<std::float_round_style R,bool E,typename T> T half2int_impl(uint16 value)
 		{
-			unsigned int e = value & 0x7C00;
-			if(e == 0x7C00)
+			unsigned int e = value & 0x7FFF;
+			if(e >= 0x7C00)
 				return (value&0x8000) ? std::numeric_limits<T>::min() : std::numeric_limits<T>::max();
 			if(e < 0x3800)
 			{
 				if(R == std::round_toward_infinity)
-					return T(~(value>>15)&((value&0x7FFF)!=0));
+					return T(~(value>>15)&(e!=0));
 				else if(R == std::round_toward_neg_infinity)
-					return -T((value>>15)&((value&0x7FFF)!=0));
+					return -T(value>0x8000);
 				return T();
 			}
 			int17 m = (value&0x3FF) | 0x400;
@@ -847,17 +847,17 @@ namespace half_float
 		/// \return half-precision bits for nearest integral value
 		template<std::float_round_style R,bool E> uint16 round_half_impl(uint16 value)
 		{
-			unsigned int e = value & 0x7C00;
+			unsigned int e = value & 0x7FFF;
 			uint16 result = value;
 			if(e < 0x3C00)
 			{
 				result &= 0x8000;
 				if(R == std::round_to_nearest)
-					result |= 0x3C00U & -((value&0x7FFF)>=(0x3800+E));
+					result |= 0x3C00U & -(e>=(0x3800+E));
 				else if(R == std::round_toward_infinity)
-					result |= 0x3C00U & -(~(value>>15)&((value&0x7FFF)!=0));
+					result |= 0x3C00U & -(~(value>>15)&(e!=0));
 				else if(R == std::round_toward_neg_infinity)
-					result |= 0x3C00U & -((value>>15)&((value&0x7FFF)!=0));
+					result |= 0x3C00U & -(value>0x8000);
 			}
 			else if(e < 0x6400)
 			{
@@ -1392,6 +1392,38 @@ namespace half_float
 			#endif
 			}
 
+			/// Error function implementation.
+			/// \param arg function argument
+			/// \return function value stored in single-preicision
+			static expr erf(float arg)
+			{
+			#if HALF_ENABLE_CPP11_CMATH
+				return expr(std::erf(arg));
+			#else
+				if(builtin_isinf(arg))
+					return expr(static_cast<float>(builtin_signbit(arg) ? -1.0f : 1.0f));
+				double x2 = static_cast<double>(arg)* static_cast<double>(arg), ax2 = 0.147 * x2;
+				double value = std::sqrt(1.0-std::exp(-x2*(1.2732395447351626861510701069801+ax2)/(1.0+ax2)));
+				return expr(static_cast<float>(builtin_signbit(arg) ? -value : value));
+			#endif
+			}
+
+			/// Complementary implementation.
+			/// \param arg function argument
+			/// \return function value stored in single-preicision
+			static expr erfc(float arg)
+			{
+			#if HALF_ENABLE_CPP11_CMATH
+				return expr(std::erfc(arg));
+			#else
+				if(builtin_isinf(arg))
+					return expr(static_cast<float>(builtin_signbit(arg) ? 2.0f : 0.0f));
+				double x2 = static_cast<double>(arg)* static_cast<double>(arg), ax2 = 0.147 * x2;
+				double value = std::sqrt(1.0-std::exp(-x2*(1.2732395447351626861510701069801+ax2)/(1.0+ax2)));
+				return expr(static_cast<float>(builtin_signbit(arg) ? (1.0+value) : (1.0-value)));
+			#endif
+			}
+
 			/// Floor implementation.
 			/// \param arg value to round
 			/// \return rounded value
@@ -1721,16 +1753,6 @@ namespace half_float
 			static bool isunordered(half x, half y) { return isnan(x) || isnan(y); }
 
 		#if HALF_ENABLE_CPP11_CMATH
-			/// Error function implementation.
-			/// \param arg function argument
-			/// \return function value stored in single-preicision
-			static expr erf(float arg) { return expr(std::erf(arg)); }
-
-			/// Complementary implementation.
-			/// \param arg function argument
-			/// \return function value stored in single-preicision
-			static expr erfc(float arg) { return expr(std::erfc(arg)); }
-
 			/// Gamma logarithm implementation.
 			/// \param arg function argument
 			/// \return function value stored in single-preicision
@@ -2234,7 +2256,6 @@ namespace half_float
 		inline expr atanh(half arg) { return functions::atanh(arg); }
 		inline expr atanh(expr arg) { return functions::atanh(arg); }
 
-	#if HALF_ENABLE_CPP11_CMATH
 		/// \}
 		/// \name Error and gamma functions
 		/// \{
@@ -2252,7 +2273,7 @@ namespace half_float
 //		template<typename T> typename enable<expr,T>::type erfc(T arg) { return functions::erfc(arg); }
 		inline expr erfc(half arg) { return functions::erfc(arg); }
 		inline expr erfc(expr arg) { return functions::erfc(arg); }
-
+	#if HALF_ENABLE_CPP11_CMATH
 		/// Natural logarithm of gamma function.
 		/// \param arg function argument
 		/// \return natural logarith of gamma function for \a arg
@@ -2644,6 +2665,8 @@ namespace half_float
 	using detail::asinh;
 	using detail::acosh;
 	using detail::atanh;
+	using detail::erf;
+	using detail::erfc;
 	using detail::ceil;
 	using detail::floor;
 	using detail::trunc;
@@ -2679,8 +2702,6 @@ namespace half_float
 	using detail::islessgreater;
 	using detail::isunordered;
 #if HALF_ENABLE_CPP11_CMATH
-	using detail::erf;
-	using detail::erfc;
 	using detail::lgamma;
 	using detail::tgamma;
 #endif
