@@ -404,7 +404,7 @@ namespace half_float
 		#if HALF_ENABLE_CPP11_CMATH
 			return std::signbit(arg);
 		#else
-			return arg < T();
+			return arg < T() || (arg == T() && T(1)/arg < T());
 		#endif
 		}
 
@@ -1400,11 +1400,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::erf(arg));
 			#else
-				if(builtin_isinf(arg))
-					return expr(static_cast<float>(builtin_signbit(arg) ? -1.0f : 1.0f));
-				double x2 = static_cast<double>(arg)* static_cast<double>(arg), ax2 = 0.147 * x2;
-				double value = std::sqrt(1.0-std::exp(-x2*(1.2732395447351626861510701069801+ax2)/(1.0+ax2)));
-				return expr(static_cast<float>(builtin_signbit(arg) ? -value : value));
+				return expr(static_cast<float>(erf(static_cast<double>(arg))));
 			#endif
 			}
 
@@ -1416,11 +1412,58 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::erfc(arg));
 			#else
+				return expr(static_cast<float>(1.0-erf(static_cast<double>(arg))));
+			#endif
+			}
+
+			/// Gamma logarithm implementation.
+			/// \param arg function argument
+			/// \return function value stored in single-preicision
+			static expr lgamma(float arg)
+			{
+			#if HALF_ENABLE_CPP11_CMATH
+				return expr(std::lgamma(arg));
+			#else
 				if(builtin_isinf(arg))
-					return expr(static_cast<float>(builtin_signbit(arg) ? 2.0f : 0.0f));
-				double x2 = static_cast<double>(arg)* static_cast<double>(arg), ax2 = 0.147 * x2;
-				double value = std::sqrt(1.0-std::exp(-x2*(1.2732395447351626861510701069801+ax2)/(1.0+ax2)));
-				return expr(static_cast<float>(builtin_signbit(arg) ? (1.0+value) : (1.0-value)));
+					return expr(std::numeric_limits<float>::infinity());
+				double z = static_cast<double>(arg);
+				if(z < 0)
+				{
+					double i, f = std::modf(-z, &i);
+					if(f == 0.0)
+						return expr(std::numeric_limits<float>::infinity());
+					return expr(static_cast<float>(1.1447298858494001741434273513531-std::log(std::abs(std::sin(3.1415926535897932384626433832795*f)))-lgamma(1.0-z)));
+				}
+//				if(z < 8.0)
+					return expr(static_cast<float>(lgamma(static_cast<double>(arg))));
+				return expr(static_cast<float>(0.5*(1.8378770664093454835606594728112-std::log(z))+z*(log(z+1.0/(12.0*z-1.0/(10.0*z)-1.0))-1.0)));
+			#endif
+			}
+
+			/// Gamma implementation.
+			/// \param arg function argument
+			/// \return function value stored in single-preicision
+			static expr tgamma(float arg)
+			{
+			#if HALF_ENABLE_CPP11_CMATH
+				return expr(std::tgamma(arg));
+			#else
+				double z = static_cast<double>(arg);
+				if(z == 0.0)
+					return builtin_signbit(z) ? expr(-std::numeric_limits<float>::infinity()) : expr(std::numeric_limits<float>::infinity());
+				if(z < 0.0)
+				{
+					double i, f = std::modf(-z, &i);
+					if(f == 0.0)
+						return expr(std::numeric_limits<float>::quiet_NaN());
+					double sign = (std::fmod(i, 2.0)==0.0) ? -1.0 : 1.0;
+					return expr(static_cast<float>(sign*3.1415926535897932384626433832795/(std::sin(3.1415926535897932384626433832795*f)*std::exp(lgamma(1.0-z)))));
+				}
+				if(builtin_isinf(arg))
+					return expr(arg);
+//				if(arg < 8.0f)
+					return expr(static_cast<float>(std::exp(lgamma(z))));
+				return expr(static_cast<float>(std::sqrt(6.283185307179586476925286766559/z)*std::pow(0.36787944117144232159552377016146*(z+1.0/(12.0*z-1.0/(10.0*z))), z)));
 			#endif
 			}
 
@@ -1752,17 +1795,26 @@ namespace half_float
 			/// \retval false else
 			static bool isunordered(half x, half y) { return isnan(x) || isnan(y); }
 
-		#if HALF_ENABLE_CPP11_CMATH
-			/// Gamma logarithm implementation.
-			/// \param arg function argument
-			/// \return function value stored in single-preicision
-			static expr lgamma(float arg) { return expr(std::lgamma(arg)); }
+		private:
+			static double erf(double arg)
+			{
+				if(builtin_isinf(arg))
+					return builtin_signbit(arg) ? -1.0 : 1.0;
+				double x2 = static_cast<double>(arg)* static_cast<double>(arg), ax2 = 0.147 * x2;
+				double value = std::sqrt(1.0-std::exp(-x2*(1.2732395447351626861510701069801+ax2)/(1.0+ax2)));
+				return builtin_signbit(arg) ? -value : value;
+			}
 
-			/// Gamma implementation.
-			/// \param arg function argument
-			/// \return function value stored in single-preicision
-			static expr tgamma(float arg) { return expr(std::tgamma(arg)); }
-		#endif
+			static double lgamma(double arg)
+			{
+				double v = 1.0;
+				for(; arg<8.0; ++arg) v *= arg;
+				double w = 1.0 / (arg * arg);
+				return (((((((-0.02955065359477124183006535947712*w+0.00641025641025641025641025641026)*w+-0.00191752691752691752691752691753)*w+
+					8.4175084175084175084175084175084e-4)*w+-5.952380952380952380952380952381e-4)*w+7.9365079365079365079365079365079e-4)*w+
+					-0.00277777777777777777777777777778)*w+0.08333333333333333333333333333333)/arg + 
+					0.91893853320467274178032973640562 - std::log(v) - arg + (arg-0.5) * std::log(arg);
+			}
 		};
 
 		/// Wrapper for unary half-precision functions needing specialization for individual argument types.
@@ -2273,7 +2325,7 @@ namespace half_float
 //		template<typename T> typename enable<expr,T>::type erfc(T arg) { return functions::erfc(arg); }
 		inline expr erfc(half arg) { return functions::erfc(arg); }
 		inline expr erfc(expr arg) { return functions::erfc(arg); }
-	#if HALF_ENABLE_CPP11_CMATH
+
 		/// Natural logarithm of gamma function.
 		/// \param arg function argument
 		/// \return natural logarith of gamma function for \a arg
@@ -2287,7 +2339,6 @@ namespace half_float
 //		template<typename T> typename enable<expr,T>::type tgamma(T arg) { return functions::tgamma(arg); }
 		inline expr tgamma(half arg) { return functions::tgamma(arg); }
 		inline expr tgamma(expr arg) { return functions::tgamma(arg); }
-	#endif
 
 		/// \}
 		/// \name Rounding
@@ -2667,6 +2718,8 @@ namespace half_float
 	using detail::atanh;
 	using detail::erf;
 	using detail::erfc;
+	using detail::lgamma;
+	using detail::tgamma;
 	using detail::ceil;
 	using detail::floor;
 	using detail::trunc;
@@ -2701,10 +2754,6 @@ namespace half_float
 	using detail::islessequal;
 	using detail::islessgreater;
 	using detail::isunordered;
-#if HALF_ENABLE_CPP11_CMATH
-	using detail::lgamma;
-	using detail::tgamma;
-#endif
 
 	using detail::half_cast;
 }

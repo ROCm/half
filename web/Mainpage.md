@@ -12,7 +12,7 @@ News														{#new}
 November X, 2013 - Release 1.11.0
 ---------------------------------
 
-[Version 1.10.0](http://sourceforge.net/projects/half/files/half/1.10.0) of the library has been released. It further increases the flexibility of the rounding, by allowing the round to nearest behaviour to be configured more precisely. By default half-way cases during round to nearest are rounded away from zero (and thus analogous to the round() function), but by redefining [HALF_ROUND_TIES_TO_EVEN](\ref HALF_ROUND_TIES_TO_EVEN) to `1` this can be changed to the slower but less biased round to even. In addition to that the support for C++11 mathematical functions in light of unsupported single-precision versions has been increased further, by providing erf() and erfc() even if their `<cmath>` counterparts are unavailable. Furthermore, it fixes a bug that made it impossible to disable support for C++11 mathematical functions in *VC++ 2013*.
+[Version 1.10.0](http://sourceforge.net/projects/half/files/half/1.10.0) of the library has been released. It further increases the flexibility of the rounding, by allowing the round to nearest behaviour to be configured more precisely. By default half-way cases during round to nearest are rounded away from zero (and thus analogous to the round() function), but by redefining [HALF_ROUND_TIES_TO_EVEN](\ref HALF_ROUND_TIES_TO_EVEN) to `1` this can be changed to the slower but less biased round to even. In addition to that the support for C++11 mathematical functions in light of unsupported single-precision versions has been completed by providing erf(), erfc(), lgamma() and tgamma() even if their `<cmath>` counterparts are unavailable. Furthermore, it fixes a bug that made it impossible to disable support for C++11 mathematical functions in *VC++ 2013*.
 
 November 9, 2013 - Release 1.10.0
 ---------------------------------
@@ -36,17 +36,17 @@ Comfortably enough, the library consists of just a single header file containing
 
 Whereas this library is fully C++98-compatible, it can profit from certain C++11 features. Support for those features is checked and enabled automatically at compile (or rather preprocessing) time, but can be explicitly enabled or disabled by defining the corresponding preprocessor symbols to either 1 or 0 yourself. This is useful when the automatic detection fails (for more exotic implementations) or when a feature should be explicitly disabled:
 
-C++11 feature                        | Used for                        | Enabled for (and newer)                     | Override with
--------------------------------------|---------------------------------|---------------------------------------------|----------------------------------
-`long long` integer type             | functions returning `long long` | *VC++ 2003*, *gcc*, *clang*                 | `HALF_ENABLE_CPP11_LONG_LONG`
-static assertions                    | extended compile-time checks    | *VC++ 2010*, *gcc 4.3*, *clang 2.9*         | `HALF_ENABLE_CPP11_STATIC_ASSERT`
-generalized constant expressions     | constant operations             | *gcc 4.6*, *clang 3.1*                      | `HALF_ENABLE_CPP11_CONSTEXPR`
-`noexcept` specifications            | proper `noexcept` functions     | *gcc 4.6*, *clang 3.0*                      | `HALF_ENABLE_CPP11_NOEXCEPT`
-user-defined literals                | half-precision literals         | *gcc 4.7*, *clang 3.1*                      | `HALF_ENABLE_CPP11_USER_LITERALS`
-type traits from `<type_traits>`     | TMP and extended checks         | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_TYPE_TRAITS`
-sized integer types from `<cstdint>` | more flexible type sizes        | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_CSTDINT`
-certain new `<cmath>` functions      | corresponding half functions    | *VC++ 2013*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_CMATH`
-`std::hash` from `<functional>`      | hash function for halfs         | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_HASH`
+C++11 feature                        | Used for                           | Enabled for (and newer)                     | Override with
+-------------------------------------|------------------------------------|---------------------------------------------|----------------------------------
+`long long` integer type             | functions returning `long long`    | *VC++ 2003*, *gcc*, *clang*                 | `HALF_ENABLE_CPP11_LONG_LONG`
+static assertions                    | extended compile-time checks       | *VC++ 2010*, *gcc 4.3*, *clang 2.9*         | `HALF_ENABLE_CPP11_STATIC_ASSERT`
+generalized constant expressions     | constant operations                | *gcc 4.6*, *clang 3.1*                      | `HALF_ENABLE_CPP11_CONSTEXPR`
+`noexcept` specifications            | proper `noexcept` functions        | *gcc 4.6*, *clang 3.0*                      | `HALF_ENABLE_CPP11_NOEXCEPT`
+user-defined literals                | half-precision literals            | *gcc 4.7*, *clang 3.1*                      | `HALF_ENABLE_CPP11_USER_LITERALS`
+type traits from `<type_traits>`     | TMP and extended checks            | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_TYPE_TRAITS`
+sized integer types from `<cstdint>` | more flexible type sizes           | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_CSTDINT`
+certain new `<cmath>` functions      | corresponding half implementations | *VC++ 2013*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_CMATH`
+`std::hash` from `<functional>`      | hash function for halfs            | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_HASH`
 
 The library has been tested successfully with *Visual C++ 2005* - *2013*, *gcc 4.4* - *4.8* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 

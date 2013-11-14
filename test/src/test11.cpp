@@ -422,8 +422,7 @@ private:
 	typedef std::map<std::string,half_vector> test_map;
 	typedef std::map<std::string,int> class_map;
 
-	template<typename F>
-	bool class_test(const std::string &name, F test)
+	template<typename F> bool class_test(const std::string &name, F test)
 	{
 		unsigned int count = 0;
 		log_ << "testing " << name << ":\n";
@@ -450,8 +449,7 @@ private:
 		return false;
 	}
 
-	template<typename F>
-	bool simple_test(const std::string &name, F test)
+	template<typename F> bool simple_test(const std::string &name, F test)
 	{
 		log_ << "testing " << name << ": ";
 		bool passed = test();
@@ -462,8 +460,7 @@ private:
 		return passed;
 	}
 
-	template<typename F>
-	bool unary_test(const std::string &name, F test)
+	template<typename F> bool unary_test(const std::string &name, F test)
 	{
 		unsigned int count = 0;
 		log_ << "testing " << name << ":\n";
@@ -489,8 +486,7 @@ private:
 		return false;
 	}
 
-	template<typename F>
-	bool binary_test(const std::string &name, F test)
+	template<typename F> bool binary_test(const std::string &name, F test)
 	{
 		auto rand = std::bind(std::uniform_int_distribution<std::size_t>(0, 63), std::default_random_engine());
 		unsigned int tests = 0, count = 0;

@@ -6,9 +6,8 @@ Release Notes											{#changelog}
 
 - Made tie-breaking behaviour in round to nearest configurable by 
   `HALF_ROUND_TIES_TO_EVEN` macro.
-- Added support for more C++11 mathematical functions even if single-
-  precision versions from `<cmath>` are unsupported, in particular 
-  `erf` and `erfc`.
+- Completed support for all C++11 mathematical functions even if single-
+  precision versions from `<cmath>` are unsupported.
 - Fixed inability to disable support for C++11 mathematical functions on 
   *VC++ 2013*.
 

@@ -548,13 +548,13 @@ namespace half_float
 	half erfc(half arg);
 
 	/// Natural logarithm of gamma function.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
 	/// \param arg function argument
 	/// \return natural logarith of gamma function for \a arg
 	half lgamma(half arg);
 
 	/// Gamma function.
-	/// This function uses the underlying single-precision implementation and requires support for C++11 `<cmath>` functions.
+	/// This function uses the underlying single-precision implementation if C++11 `<cmath>` functions are supported.
 	/// \param arg function argument
 	/// \return gamma function value of \a arg
 	half tgamma(half arg);
