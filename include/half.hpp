@@ -1107,22 +1107,22 @@ namespace half_float
 			#else
 				if(builtin_isnan(x) || builtin_isnan(y))
 					return expr(std::numeric_limits<float>::quiet_NaN());
-				bool sign = builtin_signbit(x);
-				x = std::fabs(x);
-				y = std::fabs(y);
-				if(x >= 65536.0f || y < std::ldexp(1.0f, -24))
+				float ax = std::fabs(x), ay = std::fabs(y);
+				if(ax >= 65536.0f || ay < std::ldexp(1.0f, -24))
 					return expr(std::numeric_limits<float>::quiet_NaN());
-				if(x == y)
-					return expr(sign ? -0.0f : 0.0f);
-				x = std::fmod(x, y+y);
-				float y2 = 0.5f * y;
-				if(x > y2)
+				if(ay >= 65536.0f)
+					return expr(x);
+				if(ax == ay)
+					return expr(builtin_signbit(x) ? -0.0f : 0.0f);
+				ax = std::fmod(ax, ay+ay);
+				float y2 = 0.5f * ay;
+				if(ax > y2)
 				{
-					x -= y;
-					if(x >= y2)
-						x -= y;
+					ax -= ay;
+					if(ax >= y2)
+						ax -= ay;
 				}
-				return expr(sign ? -x : x);
+				return expr(builtin_signbit(x) ? -ax : ax);
 			#endif
 			}
 
@@ -1139,36 +1139,37 @@ namespace half_float
 				if(builtin_isnan(x) || builtin_isnan(y))
 					return expr(std::numeric_limits<float>::quiet_NaN());
 				bool sign = builtin_signbit(x), qsign = static_cast<bool>(sign^builtin_signbit(y));
-				x = std::fabs(x);
-				y = std::fabs(y);
-				if(x >= 65536.0f || y < std::ldexp(1.0f, -24))
+				float ax = std::fabs(x), ay = std::fabs(y);
+				if(ax >= 65536.0f || ay < std::ldexp(1.0f, -24))
 					return expr(std::numeric_limits<float>::quiet_NaN());
-				if(x == y)
+				if(ay >= 65536.0f)
+					return expr(x);
+				if(ax == ay)
 					return *quo = qsign ? -1 : 1, expr(sign ? -0.0f : 0.0f);
-				x = std::fmod(x, 8.0f*y);
+				ax = std::fmod(ax, 8.0f*ay);
 				int cquo = 0;
-				if(x >= 4.0f * y)
+				if(ax >= 4.0f * ay)
 				{
-					x -= 4.0f * y;
+					ax -= 4.0f * ay;
 					cquo += 4;
 				}
-				if(x >= 2.0f * y)
+				if(ax >= 2.0f * ay)
 				{
-					x -= 2.0f * y;
+					ax -= 2.0f * ay;
 					cquo += 2;
 				}
-				float y2 = 0.5f * y;
-				if(x > y2)
+				float y2 = 0.5f * ay;
+				if(ax > y2)
 				{
-					x -= y;
+					ax -= ay;
 					++cquo;
-					if(x >= y2)
+					if(ax >= y2)
 					{
-						x -= y;
+						ax -= ay;
 						++cquo;
 					}
 				}
-				return *quo = qsign ? -cquo : cquo, expr(sign ? -x : x);
+				return *quo = qsign ? -cquo : cquo, expr(sign ? -ax : ax);
 			#endif
 			}
 
@@ -1279,9 +1280,9 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::cbrt(arg));
 			#else
-				if(builtin_isnan(arg) || builtin_isinf(arg) || arg==0.0f)
+				if(builtin_isnan(arg) || builtin_isinf(arg))
 					return expr(arg);
-				return expr(builtin_signbit(arg) ? -static_cast<float>(std::pow(static_cast<double>(std::fabs(arg)), 1.0/3.0)) : 
+				return expr(builtin_signbit(arg) ? -static_cast<float>(std::pow(std::fabs(static_cast<double>(arg)), 1.0/3.0)) : 
 					static_cast<float>(std::pow(static_cast<double>(arg), 1.0/3.0)));
 			#endif
 			}
@@ -1800,7 +1801,7 @@ namespace half_float
 			{
 				if(builtin_isinf(arg))
 					return (arg<0.0) ? -1.0 : 1.0;
-				double x2 = static_cast<double>(arg)* static_cast<double>(arg), ax2 = 0.147 * x2;
+				double x2 = static_cast<double>(arg) * static_cast<double>(arg), ax2 = 0.147 * x2;
 				double value = std::sqrt(1.0-std::exp(-x2*(1.2732395447351626861510701069801+ax2)/(1.0+ax2)));
 				return builtin_signbit(arg) ? -value : value;
 			}

@@ -14,6 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#define HALF_ENABLE_CPP11_CMATH 0
 #define HALF_ROUND_STYLE -1
 #define HALF_ROUND_TIES_TO_EVEN 0
 #include <half.hpp>
@@ -38,6 +39,23 @@
 #if HALF_ENABLE_CPP11_HASH
 	#include <unordered_map>
 #endif
+
+
+#define UNARY_MATH_TEST(func) { \
+	double err = 0.0, rel = 0.0; \
+	bool success = unary_test(#func, [&](half arg) -> bool { \
+		half a = func(arg), b(std::func(static_cast<float>(arg))); bool equal = comp(a, b); \
+		if(!equal) { double error = std::abs(static_cast<double>(a)-static_cast<double>(b)); if(std::isinf(error)) log_ << arg << " - " << a << " - " << b << '\n'; \
+		err = std::max(err, error); rel = std::max(rel, error/std::abs(static_cast<double>(arg))); } return equal; }); \
+	std::cout << #func << " max error: " << err << " - max relative error: " << rel << '\n'; }
+
+#define BINARY_MATH_TEST(func) { \
+	double err = 0.0, rel = 0.0; \
+	bool success = binary_test(#func, [&](half x, half y) -> bool { \
+		half a = func(x, y), b(std::func(static_cast<float>(x), static_cast<float>(y))); bool equal = comp(a, b); \
+		if(!equal) { double error = std::abs(static_cast<double>(a)-static_cast<double>(b)); \
+		err = std::max(err, error); rel = std::max(rel, error/std::min(std::abs(static_cast<double>(x)), std::abs(static_cast<double>(y)))); } return equal; }); \
+	std::cout << #func << " max error: " << err << " - max relative error: " << rel << '\n'; }
 
 
 using half_float::half;
@@ -117,15 +135,6 @@ public:
 		classes_["negative inft"] = FP_INFINITE;
 		classes_["negative sNaN"] = FP_NAN;
 		classes_["negative qNaN"] = FP_NAN;
-
-		//write halfs
-		std::ofstream out("halfs.log");
-		for(auto iterB=halfs_.begin(); iterB!=halfs_.end(); ++iterB)
-		{
-			out << iterB->first << ":\n";
-			for(auto iterH=iterB->second.begin(); iterH!=iterB->second.end(); ++iterH)
-				out << '\t' << *iterH << '\n';
-		}
 	}
 
 	unsigned int test()
@@ -229,7 +238,7 @@ public:
 		binary_test("copysign", [](half a, half b) -> bool { half h = copysign(a, b); 
 			return comp(abs(h), abs(a)) && signbit(h)==signbit(b); });
 
-#if HALF_ENABLE_CPP11_CMATH
+#if 1//HALF_ENABLE_CPP11_CMATH
 		//test basic functions
 		binary_test("remainder", [](half a, half b) { return comp(remainder(a, b), 
 			static_cast<half>(std::remainder(static_cast<float>(a), static_cast<float>(b)))); });
@@ -238,31 +247,29 @@ public:
 		binary_test("fmin", [](half a, half b) -> bool { half c = fmin(a, b); return ((isnan(a) || isnan(b)) && isnan(c)) || 
 			comp(c, static_cast<half>(std::fmin(static_cast<float>(a), static_cast<float>(b)))); });
 		binary_test("fmax", [](half a, half b) -> bool { half c = fmax(a, b); return ((isnan(a) || isnan(b)) && isnan(c)) || 
-			comp(c, static_cast<half>(std::fmax(static_cast<float>(a), static_cast<float>(b)))); });
-		binary_test("fdim", [](half a, half b) { return comp(fdim(a, b), static_cast<half>(
-			std::fdim(static_cast<float>(a), static_cast<float>(b)))); });
+					comp(c, static_cast<half>(std::fmax(static_cast<float>(a), static_cast<float>(b)))); });
+		BINARY_MATH_TEST(fdim);
 
 		//test exponential functions
-		unary_test("exp2", [](half arg) { return comp(exp2(arg), static_cast<half>(std::exp2(static_cast<float>(arg)))); });
-		unary_test("expm1", [](half arg) { return comp(expm1(arg), static_cast<half>(std::expm1(static_cast<float>(arg)))); });
-		unary_test("log1p", [](half arg) { return comp(log1p(arg), static_cast<half>(std::log1p(static_cast<float>(arg)))); });
-		unary_test("log2", [](half arg) { return comp(log2(arg), static_cast<half>(std::log2(static_cast<float>(arg)))); });
+		UNARY_MATH_TEST(exp2);
+		UNARY_MATH_TEST(expm1);
+		UNARY_MATH_TEST(log1p);
+		UNARY_MATH_TEST(log2);
 
 		//test power functions
-		unary_test("cbrt", [](half arg) { return comp(cbrt(arg), static_cast<half>(std::cbrt(static_cast<float>(arg)))); });
-		binary_test("hypot", [](half a, half b) { return comp(hypot(a, b), static_cast<half>(
-			std::hypot(static_cast<float>(a), static_cast<float>(b)))); });
+		UNARY_MATH_TEST(cbrt);
+		BINARY_MATH_TEST(hypot);
 
 		//test hyp functions
-		unary_test("asinh", [](half arg) { return comp(asinh(arg), static_cast<half>(std::asinh(static_cast<float>(arg)))); });
-		unary_test("acosh", [](half arg) { return comp(acosh(arg), static_cast<half>(std::acosh(static_cast<float>(arg)))); });
-		unary_test("atanh", [](half arg) { return comp(atanh(arg), static_cast<half>(std::atanh(static_cast<float>(arg)))); });
+		UNARY_MATH_TEST(asinh);
+		UNARY_MATH_TEST(acosh);
+		UNARY_MATH_TEST(atanh);
 
 		//test err functions
-		unary_test("erf", [](half arg) { return comp(erf(arg), static_cast<half>(std::erf(static_cast<float>(arg)))); });
-		unary_test("erfc", [](half arg) { return comp(erfc(arg), static_cast<half>(std::erfc(static_cast<float>(arg)))); });
-		unary_test("lgamma", [](half arg) { return comp(lgamma(arg), static_cast<half>(std::lgamma(static_cast<float>(arg)))); });
-		unary_test("tgamma", [](half arg) { return comp(tgamma(arg), static_cast<half>(std::tgamma(static_cast<float>(arg)))); });
+		UNARY_MATH_TEST(erf);
+		UNARY_MATH_TEST(erf);
+		UNARY_MATH_TEST(lgamma);
+		UNARY_MATH_TEST(tgamma);
 
 		//test round functions
 		unary_test("trunc", [](half arg) { return comp(trunc(arg), static_cast<half>(std::trunc(static_cast<float>(arg)))); });
@@ -537,40 +544,12 @@ private:
 
 int main(int argc, char *argv[])
 {
-/*	using namespace half_float::literal;
-	half a, b;
-	a = (std::numeric_limits<half>::max()*2.0_h) / 2.0_h;
-	b = std::numeric_limits<half>::max() * 2.0_h;
-	b /= 2.0_h;
-	std::cout << std::hex << a << " - " << b << std::endl;
-	a = (std::numeric_limits<half>::max()+1.0_h) - 1.0_h;
-	b = std::numeric_limits<half>::max() + 1.0_h;
-	b -= 1.0_h;
-	std::cout << a << " - " << b << std::dec << std::endl;
-*/
-	std::cout << std::hash<half>()(std::numeric_limits<half>::infinity()) << std::endl;
-
-	int i = rand();
-	half h = half_cast<half>(i);
-	unsigned int u = half_cast<unsigned int>(h);
-	half a = half_cast<half>(h), b = half_cast<half>(h+a);
-
 	half pi = half_cast<half,std::round_to_nearest>(3.1415926535897932384626433832795L);
 	std::cout << "Pi: " << pi << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(pi) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(pi))).to_string() << std::endl;
 	half e = half_cast<half,std::round_to_nearest>(std::exp(1.0L));
 	std::cout << "e:  " << e << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(e) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(e))).to_string() << std::endl;
-
-	std::cout << ilogb(sin(a+b)) << '\n';			//ADL test
-
-	using namespace std;
-//	using namespace half_float;
-	auto f = atan2(h, 3);
-	auto g = h + 3LL;
-	std::cout << typeid(f).name() << ", " << typeid(g).name() << '\n';
-	std::cout << exp2(half(1)) << ", " << log2(half(1)) << '\n';
-	std::cout << logb(h) << ilogb(h) << '\n';
 
 	std::unique_ptr<std::ostream> file;
 	if(argc > 1)
