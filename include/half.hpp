@@ -1182,7 +1182,7 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::fdim(x, y));
 			#else
-				return expr(std::max(x-y, 0.0f));
+				return expr((x<=y) ? 0.0f : (x-y));
 			#endif
 			}
 
@@ -1296,7 +1296,8 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::hypot(x, y));
 			#else
-				return expr(static_cast<float>(std::sqrt(static_cast<double>(x)*x+static_cast<double>(y)*y)));
+				return expr((builtin_isinf(x) || builtin_isinf(y)) ? std::numeric_limits<float>::infinity() : 
+					static_cast<float>(std::sqrt(static_cast<double>(x)*x+static_cast<double>(y)*y)));
 			#endif
 			}
 

@@ -14,7 +14,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#define HALF_ENABLE_CPP11_CMATH 0
 #define HALF_ROUND_STYLE -1
 #define HALF_ROUND_TIES_TO_EVEN 0
 #include <half.hpp>
@@ -238,7 +237,7 @@ public:
 		binary_test("copysign", [](half a, half b) -> bool { half h = copysign(a, b); 
 			return comp(abs(h), abs(a)) && signbit(h)==signbit(b); });
 
-#if 1//HALF_ENABLE_CPP11_CMATH
+#if HALF_ENABLE_CPP11_CMATH
 		//test basic functions
 		binary_test("remainder", [](half a, half b) { return comp(remainder(a, b), 
 			static_cast<half>(std::remainder(static_cast<float>(a), static_cast<float>(b)))); });
@@ -267,7 +266,7 @@ public:
 
 		//test err functions
 		UNARY_MATH_TEST(erf);
-		UNARY_MATH_TEST(erf);
+		UNARY_MATH_TEST(erfc);
 		UNARY_MATH_TEST(lgamma);
 		UNARY_MATH_TEST(tgamma);
 
