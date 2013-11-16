@@ -1,7 +1,7 @@
 Release Notes											{#changelog}
 =============
 
-1.11.0 release (2013-11-XX):
+1.11.0 release (2013-11-16):
 ----------------------------
 
 - Made tie-breaking behaviour in round to nearest configurable by 

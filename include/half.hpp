@@ -1438,7 +1438,7 @@ namespace half_float
 				}
 //				if(z < 8.0)
 					return expr(static_cast<float>(lgamma(static_cast<double>(arg))));
-				return expr(static_cast<float>(0.5*(1.8378770664093454835606594728112-std::log(z))+z*(log(z+1.0/(12.0*z-1.0/(10.0*z)-1.0))-1.0)));
+				return expr(static_cast<float>(0.5*(1.8378770664093454835606594728112-std::log(z))+z*(std::log(z+1.0/(12.0*z-1.0/(10.0*z)-1.0))-1.0)));
 			#endif
 			}
 
@@ -1854,6 +1854,10 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::fmin(x, y));
 			#else
+				if(builtin_isnan(x))
+					return expr(y);
+				if(builtin_isnan(y))
+					return expr(x);
 				return expr(std::min(x, y));
 			#endif
 			}
@@ -1867,14 +1871,34 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::fmax(x, y));
 			#else
+				if(builtin_isnan(x))
+					return expr(y);
+				if(builtin_isnan(y))
+					return expr(x);
 				return expr(std::max(x, y));
 			#endif
 			}
 		};
 		template<> struct binary_specialized<half,half>
 		{
-			static half fmin(half x, half y) { return std::min(x, y); }
-			static half fmax(half x, half y) { return std::max(x, y); }
+			static half fmin(half x, half y)
+			{
+				if(functions::isnan(x))
+					return y;
+				if(functions::isnan(y))
+					return x;
+				return ((functions::signbit(x) ? (static_cast<int17>(0x8000)-x.data_) : static_cast<int17>(x.data_)) >
+						(functions::signbit(y) ? (static_cast<int17>(0x8000)-y.data_) : static_cast<int17>(y.data_))) ? y : x;
+			}
+			static half fmax(half x, half y)
+			{
+				if(functions::isnan(x))
+					return y;
+				if(functions::isnan(y))
+					return x;
+				return ((functions::signbit(x) ? (static_cast<int17>(0x8000)-x.data_) : static_cast<int17>(x.data_)) <
+						(functions::signbit(y) ? (static_cast<int17>(0x8000)-y.data_) : static_cast<int17>(y.data_))) ? y : x;
+			}
 		};
 
 		/// Helper class for half casts.
@@ -2794,8 +2818,9 @@ namespace std
 
 		/// Rounding mode.
 		/// Due to the mix of internal single-precision computations (using the rounding mode of the underlying 
-		/// single-precision implementation) with explicit truncation of the single-to-half conversions, the actual rounding 
-		/// mode is indeterminate.
+		/// single-precision implementation) with the rounding mode of the single-to-half conversions, the actual rounding 
+		/// mode might be `std::round_indeterminate` if the default half-precision rounding mode doesn't match the 
+		/// single-precision rounding mode.
 		static HALF_CONSTEXPR_CONST float_round_style round_style = (std::numeric_limits<float>::round_style==
 			half_float::half::round_style) ? half_float::half::round_style : round_indeterminate;
 

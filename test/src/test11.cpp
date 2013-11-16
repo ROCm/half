@@ -44,9 +44,9 @@
 	double err = 0.0, rel = 0.0; \
 	bool success = unary_test(#func, [&](half arg) -> bool { \
 		half a = func(arg), b(std::func(static_cast<float>(arg))); bool equal = comp(a, b); \
-		if(!equal) { double error = std::abs(static_cast<double>(a)-static_cast<double>(b)); if(std::isinf(error)) log_ << arg << " - " << a << " - " << b << '\n'; \
+		if(!equal) { double error = std::abs(static_cast<double>(a)-static_cast<double>(b)); \
 		err = std::max(err, error); rel = std::max(rel, error/std::abs(static_cast<double>(arg))); } return equal; }); \
-	std::cout << #func << " max error: " << err << " - max relative error: " << rel << '\n'; }
+	if(err != 0.0 || rel != 0.0) std::cout << #func << " max error: " << err << " - max relative error: " << rel << '\n'; }
 
 #define BINARY_MATH_TEST(func) { \
 	double err = 0.0, rel = 0.0; \
@@ -54,7 +54,7 @@
 		half a = func(x, y), b(std::func(static_cast<float>(x), static_cast<float>(y))); bool equal = comp(a, b); \
 		if(!equal) { double error = std::abs(static_cast<double>(a)-static_cast<double>(b)); \
 		err = std::max(err, error); rel = std::max(rel, error/std::min(std::abs(static_cast<double>(x)), std::abs(static_cast<double>(y)))); } return equal; }); \
-	std::cout << #func << " max error: " << err << " - max relative error: " << rel << '\n'; }
+	if(err != 0.0 || rel != 0.0) std::cout << #func << " max error: " << err << " - max relative error: " << rel << '\n'; }
 
 
 using half_float::half;
@@ -175,41 +175,38 @@ public:
 		binary_test("greater equal", [](half a, half b) { return (a>=b) == (static_cast<float>(a)>=static_cast<float>(b)); });
 
 		//test basic functions
-		unary_test("abs", [](half arg) { return comp(abs(arg), static_cast<half>(std::abs(static_cast<float>(arg)))); });
-		unary_test("fabs", [](half arg) { return comp(abs(arg), static_cast<half>(std::fabs(static_cast<float>(arg)))); });
-		binary_test("fmod", [](half a, half b) { return comp(fmod(a, b), 
-			static_cast<half>(std::fmod(static_cast<float>(a), static_cast<float>(b)))); });
+		UNARY_MATH_TEST(abs);
+		UNARY_MATH_TEST(fabs);
+		BINARY_MATH_TEST(fmod);
 		binary_test("fdim", [](half a, half b) -> bool { half c = fdim(a, b); return isnan(a) || isnan(b) || 
 			(isinf(a) && isinf(b) && signbit(a)==signbit(b)) || ((a>b) && comp(c, a-b)) || ((a<=b) && comp(c, static_cast<half>(0.0f))); });
 
 		//test exponential functions
-		unary_test("exp", [](half arg) { return comp(exp(arg), static_cast<half>(std::exp(static_cast<float>(arg)))); });
-		unary_test("log", [](half arg) { return comp(log(arg), static_cast<half>(std::log(static_cast<float>(arg)))); });
-		unary_test("log10", [](half arg) { return comp(log10(arg), static_cast<half>(std::log10(static_cast<float>(arg)))); });
+		UNARY_MATH_TEST(exp);
+		UNARY_MATH_TEST(log);
+		UNARY_MATH_TEST(log10);
 
 		//test power functions
-		unary_test("sqrt", [](half arg) { return comp(sqrt(arg), static_cast<half>(std::sqrt(static_cast<float>(arg)))); });
-		binary_test("pow", [](half a, half b) { return comp(pow(a, b), 
-			static_cast<half>(std::pow(static_cast<float>(a), static_cast<float>(b)))); });
+		UNARY_MATH_TEST(sqrt);
+		BINARY_MATH_TEST(pow);
 
 		//test trig functions
-		unary_test("sin", [](half arg) { return comp(sin(arg), static_cast<half>(std::sin(static_cast<float>(arg)))); });
-		unary_test("cos", [](half arg) { return comp(cos(arg), static_cast<half>(std::cos(static_cast<float>(arg)))); });
-		unary_test("tan", [](half arg) { return comp(tan(arg), static_cast<half>(std::tan(static_cast<float>(arg)))); });
-		unary_test("asin", [](half arg) { return comp(asin(arg), static_cast<half>(std::asin(static_cast<float>(arg)))); });
-		unary_test("acos", [](half arg) { return comp(acos(arg), static_cast<half>(std::acos(static_cast<float>(arg)))); });
-		unary_test("atan", [](half arg) { return comp(atan(arg), static_cast<half>(std::atan(static_cast<float>(arg)))); });
-		binary_test("atan2", [](half a, half b) { return comp(atan2(a, b), 
-			static_cast<half>(std::atan2(static_cast<float>(a), static_cast<float>(b)))); });
+		UNARY_MATH_TEST(sin);
+		UNARY_MATH_TEST(cos);
+		UNARY_MATH_TEST(tan);
+		UNARY_MATH_TEST(asin);
+		UNARY_MATH_TEST(acos);
+		UNARY_MATH_TEST(atan);
+		BINARY_MATH_TEST(atan2);
 
 		//test hyp functions
-		unary_test("sinh", [](half arg) { return comp(sinh(arg), static_cast<half>(std::sinh(static_cast<float>(arg)))); });
-		unary_test("cosh", [](half arg) { return comp(cosh(arg), static_cast<half>(std::cosh(static_cast<float>(arg)))); });
-		unary_test("tanh", [](half arg) { return comp(tanh(arg), static_cast<half>(std::tanh(static_cast<float>(arg)))); });
+		UNARY_MATH_TEST(sinh);
+		UNARY_MATH_TEST(cosh);
+		UNARY_MATH_TEST(tanh);
 
 		//test round functions
-		unary_test("ceil", [](half arg) { return comp(ceil(arg), static_cast<half>(std::ceil(static_cast<float>(arg)))); });
-		unary_test("floor", [](half arg) { return comp(floor(arg), static_cast<half>(std::floor(static_cast<float>(arg)))); });
+		UNARY_MATH_TEST(ceil);
+		UNARY_MATH_TEST(floor);
 		unary_test("trunc", [](half arg) { return !isfinite(arg) || comp(trunc(arg), static_cast<half>(static_cast<int>(arg))); });
 		unary_test("round", [](half arg) { return !isfinite(arg) || comp(round(arg), 
 			static_cast<half>(static_cast<int>(static_cast<float>(arg)+(signbit(arg) ? -0.5f : 0.5f)))); });
@@ -239,14 +236,11 @@ public:
 
 #if HALF_ENABLE_CPP11_CMATH
 		//test basic functions
-		binary_test("remainder", [](half a, half b) { return comp(remainder(a, b), 
-			static_cast<half>(std::remainder(static_cast<float>(a), static_cast<float>(b)))); });
+		BINARY_MATH_TEST(remainder);
 		binary_test("remquo", [](half a, half b) -> bool { int qh = 0, qf = 0; bool eq = comp(remquo(a, b, &qh), 
 			static_cast<half>(std::remquo(static_cast<float>(a), static_cast<float>(b), &qf))); return eq && (qh&7)==(qf&7); });
-		binary_test("fmin", [](half a, half b) -> bool { half c = fmin(a, b); return ((isnan(a) || isnan(b)) && isnan(c)) || 
-			comp(c, static_cast<half>(std::fmin(static_cast<float>(a), static_cast<float>(b)))); });
-		binary_test("fmax", [](half a, half b) -> bool { half c = fmax(a, b); return ((isnan(a) || isnan(b)) && isnan(c)) || 
-					comp(c, static_cast<half>(std::fmax(static_cast<float>(a), static_cast<float>(b)))); });
+		BINARY_MATH_TEST(fmin);
+		BINARY_MATH_TEST(fmax);
 		BINARY_MATH_TEST(fdim);
 
 		//test exponential functions
@@ -271,13 +265,13 @@ public:
 		UNARY_MATH_TEST(tgamma);
 
 		//test round functions
-		unary_test("trunc", [](half arg) { return comp(trunc(arg), static_cast<half>(std::trunc(static_cast<float>(arg)))); });
-		unary_test("round", [](half arg) { return comp(round(arg), static_cast<half>(std::round(static_cast<float>(arg)))); });
+		UNARY_MATH_TEST(trunc);
+		UNARY_MATH_TEST(round);
 		unary_test("lround", [](half arg) { return lround(arg) == std::lround(static_cast<float>(arg)); });
 		unary_test("llround", [](half arg) { return llround(arg) == std::llround(static_cast<float>(arg)); });
 	#if HALF_ROUND_STYLE == 1 && HALF_ROUND_TIES_TO_EVEN == 1
-		unary_test("nearbyint", [](half arg) { return comp(nearbyint(arg), static_cast<half>(std::nearbyint(static_cast<float>(arg)))); });
-		unary_test("rint", [](half arg) { return comp(rint(arg), static_cast<half>(std::rint(static_cast<float>(arg)))); });
+		UNARY_MATH_TEST(nearbyint);
+		UNARY_MATH_TEST(rint);
 		unary_test("lrint", [](half arg) { return lrint(arg) == std::lrint(static_cast<float>(arg)); });
 		unary_test("llrint", [](half arg) { return llrint(arg) == std::llrint(static_cast<float>(arg)); });
 	#endif

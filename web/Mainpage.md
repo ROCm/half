@@ -9,10 +9,10 @@ This is a C++ header-only library to provide an [IEEE 754](http://en.wikipedia.o
 News														{#new}
 ====
 
-November X, 2013 - Release 1.11.0
+November 16, 2013 - Release 1.11.0
 ---------------------------------
 
-[Version 1.10.0](http://sourceforge.net/projects/half/files/half/1.10.0) of the library has been released. It further increases the flexibility of the rounding, by allowing the round to nearest behaviour to be configured more precisely. By default half-way cases during round to nearest are rounded away from zero (and thus analogous to the round() function), but by redefining [HALF_ROUND_TIES_TO_EVEN](\ref HALF_ROUND_TIES_TO_EVEN) to `1` this can be changed to the slower but less biased round to even. In addition to that the support for C++11 mathematical functions in light of unsupported single-precision versions has been completed by providing erf(), erfc(), lgamma() and tgamma() even if their `<cmath>` counterparts are unavailable. Furthermore, it fixes a bug that made it impossible to disable support for C++11 mathematical functions in *VC++ 2013*.
+[Version 1.11.0](http://sourceforge.net/projects/half/files/half/1.11.0) of the library has been released. It further increases the flexibility of the rounding, by allowing the round to nearest behaviour to be configured more precisely. By default half-way cases during round to nearest are rounded away from zero (and thus analogous to the round() function), but by redefining [HALF_ROUND_TIES_TO_EVEN](\ref HALF_ROUND_TIES_TO_EVEN) to `1` this can be changed to the slower but less biased round to even. In addition to that the support for C++11 mathematical functions in light of unsupported single-precision versions has been completed by providing erf(), erfc(), lgamma() and tgamma() even if their `<cmath>` counterparts are unavailable. Furthermore, it fixes a bug that made it impossible to disable support for C++11 mathematical functions in *VC++ 2013*.
 
 November 9, 2013 - Release 1.10.0
 ---------------------------------
@@ -28,7 +28,7 @@ Download and Installation									{#downloads}
 
 The library in its most recent version can be obtained from here, see the [Release Notes](changelog.html) for further information:
 
-<ul class="tablist"><li>[Download half 1.10.0 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
+<ul class="tablist"><li>[Download half 1.11.0 (.zip)](http://sourceforge.net/projects/half/files/latest/download)</li></ul>
 
 If you are interested in previous versions of the library, see the [SourceForge download page](http://sourceforge.net/projects/half/files/half).
 
@@ -116,7 +116,7 @@ assert( half_cast<half,std::round_toward_zero>( 4097 )     == 4096.0_h );
 assert( half_cast<half,std::round_toward_infinity>( 4097 ) == 4100.0_h );
 ~~~~
 
-When using round to nearest (either as default or thorugh half_cast()) ties are by default resolved by rounding them away from zero (and thus equal to the behaviour of the round() function). But by redefining the [HALF_ROUND_TIES_TO_EVEN](\ref HALF_ROUND_TIES_TO_EVEN) preprocessor symbol to `1` (before including half.hpp) this default can be changed to the slightly slower but less biased and more IEEE-conformant behaviour of rounding half-way cases to the nearest even value.
+When using round to nearest (either as default or through half_cast()) ties are by default resolved by rounding them away from zero (and thus equal to the behaviour of the round() function). But by redefining the [HALF_ROUND_TIES_TO_EVEN](\ref HALF_ROUND_TIES_TO_EVEN) preprocessor symbol to `1` (before including half.hpp) this default can be changed to the slightly slower but less biased and more IEEE-conformant behaviour of rounding half-way cases to the nearest even value.
 
 ~~~~{.cpp}
 #define HALF_ROUND_TIES_TO_EVEN 1

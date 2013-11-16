@@ -864,9 +864,10 @@ namespace std
 
 		/// Rounding mode.
 		/// Due to the mix of internal single-precision computations (using the rounding mode of the underlying 
-		/// single-precision implementation) with explicit truncation of the single-to-half conversions, the actual rounding 
-		/// mode is indeterminate.
-		static constexpr std::float_round_style round_style = std::round_indeterminate;
+		/// single-precision implementation) with the rounding mode of the single-to-half conversions, the actual rounding 
+		/// mode might be `std::round_indeterminate` if the default half-precision rounding mode doesn't match the 
+		/// single-precision rounding mode.
+		static constexpr std::float_round_style round_style = /* unspecified */;
 
 		/// Significant digits.
 		static constexpr int digits = 11;
