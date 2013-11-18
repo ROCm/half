@@ -1428,17 +1428,15 @@ namespace half_float
 			#else
 				if(builtin_isinf(arg))
 					return expr(std::numeric_limits<float>::infinity());
-				double z = static_cast<double>(arg);
-				if(z < 0)
+				if(arg < 0.0f)
 				{
-					double i, f = std::modf(-z, &i);
-					if(f == 0.0)
+					float i, f = std::modf(-arg, &i);
+					if(f == 0.0f)
 						return expr(std::numeric_limits<float>::infinity());
-					return expr(static_cast<float>(1.1447298858494001741434273513531-std::log(std::abs(std::sin(3.1415926535897932384626433832795*f)))-lgamma(1.0-z)));
+					return expr(static_cast<float>(1.1447298858494001741434273513531-
+						std::log(std::abs(std::sin(3.1415926535897932384626433832795*f)))-lgamma(1.0-arg)));
 				}
-//				if(z < 8.0)
-					return expr(static_cast<float>(lgamma(static_cast<double>(arg))));
-				return expr(static_cast<float>(0.5*(1.8378770664093454835606594728112-std::log(z))+z*(std::log(z+1.0/(12.0*z-1.0/(10.0*z)-1.0))-1.0)));
+				return expr(static_cast<float>(lgamma(static_cast<double>(arg))));
 			#endif
 			}
 
@@ -1450,22 +1448,19 @@ namespace half_float
 			#if HALF_ENABLE_CPP11_CMATH
 				return expr(std::tgamma(arg));
 			#else
-				double z = static_cast<double>(arg);
-				if(z == 0.0)
-					return builtin_signbit(z) ? expr(-std::numeric_limits<float>::infinity()) : expr(std::numeric_limits<float>::infinity());
-				if(z < 0.0)
+				if(arg == 0.0f)
+					return builtin_signbit(arg) ? expr(-std::numeric_limits<float>::infinity()) : expr(std::numeric_limits<float>::infinity());
+				if(arg < 0.0f)
 				{
-					double i, f = std::modf(-z, &i);
-					if(f == 0.0)
+					float i, f = std::modf(-arg, &i);
+					if(f == 0.0f)
 						return expr(std::numeric_limits<float>::quiet_NaN());
-					double sign = (std::fmod(i, 2.0)==0.0) ? -1.0 : 1.0;
-					return expr(static_cast<float>(sign*3.1415926535897932384626433832795/(std::sin(3.1415926535897932384626433832795*f)*std::exp(lgamma(1.0-z)))));
+					double value = 3.1415926535897932384626433832795 / (std::sin(3.1415926535897932384626433832795*f)*std::exp(lgamma(1.0-arg)));
+					return expr(static_cast<float>((std::fmod(i, 2.0f)==0.0f) ? -value : value));
 				}
 				if(builtin_isinf(arg))
 					return expr(arg);
-//				if(arg < 8.0f)
-					return expr(static_cast<float>(std::exp(lgamma(z))));
-				return expr(static_cast<float>(std::sqrt(6.283185307179586476925286766559/z)*std::pow(0.36787944117144232159552377016146*(z+1.0/(12.0*z-1.0/(10.0*z))), z)));
+				return expr(static_cast<float>(std::exp(lgamma(static_cast<double>(arg)))));
 			#endif
 			}
 
@@ -1802,8 +1797,7 @@ namespace half_float
 			{
 				if(builtin_isinf(arg))
 					return (arg<0.0) ? -1.0 : 1.0;
-				double x2 = static_cast<double>(arg) * static_cast<double>(arg), ax2 = 0.147 * x2;
-				double value = std::sqrt(1.0-std::exp(-x2*(1.2732395447351626861510701069801+ax2)/(1.0+ax2)));
+				double x2 = arg * arg, ax2 = 0.147 * x2, value = std::sqrt(1.0-std::exp(-x2*(1.2732395447351626861510701069801+ax2)/(1.0+ax2)));
 				return builtin_signbit(arg) ? -value : value;
 			}
 
@@ -1811,7 +1805,7 @@ namespace half_float
 			{
 				double v = 1.0;
 				for(; arg<8.0; ++arg) v *= arg;
-				double w = 1.0 / (arg * arg);
+				double w = 1.0 / (arg*arg);
 				return (((((((-0.02955065359477124183006535947712*w+0.00641025641025641025641025641026)*w+
 					-0.00191752691752691752691752691753)*w+8.4175084175084175084175084175084e-4)*w+
 					-5.952380952380952380952380952381e-4)*w+7.9365079365079365079365079365079e-4)*w+
