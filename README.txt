@@ -207,9 +207,9 @@ implication is, that in the presence of rounding errors or over-/underflows
 arithmetic expressions may produce different results when compared to 
 converting to half-precision after each individual operation:
 
-    half a = (std::numeric_limits<half>::max() * 2.0_h) / 2.0_h; // a = MAX
-    half b = std::numeric_limits<half>::max() * 2.0_h;           // b = INF
-    b /= 2.0_h;                                                  // b stays INF
+    half a = std::numeric_limits<half>::max() * 2.0_h / 2.0_h;       // a = MAX
+    half b = half(std::numeric_limits<half>::max() * 2.0_h) / 2.0_h; // b = INF
+    assert( a != b );
 
 But this should only be a problem in very few cases. One last word has to be 
 said when talking about performance. Even with its efforts in reducing 

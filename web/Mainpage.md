@@ -134,9 +134,9 @@ For performance reasons (and ease of implementation) many of the mathematical fu
 This approach has two implications. First of all you have to treat the documentation on this site as a simplified version, describing the behaviour of the library as if implemented this way. The actual argument and return types of functions and operators may involve other internal types (feel free to generate the exact developer documentation from the Doxygen comments in the library's header file if you really need to). But nevertheless the behaviour is exactly like specified in the documentation. The other implication is, that in the presence of rounding errors or over-/underflows arithmetic expressions may produce different results when compared to converting to half-precision after each individual operation:
 
 ~~~~{.cpp}
-half a = (std::numeric_limits<half>::max() * 2.0_h) / 2.0_h;	// a = MAX
-half b = std::numeric_limits<half>::max() * 2.0_h;				// b = INF
-b /= 2.0_h;														// b stays INF
+half a = std::numeric_limits<half>::max() * 2.0_h / 2.0_h;       // a = MAX
+half b = half(std::numeric_limits<half>::max() * 2.0_h) / 2.0_h; // b = INF
+assert( a != b );
 ~~~~
 
 But this should only be a problem in very few cases. One last word has to be said when talking about performance. Even with its efforts in reducing conversion overhead as much as possible, the software half-precision implementation can most probably not beat the direct use of single-precision computations. Usually using actual `float` values for all computations and temproraries and using [half](\ref half_float::half)s only for storage is the recommended way. On the one hand this somehow makes the provided mathematical functions obsolete (especially in light of the implicit conversion from [half](\ref half_float::half) to `float`), but nevertheless the goal of this library was to provide a complete and conceptually clean half-precision implementation, to which the standard mathematical functions belong, even if usually not needed.
