@@ -1517,12 +1517,11 @@ namespace half_float
 			/// \return normalized significant
 			static half frexp(half arg, int *exp)
 			{
-				unsigned int m = arg.data_ & 0x7FFF;
+				int m = arg.data_ & 0x7FFF, e = 0;
 				if(m >= 0x7C00 || !m)
 					return *exp = 0, arg;
-				int e = m >> 10;
-				if(!e)
-					for(m<<=1; m<0x400; m<<=1,--e) ;
+				for(; m<0x400; m<<=1,--e) ;
+				e += m >> 10;
 				return *exp = e-14, half(binary, static_cast<uint16>((arg.data_&0x8000)|0x3800|(m&0x3FF)));
 			}
 
@@ -1532,9 +1531,9 @@ namespace half_float
 			/// \return fractional part
 			static half modf(half arg, half *iptr)
 			{
-				unsigned int e = arg.data_ & 0x7C00;
-				if(e > 0x6000)
-					return *iptr = arg, (e==0x7C00&&(arg.data_&0x3FF)) ? arg : half(binary, arg.data_&0x8000);
+				unsigned int e = arg.data_ & 0x7FFF;
+				if(e >= 0x6400)
+					return *iptr = arg, half(binary, arg.data_&(0x8000U|-(e>0x7C00)));
 				if(e < 0x3C00)
 					return iptr->data_ = arg.data_ & 0x8000, arg;
 				e >>= 10;
@@ -1552,21 +1551,13 @@ namespace half_float
 			/// \return scaled number
 			static half scalbln(half arg, long exp)
 			{
-				long e = arg.data_ & 0x7C00;
-				if(e == 0x7C00)
+				unsigned int m = arg.data_ & 0x7FFF;
+				if(m >= 0x7C00 || !m)
 					return arg;
-				unsigned int m = arg.data_ & 0x3FF;
-				if(e >>= 10)
-					m |= 0x400;
-				else
-				{
-					if(!m)
-						return arg;
-					for(m<<=1; m<0x400; m<<=1,--e) ;
-				}
-				e += exp;
+				for(; m<0x400; m<<=1,--exp) ;
+				exp += m >> 10;
 				uint16 value = arg.data_ & 0x8000;
-				if(e > 30)
+				if(exp > 30)
 				{
 					if(half::round_style == std::round_toward_zero)
 						value |= 0x7BFF;
@@ -1577,27 +1568,28 @@ namespace half_float
 					else
 						value |= 0x7C00;
 				}
-				else if(e > 0)
-					value |= (e<<10) | (m&0x3FF);
-				else if(e > -11)
+				else if(exp > 0)
+					value |= (exp<<10) | (m&0x3FF);
+				else if(exp > -11)
 				{
+					m = (m&0x3FF) | 0x400;
 					if(half::round_style == std::round_to_nearest)
 					{
-						m += 1 << -e;
+						m += 1 << -exp;
 					#if HALF_ROUND_TIES_TO_EVEN
-						m -= (m>>(1-e)) & 1;
+						m -= (m>>(1-exp)) & 1;
 					#endif
 					}
 					else if(half::round_style == std::round_toward_infinity)
-						m += ((value>>15)-1) & ((1<<(1-e))-1U);
+						m += ((value>>15)-1) & ((1<<(1-exp))-1U);
 					else if(half::round_style == std::round_toward_neg_infinity)
-						m += -(value>>15) & ((1<<(1-e))-1U);
-					value |= m >> (1-e);
+						m += -(value>>15) & ((1<<(1-exp))-1U);
+					value |= m >> (1-exp);
 				}
 				else if(half::round_style == std::round_toward_infinity)
-					value |= ((value>>15)-1) & 1;
+					value -= (value>>15) - 1;
 				else if(half::round_style == std::round_toward_neg_infinity)
-					value |= value >> 15;
+					value += value >> 15;
 				return half(binary, value);
 			}
 
@@ -1606,16 +1598,16 @@ namespace half_float
 			/// \return floating point exponent
 			static int ilogb(half arg)
 			{
-				int exp = arg.data_ & 0x7FFF;
-				if(!exp)
+				int abs = arg.data_ & 0x7FFF;
+				if(!abs)
 					return FP_ILOGB0;
-				if(exp < 0x7C00)
+				if(abs < 0x7C00)
 				{
-					if(!(exp>>=10))
-						for(unsigned int m=(arg.data_&0x3FF); m<0x200; m<<=1,--exp) ;
-					return exp - 15;
+					if(abs < 0x400)
+						for(unsigned int m=abs; m<0x200; m<<=1, abs-=0x400);
+					return (abs>>10) - 15;
 				}
-				if(exp > 0x7C00)
+				if(abs > 0x7C00)
 					return FP_ILOGBNAN;
 				return INT_MAX;
 			}
@@ -1625,16 +1617,16 @@ namespace half_float
 			/// \return floating point exponent
 			static half logb(half arg)
 			{
-				int exp = arg.data_ & 0x7FFF;
-				if(!exp)
+				int abs = arg.data_ & 0x7FFF;
+				if(!abs)
 					return half(binary, 0xFC00);
-				if(exp < 0x7C00)
+				if(abs < 0x7C00)
 				{
-					if(!(exp>>=10))
-						for(unsigned int m=(arg.data_&0x3FF); m<0x200; m<<=1,--exp) ;
-					return half(static_cast<float>(exp-15));
+					if(abs < 0x400)
+						for(unsigned int m=abs; m<0x200; m<<=1, abs-=0x400);
+					return half(static_cast<float>((abs>>10)-15));
 				}
-				if(exp > 0x7C00)
+				if(abs > 0x7C00)
 					return arg;
 				return half(binary, 0x7C00);
 			}

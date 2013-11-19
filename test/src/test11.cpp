@@ -226,8 +226,8 @@ public:
 			static_cast<half>(std::frexp(static_cast<float>(arg), &ef))); return eq && eh==ef; });
 		unary_test("ldexp", [](half arg) -> bool { unsigned int passed = 0; for(int i=-50; i<50; ++i) passed += 
 			comp(ldexp(arg, i), static_cast<half>(std::ldexp(static_cast<float>(arg), i))); return passed==100; });
-		unary_test("modf", [](half arg) -> bool { half h; float f; bool eq = comp(modf(arg, &h), static_cast<half>(
-			std::modf(static_cast<float>(arg), &f))); return eq && comp(h, static_cast<half>(f)); });
+		unary_test("modf", [](half arg) -> bool { half h; float f; return comp(modf(arg, &h), static_cast<half>(
+			std::modf(static_cast<float>(arg), &f))) && comp(h, static_cast<half>(f)); });
 		binary_test("nextafter", [](half a, half b) -> bool { half c = nextafter(a, b); std::int16_t d = std::abs(
 			static_cast<std::int16_t>(h2b(a)-h2b(c))); return ((isnan(a) || isnan(b)) && isnan(c)) || 
 			(comp(a, b) && comp(b, c)) || ((d==1||d==0x7FFF) && (a<b)==(a<c)); });
