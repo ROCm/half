@@ -509,13 +509,11 @@ namespace half_float
 			std::frexp(value, &exp);
 			if(exp > 16)
 			{
-				if(R == std::round_toward_zero)
-					return hbits | 0x7BFF;
-				else if(R == std::round_toward_infinity)
+				if(R == std::round_toward_infinity)
 					return hbits | 0x7C00 - (hbits>>15);
 				else if(R == std::round_toward_neg_infinity)
 					return hbits | 0x7BFF + (hbits>>15);
-				return hbits | 0x7C00;
+				return hbits | 0x7BFF + (R!=std::round_toward_zero);
 			}
 			if(exp < -13)
 				value = std::ldexp(value, 24);
@@ -807,18 +805,13 @@ namespace half_float
 			e >>= 10;
 			if(e < 25)
 			{
-				if(R == std::round_indeterminate || R == std::round_toward_zero)
-					m >>= 25 - e;
-				else
-				{
-					if(R == std::round_to_nearest)
-						m += (1<<(24-e)) - (~(m>>(25-e))&E);
-					else if(R == std::round_toward_infinity)
-						m += ((value>>15)-1) & ((1<<(25-e))-1U);
-					else if(R == std::round_toward_neg_infinity)
-						m += -(value>>15) & ((1<<(25-e))-1U);
-					m >>= 25 - e;
-				}
+				if(R == std::round_to_nearest)
+					m += (1<<(24-e)) - (~(m>>(25-e))&E);
+				else if(R == std::round_toward_infinity)
+					m += ((value>>15)-1) & ((1<<(25-e))-1U);
+				else if(R == std::round_toward_neg_infinity)
+					m += -(value>>15) & ((1<<(25-e))-1U);
+				m >>= 25 - e;
 			}
 			else
 				m <<= e - 25;
@@ -1517,12 +1510,13 @@ namespace half_float
 			/// \return normalized significant
 			static half frexp(half arg, int *exp)
 			{
-				int m = arg.data_ & 0x7FFF, e = 0;
+				*exp = 0;
+				unsigned int m = arg.data_ & 0x7FFF;
 				if(m >= 0x7C00 || !m)
-					return *exp = 0, arg;
-				for(; m<0x400; m<<=1,--e) ;
-				e += m >> 10;
-				return *exp = e-14, half(binary, static_cast<uint16>((arg.data_&0x8000)|0x3800|(m&0x3FF)));
+					return arg;
+				for(; m<0x400; m<<=1,--*exp) ;
+				*exp += (m>>10) - 14;
+				return half(binary, (arg.data_&0x8000)|0x3800|(m&0x3FF));
 			}
 
 			/// Decompression implementation.
@@ -1604,7 +1598,7 @@ namespace half_float
 				if(abs < 0x7C00)
 				{
 					if(abs < 0x400)
-						for(unsigned int m=abs; m<0x200; m<<=1, abs-=0x400);
+						for(unsigned int m=abs; m<0x200; m<<=1,abs-=0x400) ;
 					return (abs>>10) - 15;
 				}
 				if(abs > 0x7C00)
@@ -1646,7 +1640,7 @@ namespace half_float
 					return half(binary, (to.data_&0x8000)+1);
 				bool lt = (signbit(from) ? (static_cast<int17>(0x8000)-from.data_) : static_cast<int17>(from.data_)) < 
 					(signbit(to) ? (static_cast<int17>(0x8000)-to.data_) : static_cast<int17>(to.data_));
-				return half(binary, from.data_+(((from.data_>>15)^static_cast<uint16>(lt))<<1)-1);
+				return half(binary, from.data_+(((from.data_>>15)^static_cast<unsigned>(lt))<<1)-1);
 			}
 
 			/// Enumeration implementation.
@@ -1662,7 +1656,7 @@ namespace half_float
 					return half(static_cast<float>(to));
 				if(!(from.data_&0x7FFF))
 					return half(binary, (static_cast<detail::uint16>(builtin_signbit(to))<<15)+1);
-				return half(binary, from.data_+(((from.data_>>15)^static_cast<uint16>(lfrom<to))<<1)-1);
+				return half(binary, from.data_+(((from.data_>>15)^static_cast<unsigned>(lfrom<to))<<1)-1);
 			}
 
 			/// Sign implementation
@@ -2878,7 +2872,7 @@ namespace std
 		/// \param arg half to hash
 		/// \return hash value
 		result_type operator()(argument_type arg) const
-			{ return hash<half_float::detail::uint16>()(static_cast<unsigned int>(arg.data_)&-(arg.data_!=0x8000)); }
+			{ return hash<half_float::detail::uint16>()(static_cast<unsigned>(arg.data_)&-(arg.data_!=0x8000)); }
 	};
 #endif
 }

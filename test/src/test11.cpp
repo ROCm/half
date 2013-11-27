@@ -231,6 +231,9 @@ public:
 		binary_test("nextafter", [](half a, half b) -> bool { half c = nextafter(a, b); std::int16_t d = std::abs(
 			static_cast<std::int16_t>(h2b(a)-h2b(c))); return ((isnan(a) || isnan(b)) && isnan(c)) || 
 			(comp(a, b) && comp(b, c)) || ((d==1||d==0x7FFF) && (a<b)==(a<c)); });
+		binary_test("nexttoward", [](half a, half b) -> bool { half c = nexttoward(a, static_cast<long double>(b)); std::int16_t d = std::abs(
+			static_cast<std::int16_t>(h2b(a)-h2b(c))); return ((isnan(a) || isnan(b)) && isnan(c)) || 
+			(comp(a, b) && comp(b, c)) || ((d==1||d==0x7FFF) && (a<b)==(a<c)); });
 		binary_test("copysign", [](half a, half b) -> bool { half h = copysign(a, b); 
 			return comp(abs(h), abs(a)) && signbit(h)==signbit(b); });
 
