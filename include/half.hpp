@@ -294,18 +294,12 @@ namespace half_float
 
 		/// Unsigned integer of (at least) 32 bits width.
 		typedef std::uint_least32_t uint32;
-
-		/// Fastest signed integer capable of holding all values of type uint16.
-		typedef std::int_fast32_t int17;
 	#else
 		/// Unsigned integer of (at least) 16 bits width.
 		typedef unsigned short uint16;
 
 		/// Unsigned integer of (at least) 32 bits width.
 		typedef conditional<std::numeric_limits<unsigned int>::digits>=32,unsigned int,unsigned long>::type uint32;
-
-		/// Fastest signed integer capable of holding all values of type uint16.
-		typedef conditional<std::numeric_limits<int>::digits>=16,int,long>::type int17;
 	#endif
 
 		/// Tag type for binary construction.
@@ -801,7 +795,7 @@ namespace half_float
 					return -T(value>0x8000);
 				return T();
 			}
-			int17 m = (value&0x3FF) | 0x400;
+			unsigned int m = (value&0x3FF) | 0x400;
 			e >>= 10;
 			if(e < 25)
 			{
@@ -815,9 +809,7 @@ namespace half_float
 			}
 			else
 				m <<= e - 25;
-//			if(std::numeric_limits<T>::digits < 16)
-//				return std::min(std::max(m, static_cast<int17>(std::numeric_limits<T>::min())), static_cast<int17>(std::numeric_limits<T>::max()));
-			return static_cast<T>((value&0x8000) ? -m : m);
+			return (value&0x8000) ? -static_cast<T>(m) : static_cast<T>(m);
 		}
 
 		/// Convert half-precision floating point to integer.
@@ -920,7 +912,7 @@ namespace half_float
 		/// Default constructor.
 		/// This initializes the half to 0. Although this does not match the builtin types' default-initialization semantics 
 		/// and may be less efficient than no initialization, it is needed to provide proper value-initialization semantics.
-		HALF_CONSTEXPR half() : data_() {}
+		HALF_CONSTEXPR half() /*HALF_NOEXCEPT*/ : data_() {}
 
 		/// Copy constructor.
 		/// \tparam T type of concrete half expression
@@ -1012,7 +1004,7 @@ namespace half_float
 
 		/// Constructor.
 		/// \param bits binary representation to set half to
-		HALF_CONSTEXPR half(detail::binary_t, detail::uint16 bits) : data_(bits) {}
+		HALF_CONSTEXPR half(detail::binary_t, detail::uint16 bits) /*HALF_NOEXCEPT*/ : data_(bits) {}
 
 		/// Internal binary representation
 		detail::uint16 data_;
@@ -1638,8 +1630,8 @@ namespace half_float
 					return to;
 				if(!fabs)
 					return half(binary, (to.data_&0x8000)+1);
-				bool lt = (signbit(from) ? (static_cast<int17>(0x8000)-from.data_) : static_cast<int17>(from.data_)) < 
-					(signbit(to) ? (static_cast<int17>(0x8000)-to.data_) : static_cast<int17>(to.data_));
+				bool lt = ((fabs==from.data_) ? static_cast<int>(fabs) : -static_cast<int>(fabs)) < 
+					((tabs==to.data_) ? static_cast<int>(tabs) : -static_cast<int>(tabs));
 				return half(binary, from.data_+(((from.data_>>15)^static_cast<unsigned>(lt))<<1)-1);
 			}
 
@@ -1730,32 +1722,44 @@ namespace half_float
 			/// \param y second operand
 			/// \retval true if \a x > \a y
 			/// \retval false else
-			static bool isgreater(half x, half y) { return !isnan(x) && !isnan(y) && ((signbit(x) ? (static_cast<int17>(0x8000)-x.data_) : 
-				static_cast<int17>(x.data_)) > (signbit(y) ? (static_cast<int17>(0x8000)-y.data_) : static_cast<int17>(y.data_))); }
+			static bool isgreater(half x, half y)
+			{
+				int xabs = x.data_ & 0x7FFF, yabs = y.data_ & 0x7FFF;
+				return xabs<=0x7C00 && yabs<=0x7C00 && (((xabs==x.data_) ? xabs : -xabs) > ((yabs==y.data_) ? yabs : -yabs));
+			}
 
 			/// Comparison implementation.
 			/// \param x first operand
 			/// \param y second operand
 			/// \retval true if \a x >= \a y
 			/// \retval false else
-			static bool isgreaterequal(half x, half y) { return !isnan(x) && !isnan(y) && ((signbit(x) ? (static_cast<int17>(0x8000)-x.data_) : 
-				static_cast<int17>(x.data_)) >= (signbit(y) ? (static_cast<int17>(0x8000)-y.data_) : static_cast<int17>(y.data_))); }
+			static bool isgreaterequal(half x, half y)
+			{
+				int xabs = x.data_ & 0x7FFF, yabs = y.data_ & 0x7FFF;
+				return xabs<=0x7C00 && yabs<=0x7C00 && (((xabs==x.data_) ? xabs : -xabs) >= ((yabs==y.data_) ? yabs : -yabs));
+			}
 
 			/// Comparison implementation.
 			/// \param x first operand
 			/// \param y second operand
 			/// \retval true if \a x < \a y
 			/// \retval false else
-			static bool isless(half x, half y) { return !isnan(x) && !isnan(y) && ((signbit(x) ? (static_cast<int17>(0x8000)-x.data_) : 
-				static_cast<int17>(x.data_)) < (signbit(y) ? (static_cast<int17>(0x8000)-y.data_) : static_cast<int17>(y.data_))); }
+			static bool isless(half x, half y)
+			{
+				int xabs = x.data_ & 0x7FFF, yabs = y.data_ & 0x7FFF;
+				return xabs<=0x7C00 && yabs<=0x7C00 && (((xabs==x.data_) ? xabs : -xabs) < ((yabs==y.data_) ? yabs : -yabs));
+			}
 
 			/// Comparison implementation.
 			/// \param x first operand
 			/// \param y second operand
 			/// \retval true if \a x <= \a y
 			/// \retval false else
-			static bool islessequal(half x, half y) { return !isnan(x) && !isnan(y) && ((signbit(x) ? (static_cast<int17>(0x8000)-x.data_) : 
-				static_cast<int17>(x.data_)) <= (signbit(y) ? (static_cast<int17>(0x8000)-y.data_) : static_cast<int17>(y.data_))); }
+			static bool islessequal(half x, half y)
+			{
+				int xabs = x.data_ & 0x7FFF, yabs = y.data_ & 0x7FFF;
+				return xabs<=0x7C00 && yabs<=0x7C00 && (((xabs==x.data_) ? xabs : -xabs) <= ((yabs==y.data_) ? yabs : -yabs));
+			}
 
 			/// Comparison implementation.
 			/// \param x first operand
@@ -1764,10 +1768,10 @@ namespace half_float
 			/// \retval false else
 			static bool islessgreater(half x, half y)
 			{
-				if(isnan(x) || isnan(y))
+				int xabs = x.data_ & 0x7FFF, yabs = y.data_ & 0x7FFF;
+				if(xabs > 0x7C00 || yabs > 0x7C00)
 					return false;
-				int17 a = signbit(x) ? (static_cast<int17>(0x8000)-x.data_) : static_cast<int17>(x.data_);
-				int17 b = signbit(y) ? (static_cast<int17>(0x8000)-y.data_) : static_cast<int17>(y.data_);
+				int a = (xabs==x.data_) ? xabs : -xabs, b = (yabs==y.data_) ? yabs : -yabs;
 				return a < b || a > b;
 			}
 
@@ -1863,21 +1867,21 @@ namespace half_float
 		{
 			static half fmin(half x, half y)
 			{
-				if(functions::isnan(x))
+				int xabs = x.data_ & 0x7FFF, yabs = y.data_ & 0x7FFF;
+				if(xabs > 0x7C00)
 					return y;
-				if(functions::isnan(y))
+				if(yabs > 0x7C00)
 					return x;
-				return ((functions::signbit(x) ? (static_cast<int17>(0x8000)-x.data_) : static_cast<int17>(x.data_)) >
-						(functions::signbit(y) ? (static_cast<int17>(0x8000)-y.data_) : static_cast<int17>(y.data_))) ? y : x;
+				return (((xabs==x.data_) ? xabs : -xabs) > ((yabs==y.data_) ? yabs : -yabs)) ? y : x;
 			}
 			static half fmax(half x, half y)
 			{
-				if(functions::isnan(x))
+				int xabs = x.data_ & 0x7FFF, yabs = y.data_ & 0x7FFF;
+				if(xabs > 0x7C00)
 					return y;
-				if(functions::isnan(y))
+				if(yabs > 0x7C00)
 					return x;
-				return ((functions::signbit(x) ? (static_cast<int17>(0x8000)-x.data_) : static_cast<int17>(x.data_)) <
-						(functions::signbit(y) ? (static_cast<int17>(0x8000)-y.data_) : static_cast<int17>(y.data_))) ? y : x;
+				return (((xabs==x.data_) ? xabs : -xabs) < ((yabs==y.data_) ? yabs : -yabs)) ? y : x;
 			}
 		};
 
