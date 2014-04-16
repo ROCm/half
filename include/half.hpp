@@ -1,6 +1,6 @@
 // half - IEEE 754-based half-precision floating point library.
 //
-// Copyright (c) 2012-2013 Christian Rau <rauy@users.sourceforge.net>
+// Copyright (c) 2012-2014 Christian Rau <rauy@users.sourceforge.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
 // files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
@@ -550,6 +550,9 @@ namespace half_float
 		/// \return binary representation of half-precision value
 		template<std::float_round_style R,bool S,typename T> uint16 int2half_impl(T value)
 		{
+		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
+			static_assert(std::is_integral<T>(), "int to half conversion only supports builtin integer types");
+		#endif
 			if(S)
 				value = -value;
 			uint16 bits = S << 15;
@@ -784,6 +787,9 @@ namespace half_float
 		/// \return integral value
 		template<std::float_round_style R,bool E,typename T> T half2int_impl(uint16 value)
 		{
+		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
+			static_assert(std::is_integral<T>(), "half to int conversion only supports builtin integer types");
+		#endif
 			unsigned int e = value & 0x7FFF;
 			if(e >= 0x7C00)
 				return (value&0x8000) ? std::numeric_limits<T>::min() : std::numeric_limits<T>::max();
@@ -999,7 +1005,7 @@ namespace half_float
 		half operator--(int) { half out(*this); --*this; return out; }
 	
 	private:
-		/// Rounding mode to use (always `std::round_indeterminate`)
+		/// Rounding mode to use
 		static const std::float_round_style round_style = (std::float_round_style)(HALF_ROUND_STYLE);
 
 		/// Constructor.
@@ -1267,7 +1273,7 @@ namespace half_float
 			#else
 				if(builtin_isnan(arg) || builtin_isinf(arg))
 					return expr(arg);
-				return expr(builtin_signbit(arg) ? -static_cast<float>(std::pow(std::fabs(static_cast<double>(arg)), 1.0/3.0)) : 
+				return expr(builtin_signbit(arg) ? -static_cast<float>(std::pow(-static_cast<double>(arg), 1.0/3.0)) : 
 					static_cast<float>(std::pow(static_cast<double>(arg), 1.0/3.0)));
 			#endif
 			}
