@@ -551,7 +551,7 @@ namespace half_float
 		template<std::float_round_style R,bool S,typename T> uint16 int2half_impl(T value)
 		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
-			static_assert(std::is_integral<T>(), "int to half conversion only supports builtin integer types");
+			static_assert(std::is_integral<T>::value, "int to half conversion only supports builtin integer types");
 		#endif
 			if(S)
 				value = -value;
@@ -788,7 +788,7 @@ namespace half_float
 		template<std::float_round_style R,bool E,typename T> T half2int_impl(uint16 value)
 		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
-			static_assert(std::is_integral<T>(), "half to int conversion only supports builtin integer types");
+			static_assert(std::is_integral<T>::value, "half to int conversion only supports builtin integer types");
 		#endif
 			unsigned int e = value & 0x7FFF;
 			if(e >= 0x7C00)
