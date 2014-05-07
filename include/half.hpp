@@ -1770,7 +1770,7 @@ namespace half_float
 			/// Comparison implementation.
 			/// \param x first operand
 			/// \param y second operand
-			/// \retval true neither \a x > \a y nor \a x < \a y
+			/// \retval true if either \a x > \a y nor \a x < \a y
 			/// \retval false else
 			static bool islessgreater(half x, half y)
 			{
