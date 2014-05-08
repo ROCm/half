@@ -1615,7 +1615,7 @@ namespace half_float
 				if(abs < 0x7C00)
 				{
 					if(abs < 0x400)
-						for(unsigned int m=abs; m<0x200; m<<=1, abs-=0x400);
+						for(unsigned int m=abs; m<0x200; m<<=1,abs-=0x400) ;
 					return half(static_cast<float>((abs>>10)-15));
 				}
 				if(abs > 0x7C00)
