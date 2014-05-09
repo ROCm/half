@@ -1670,13 +1670,7 @@ namespace half_float
 			static int fpclassify(half arg)
 			{
 				unsigned int abs = arg.data_ & 0x7FFF;
-				if(abs > 0x7C00)
-					return FP_NAN;
-				if(abs == 0x7C00)
-					return FP_INFINITE;
-				if(abs > 0x3FF)
-					return FP_NORMAL;
-				return abs ? FP_SUBNORMAL : FP_ZERO;
+				return abs ? ((abs>0x3FF) ? ((abs>=0x7C00) ? ((abs>0x7C00) ? FP_NAN : FP_INFINITE) : FP_NORMAL) :FP_SUBNORMAL) : FP_ZERO;
 			}
 
 			/// Classification implementation.
