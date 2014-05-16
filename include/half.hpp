@@ -514,10 +514,10 @@ namespace half_float
 			else
 			{
 				value = std::ldexp(value, 11-exp);
-				hbits |= ((exp+14)<<10);
+				hbits |= ((exp+13)<<10);
 			}
 			int ival = static_cast<int>(value);
-			hbits |= static_cast<uint16>(std::abs(ival)&0x3FF);
+			hbits += static_cast<uint16>(std::abs(ival));
 			if(R == std::round_to_nearest)
 			{
 				float diff = std::abs(value-static_cast<float>(ival));
@@ -556,7 +556,7 @@ namespace half_float
 			if(S)
 				value = -value;
 			uint16 bits = S << 15;
-			if(value > 65504)
+			if(value > 0xFFFF)
 			{
 				if(R == std::round_toward_infinity)
 					bits |= 0x7C00 - S;
@@ -567,22 +567,22 @@ namespace half_float
 			}
 			else if(value)
 			{
-				unsigned int m = value, exp = 25;
+				unsigned int m = value, exp = 24;
 				for(; m<0x400; m<<=1,--exp) ;
 				for(; m>0x7FF; m>>=1,++exp) ;
-				bits |= (exp<<10) | (m&0x3FF);
-				if(exp > 25)
+				bits |= (exp<<10) + m;
+				if(exp > 24)
 				{
 					if(R == std::round_to_nearest)
-						bits += (value>>(exp-26)) & 1
+						bits += (value>>(exp-25)) & 1
 						#if HALF_ROUND_TIES_TO_EVEN
-							& (((((1<<(exp-26))-1)&value)!=0)|bits)
+							& (((((1<<(exp-25))-1)&value)!=0)|bits)
 						#endif
 						;
 					else if(R == std::round_toward_infinity)
-						bits += ((value&((1<<(exp-25))-1))!=0) & !S;
+						bits += ((value&((1<<(exp-24))-1))!=0) & !S;
 					else if(R == std::round_toward_neg_infinity)
-						bits += ((value&((1<<(exp-25))-1))!=0) & S;
+						bits += ((value&((1<<(exp-24))-1))!=0) & S;
 				}
 			}
 			return bits;
@@ -1616,7 +1616,16 @@ namespace half_float
 				{
 					if(abs < 0x400)
 						for(unsigned int m=abs; m<0x200; m<<=1,abs-=0x400) ;
-					return half(static_cast<float>((abs>>10)-15));
+//					return half(static_cast<float>((abs>>10)-15));
+					abs = (abs>>10) - 15;
+					uint16 bits = (abs<0) << 15;
+					if(abs)
+					{
+						unsigned int m = std::abs(abs) << 6, exp = 18;
+						for(; m<0x400; m<<=1,--exp) ;
+						bits |= (exp<<10) + m;
+					}
+					return half(binary, bits);
 				}
 				if(abs > 0x7C00)
 					return arg;

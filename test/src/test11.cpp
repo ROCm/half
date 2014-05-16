@@ -349,11 +349,11 @@ public:
 			float hf(h); passed += half_float::detail::builtin_isnan(f) || (comp(h, a)&&(!signbit(h)||hf==f)) || 
 			(comp(h, b)&&signbit(h)&&hf<f); } return passed == 1e6; });
 
-		//test casting
+		//test float casting
 		auto rand23 = std::bind(std::uniform_int_distribution<std::uint32_t>(0, (1<<23)-1), std::default_random_engine());
 		unary_test("half_cast<float>", [](half arg) -> bool { float a = half_cast<float>(arg), b = static_cast<float>(arg); 
 			return *reinterpret_cast<std::uint32_t*>(&a) == *reinterpret_cast<std::uint32_t*>(&b); });
-		unary_test("half_cast<round_to_nearest>", [&rand23](half arg) -> bool { float f = half_cast<float>(arg); 
+		unary_test("half_cast<round_to_nearest>(float)", [&rand23](half arg) -> bool { float f = half_cast<float>(arg); 
 			std::uint32_t n=rand23(), m=1<<13; if(fpclassify(arg)==FP_SUBNORMAL) m <<= std::min(std::max(-ilogb(arg)-14, 0), 10);
 			*reinterpret_cast<std::uint32_t*>(&f) |= n&(m-1)&-isfinite(arg); return fpclassify(arg)==FP_ZERO || 
 			comp(half_cast<half,std::round_to_nearest>(f), 
@@ -363,17 +363,29 @@ public:
 				(n&(m>>1))
 			#endif
 			? nextafter(arg, copysign(std::numeric_limits<half>::infinity(), arg)) : arg); });
-		unary_test("half_cast<round_toward_zero>", [&rand23](half arg) -> bool { float f = half_cast<float>(arg);
+		unary_test("half_cast<round_toward_zero>(float)", [&rand23](half arg) -> bool { float f = half_cast<float>(arg);
 			std::uint32_t n=rand23(), m=1<<13; if(fpclassify(arg)==FP_SUBNORMAL) m <<= std::min(std::max(-ilogb(arg)-14, 0), 10);
 			*reinterpret_cast<std::uint32_t*>(&f) |= n&(m-1)&-isfinite(arg); return comp(half_cast<half,std::round_toward_zero>(f), arg); });
-		unary_test("half_cast<round_toward_infinity>", [&rand23](half arg) -> bool { float f = half_cast<float>(arg);
+		unary_test("half_cast<round_toward_infinity>(float)", [&rand23](half arg) -> bool { float f = half_cast<float>(arg);
 			std::uint32_t n=rand23(), m=1<<13; if(fpclassify(arg)==FP_SUBNORMAL) m <<= std::min(std::max(-ilogb(arg)-14, 0), 10);
 			*reinterpret_cast<std::uint32_t*>(&f) |= n&(m-1)&-isfinite(arg); return comp(half_cast<half,std::round_toward_infinity>(f), 
 			(!signbit(arg)&&(n&(m-1))) ? nextafter(arg, copysign(std::numeric_limits<half>::infinity(), arg)) : arg); });
-		unary_test("half_cast<round_toward_neg_infinity>", [&rand23](half arg) -> bool { float f = half_cast<float>(arg);
+		unary_test("half_cast<round_toward_neg_infinity>(float)", [&rand23](half arg) -> bool { float f = half_cast<float>(arg);
 			std::uint32_t n=rand23(), m=1<<13; if(fpclassify(arg)==FP_SUBNORMAL) m <<= std::min(std::max(-ilogb(arg)-14, 0), 10);
 			*reinterpret_cast<std::uint32_t*>(&f) |= n&(m-1)&-isfinite(arg); return comp(half_cast<half,std::round_toward_neg_infinity>(f), 
 			(signbit(arg)&&(n&(m-1))) ? nextafter(arg, copysign(std::numeric_limits<half>::infinity(), arg)) : arg); });
+
+		//test int casting
+		simple_test("half_cast<>(int)", []() -> bool { unsigned int passed = 0; for(int i=-(1<<16); i<=(1<<16); ++i)
+			if(comp(half_cast<half>(i), half_cast<half>(static_cast<float>(i)))) ++passed; return passed == (1<<17) + 1; });
+		simple_test("half_cast<round_to_nearest>(int)", []() -> bool { unsigned int passed = 0; for(int i=-(1<<16); i<=(1<<16); ++i)
+			if(comp(half_cast<half,std::round_to_nearest>(i), half_cast<half,std::round_to_nearest>(static_cast<float>(i)))) ++passed; return passed == (1<<17) + 1; });
+		simple_test("half_cast<round_toward_zero>(int)", []() -> bool { unsigned int passed = 0; for(int i=-(1<<16); i<=(1<<16); ++i)
+			if(comp(half_cast<half,std::round_toward_zero>(i), half_cast<half,std::round_toward_zero>(static_cast<float>(i)))) ++passed; return passed == (1<<17) + 1; });
+		simple_test("half_cast<round_toward_infinity>(int)", []() -> bool { unsigned int passed = 0; for(int i=-(1<<16); i<=(1<<16); ++i)
+			if(comp(half_cast<half,std::round_toward_infinity>(i), half_cast<half,std::round_toward_infinity>(static_cast<float>(i)))) ++passed; return passed == (1<<17) + 1; });
+		simple_test("half_cast<round_toward_neg_infinity>(int)", []() -> bool { unsigned int passed = 0; for(int i=-(1<<16); i<=(1<<16); ++i)
+			if(comp(half_cast<half,std::round_toward_neg_infinity>(i), half_cast<half,std::round_toward_neg_infinity>(static_cast<float>(i)))) ++passed; return passed == (1<<17) + 1; });
 
 		//test numeric limits
 		unary_test("numeric_limits::min", [](half arg) { return !isnormal(arg) || 
@@ -526,7 +538,7 @@ private:
 	std::vector<std::string> failed_;
 	std::ostream &log_;
 };
-/*
+
 #include <chrono>
 struct timer
 {
@@ -536,14 +548,14 @@ struct timer
 private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> start_;
 };
-*/
+
 
 int main(int argc, char *argv[])
 {
 	half pi = half_cast<half,std::round_to_nearest>(3.1415926535897932384626433832795L);
 	std::cout << "Pi: " << pi << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(pi) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(pi))).to_string() << std::endl;
-	half e = half_cast<half,std::round_to_nearest>(std::exp(1.0L));
+	half e = half_cast<half,std::round_to_nearest>(std::exp(1.0L)) * logb(pi);
 	std::cout << "e:  " << e << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(e) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(e))).to_string() << std::endl;
 
