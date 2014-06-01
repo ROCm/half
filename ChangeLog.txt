@@ -1,6 +1,9 @@
 Release Notes											{#changelog}
 =============
 
+- Fixed minor platform-independence problem with `logb` and `ilogb`.
+
+
 1.11.0 release (2013-11-16):
 ----------------------------
 
