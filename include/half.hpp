@@ -1508,13 +1508,11 @@ namespace half_float
 			/// \return normalized significant
 			static half frexp(half arg, int *exp)
 			{
-				*exp = 0;
-				unsigned int m = arg.data_ & 0x7FFF;
+				int m = arg.data_ & 0x7FFF, e = -14;
 				if(m >= 0x7C00 || !m)
-					return arg;
-				for(; m<0x400; m<<=1,--*exp) ;
-				*exp += (m>>10) - 14;
-				return half(binary, (arg.data_&0x8000)|0x3800|(m&0x3FF));
+					return *exp = 0, arg;
+				for(; m<0x400; m<<=1,--e) ;
+				return *exp = e+(m>>10), half(binary, (arg.data_&0x8000)|0x3800|(m&0x3FF));
 			}
 
 			/// Decompression implementation.
