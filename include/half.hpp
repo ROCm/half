@@ -492,7 +492,7 @@ namespace half_float
 		/// \return binary representation of half-precision value
 		template<std::float_round_style R> uint16 float2half_impl(float value, false_type)
 		{
-			uint16 hbits = builtin_signbit(value) << 15;
+			uint16 hbits = static_cast<unsigned>(builtin_signbit(value)) << 15;
 			if(value == 0.0f)
 				return hbits;
 			if(builtin_isnan(value))
