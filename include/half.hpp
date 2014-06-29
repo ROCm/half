@@ -366,7 +366,7 @@ namespace half_float
 		#if HALF_ENABLE_CPP11_CMATH
 			return std::isinf(arg);
 		#elif defined(_MSC_VER)
-			return !_finite(static_cast<double>(arg)) && !_isnan(static_cast<double>(arg));
+			return !::_finite(static_cast<double>(arg)) && !::_isnan(static_cast<double>(arg));
 		#else
 			return arg == std::numeric_limits<T>::infinity() || arg == -std::numeric_limits<T>::infinity();
 		#endif
@@ -382,7 +382,7 @@ namespace half_float
 		#if HALF_ENABLE_CPP11_CMATH
 			return std::isnan(arg);
 		#elif defined(_MSC_VER)
-			return _isnan(static_cast<double>(arg)) != 0;
+			return ::_isnan(static_cast<double>(arg)) != 0;
 		#else
 			return arg != arg;
 		#endif
