@@ -516,21 +516,21 @@ namespace half_float
 				value = std::ldexp(value, 11-exp);
 				hbits |= ((exp+13)<<10);
 			}
-			int ival = static_cast<int>(value);
-			hbits += static_cast<uint16>(std::abs(ival));
+			float ival, frac = std::modf(value, &ival);
+			hbits += static_cast<uint16>(std::abs(static_cast<int>(ival)));
 			if(R == std::round_to_nearest)
 			{
-				float diff = std::abs(value-static_cast<float>(ival));
+				frac = std::abs(frac);
 				#if HALF_ROUND_TIES_TO_EVEN
-					hbits += (diff>0.5f) | ((diff==0.5f)&hbits);
+					hbits += (frac>0.5f) | ((frac==0.5f)&hbits);
 				#else
-					hbits += diff >= 0.5f;
+					hbits += frac >= 0.5f;
 				#endif
 			}
 			else if(R == std::round_toward_infinity)
-				hbits += value > static_cast<float>(ival);
+				hbits += frac > 0.0f;
 			else if(R == std::round_toward_neg_infinity)
-				hbits += value < static_cast<float>(ival);
+				hbits += frac < 0.0f;
 			return hbits;
 		}
 
