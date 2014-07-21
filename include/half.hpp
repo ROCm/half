@@ -847,14 +847,15 @@ namespace half_float
 		{
 			typedef bits<float>::type uint32;
 			typedef bits<double>::type uint64;
-			uint64 bits = static_cast<uint64>(value&0x8000) << 48;
+			uint32 hi = static_cast<uint32>(value&0x8000) << 16;
 			int abs = value & 0x7FFF;
 			if(abs)
 			{
-				bits |= 0x3F00000000000000 << (abs>=0x7C00);
-				for(; abs<0x400; abs<<=1,bits-=0x10000000000000) ;
-				bits += static_cast<uint64>(abs) << 42;
+				hi |= 0x3F000000 << (abs>=0x7C00);
+				for(; abs<0x400; abs<<=1,hi-=0x100000) ;
+				hi += abs << 10;
 			}
+			uint64 bits = static_cast<uint64>(hi) << 32;
 //			return *reinterpret_cast<double*>(&bits);			//violating strict aliasing!
 			double out;
 			std::memcpy(&out, &bits, sizeof(double));
