@@ -1,8 +1,14 @@
 News														{#news}
 ====
 
+July XX, 2014 - Release 1.12.0
+------------------------------
+
+[Version 1.12.0](http://sourceforge.net/projects/half/files/half/1.12.0) of the library has been released. It changes the behaviour of half_cast() when casting to/from builtin floating point types. Previously those were performed by an explicit intermediary cast to/from `float`. But this could lead to imprecise results, since the rounding from `double`/`long double` to `float` was not controlled by the rounding mode of the half_cast(). Now each half_cast() always rounds directly to/from the specified type using the given rounding mode and thus guarantees exact compliance to this rounding mode. Furthermode a minor portability issue with logb() and ilogb() has been fixed, that could cause trouble on non-twos-complement implementations (if there are any at all).
+
+----------------------------------
 November 16, 2013 - Release 1.11.0
----------------------------------
+----------------------------------
 
 [Version 1.11.0](http://sourceforge.net/projects/half/files/half/1.11.0) of the library has been released. It further increases the flexibility of the rounding, by allowing the round to nearest behaviour to be configured more precisely. By default half-way cases during round to nearest are rounded away from zero (and thus analogous to the round() function), but by redefining [HALF_ROUND_TIES_TO_EVEN](\ref HALF_ROUND_TIES_TO_EVEN) to `1` this can be changed to the slower but less biased round to even. In addition to that the support for C++11 mathematical functions in light of unsupported single-precision versions has been completed by providing erf(), erfc(), lgamma() and tgamma() even if their `<cmath>` counterparts are unavailable. Furthermore, it fixes a bug that made it impossible to disable support for C++11 mathematical functions in *VC++ 2013*.
 

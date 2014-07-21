@@ -1,6 +1,9 @@
 Release Notes											{#changelog}
 =============
 
+1.12.0 release (2014-07-XX):
+----------------------------
+
 - Changed behaviour of `half_cast` to perform conversions to/from `double` 
   and `long double` directly without an intermediate `float` conversion.
 - Fixed minor portability problem with `logb` and `ilogb`.
