@@ -122,7 +122,7 @@ you can also directly assign float values to halfs.
 
 In contrast to the float-to-half conversion, which reduces precision, the 
 conversion from half to float (and thus to any other type implicitly 
-convertible to float) is implicit, because all values represetable with 
+convertible from float) is implicit, because all values represetable with 
 half-precision are also representable with single-precision. This way the 
 half-to-float conversion behaves similar to the builtin float-to-double 
 conversion and all arithmetic expressions involving both half-precision and 
@@ -156,18 +156,21 @@ to 'std::numeric_limits<float>::round_style'):
 In addition to changing the overall default rounding mode one can also use the 
 'half_cast'. This converts between half and any built-in arithmetic type using 
 a configurable rounding mode (or the default rounding mode if none is 
-specified). In addition to a configurable rounding mode, 'half_cast' has two 
-other differences to a mere 'static_cast': (1) Floating point types are 
-explicitly cast to float before being converted to half-precision and thus any 
-warnings for narrowing conversions are suppressed. (2) Conversions to/from 
-integer types are performed directly using the given rounding mode, without any 
-intermediate conversion to/from float.
+specified). In addition to a configurable rounding mode, 'half_cast' has 
+another big difference to a mere 'static_cast': Any conversions are performed 
+directly using the given rounding mode, without any intermediate conversion 
+to/from 'float'. This is especially relevant for conversions to integer types, 
+which don't necessarily truncate anymore. But also for conversions from 
+'double' or 'long double' this may produce more precise results than a 
+pre-conversion to 'float' using the single-precision implementation's current 
+rounding mode would.
 
     half a = half_cast<half>(4.2);
     half b = half_cast<half,std::numeric_limits<float>::round_style>(4.2f);
     assert( half_cast<int, std::round_to_nearest>( 0.7_h )     == 1 );
     assert( half_cast<half,std::round_toward_zero>( 4097 )     == 4096.0_h );
     assert( half_cast<half,std::round_toward_infinity>( 4097 ) == 4100.0_h );
+    assert( half_cast<half,std::round_toward_infinity>( std::numeric_limits<double>::min() ) > 0.0_h );
 
 When using round to nearest (either as default or through 'half_cast') ties are 
 by default resolved by rounding them away from zero (and thus equal to the 
