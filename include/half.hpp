@@ -875,7 +875,7 @@ namespace half_float
 			else if(abs == 0x7C00)
 				out = std::numeric_limits<T>::has_infinity ? std::numeric_limits<T>::infinity() : std::numeric_limits<T>::max();
 			else if(abs > 0x3FF)
-				out = std::ldexp(static_cast<T>((value&0x3FF)|0x400), (abs>>10)-25);
+				out = std::ldexp(static_cast<T>((abs&0x3FF)|0x400), (abs>>10)-25);
 			else
 				out = std::ldexp(static_cast<T>(abs), -24);
 			return (value&0x8000) ? -out : out;
