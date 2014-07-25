@@ -514,7 +514,8 @@ namespace half_float
 			std::memcpy(&bits, &value, sizeof(double));
 			uint32 hi = bits >> 32, lo = bits & 0xFFFFFFFF;
 			uint16 out = (hi>>16) & 0x8000;
-			int exp = (hi>>20) & 0x7FF;
+			hi &= 0x7FFFFFFF;
+			int exp = hi >> 20;
 			if(exp == 2047)
 				out |= 0x7C00 | (0x3FF&-static_cast<unsigned>((bits&0xFFFFFFFFFFFFF)!=0));
 			else if(exp > 1038)
