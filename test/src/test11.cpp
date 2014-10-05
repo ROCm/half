@@ -14,7 +14,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#define HALF_ROUND_STYLE -1
+#define HALF_ROUND_STYLE 1
 #define HALF_ROUND_TIES_TO_EVEN 0
 #include <half.hpp>
 
@@ -578,6 +578,10 @@ private:
 
 int main(int argc, char *argv[])
 {
+	half a(1.0/384.0), c = a * a;
+	std::cout << c << " - " << h2b(c) << '\n';
+	return 0;
+
 	half pi = half_cast<half,std::round_to_nearest>(3.1415926535897932384626433832795L);
 	std::cout << "Pi: " << pi << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(pi) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(pi))).to_string() << std::endl;
