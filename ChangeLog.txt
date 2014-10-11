@@ -6,6 +6,8 @@ Release Notes											{#changelog}
 
 - Changed behaviour of `half_cast` to perform conversions to/from `double` 
   and `long double` directly without an intermediate `float` conversion.
+- Added possibility for directly accessing `half`'s bit-representation in 
+  IEEE 754 format by extending functionality of `half_cast`.
 - Fixed minor portability problem with `logb` and `ilogb`.
 
 

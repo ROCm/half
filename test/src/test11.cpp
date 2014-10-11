@@ -62,12 +62,12 @@ using half_float::half_cast;
 
 half b2h(std::uint16_t bits)
 {
-	return *reinterpret_cast<half*>(&bits);
+	return half_cast<half,half_float::bitwise>(bits);
 }
 
 std::uint16_t h2b(half h)
 {
-	return *reinterpret_cast<std::uint16_t*>(&h);
+	return half_cast<std::uint16_t,half_float::bitwise>(h);
 }
 
 bool comp(half a, half b)
@@ -578,10 +578,6 @@ private:
 
 int main(int argc, char *argv[])
 {
-	half a(1.0/384.0), c = a * a;
-	std::cout << c << " - " << h2b(c) << '\n';
-	return 0;
-
 	half pi = half_cast<half,std::round_to_nearest>(3.1415926535897932384626433832795L);
 	std::cout << "Pi: " << pi << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(pi) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(pi))).to_string() << std::endl;

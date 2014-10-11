@@ -106,7 +106,7 @@ Furthermore the library provides proper specializations for
 the library also defines the 'HUGE_VALH' constant and maybe the 'FP_FAST_FMAH' 
 symbol.
 
-CONVERSIONS
+CONVERSIONS AND ROUNDING
 
 The half is explicitly constructible/convertible from a single-precision float 
 argument. Thus it is also explicitly constructible/convertible from any type 
@@ -184,6 +184,17 @@ IEEE-conformant behaviour of rounding half-way cases to the nearest even value.
     ...
     assert( half_cast<int,std::round_to_nearest>(3.5_h) 
          == half_cast<int,std::round_to_nearest>(4.5_h) );
+
+While this should rarely ever be necessary, you can also access a half's 
+bitwise representation in IEEE 754 format in a perfectly standard-conformant 
+way, without the need for a 'reinterpret_cast'. This can be achieved by using 
+a different form of 'half_cast', supplying the additional 'bitwise' parameter.
+But note that this only works for converting between half and any builtin 
+integral type.
+
+    using half_float::bitwise;
+    std::uint16_t bits = half_cast<std::uint16_t,bitwise>(1.0_h);
+    half two = half_cast<half,bitwise>(bits + 0x400);
 
 IMPLEMENTATION
 
