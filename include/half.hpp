@@ -509,7 +509,6 @@ namespace half_float
 		}
 
 		/// Convert IEEE double-precision to half-precision.
-		/// Credit for this goes to [Jeroen van der Zijp](ftp://ftp.fox-toolkit.org/pub/fasthalffloatconversion.pdf).
 		/// \tparam R rounding mode to use, `std::round_indeterminate` for fastest rounding
 		/// \param value double-precision value
 		/// \return binary representation of half-precision value
@@ -848,7 +847,6 @@ namespace half_float
 		}
 
 		/// Convert half-precision to IEEE double-precision.
-		/// Credit for this goes to [Jeroen van der Zijp](ftp://ftp.fox-toolkit.org/pub/fasthalffloatconversion.pdf).
 		/// \param value binary representation of half-precision value
 		/// \return double-precision value
 		inline double half2float_impl(uint16 value, double, true_type)
@@ -2016,6 +2014,7 @@ namespace half_float
 		/// function and a corresponding `type` member denoting its return type.
 		/// \tparam T destination type
 		/// \tparam U source type
+		/// \tparam C conversion mode to use (arithmetic vs. binary)
 		/// \tparam R rounding mode to use
 		template<typename T,typename U,conversion_mode C=arithmetic,std::float_round_style R=(std::float_round_style)(HALF_ROUND_STYLE)> struct half_caster {};
 		template<typename U,std::float_round_style R> struct half_caster<half,U,arithmetic,R>
