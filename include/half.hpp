@@ -74,6 +74,15 @@
 		#endif
 	#endif
 #elif defined(_MSC_VER)										//Visual C++
+	#if _MSC_VER >= 1900 && !defined(HALF_ENABLE_CPP11_CONSTEXPR)
+		#define HALF_ENABLE_CPP11_CONSTEXPR 1
+	#endif
+	#if _MSC_VER >= 1900 && !defined(HALF_ENABLE_CPP11_NOEXCEPT)
+		#define HALF_ENABLE_CPP11_NOEXCEPT 1
+	#endif
+	#if _MSC_VER >= 1900 && !defined(HALF_ENABLE_CPP11_USER_LITERALS)
+		#define HALF_ENABLE_CPP11_USER_LITERALS 1
+	#endif
 	#if _MSC_VER >= 1600 && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)
 		#define HALF_ENABLE_CPP11_STATIC_ASSERT 1
 	#endif
@@ -859,7 +868,7 @@ namespace half_float
 			{
 				hi |= 0x3F000000 << (abs>=0x7C00);
 				for(; abs<0x400; abs<<=1,hi-=0x100000) ;
-				hi += abs << 10;
+				hi += static_cast<uint32>(abs) << 10;
 			}
 			uint64 bits = static_cast<uint64>(hi) << 32;
 //			return *reinterpret_cast<double*>(&bits);			//violating strict aliasing!

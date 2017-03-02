@@ -15,7 +15,7 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #define HALF_ROUND_STYLE 1
-#define HALF_ROUND_TIES_TO_EVEN 0
+#define HALF_ROUND_TIES_TO_EVEN 1
 #include <half.hpp>
 
 #include <utility>
@@ -43,7 +43,7 @@
 #define UNARY_MATH_TEST(func) { \
 	double err = 0.0, rel = 0.0; \
 	bool success = unary_test(#func, [&](half arg) -> bool { \
-		half a = func(arg), b(std::func(static_cast<float>(arg))); bool equal = comp(a, b); \
+		half a = func(arg), b(std::func(static_cast<double>(arg))); bool equal = comp(a, b); \
 		if(!equal) { double error = std::abs(static_cast<double>(a)-static_cast<double>(b)); \
 		err = std::max(err, error); rel = std::max(rel, error/std::abs(static_cast<double>(arg))); } return equal; }); \
 	if(err != 0.0 || rel != 0.0) std::cout << #func << " max error: " << err << " - max relative error: " << rel << '\n'; }
@@ -51,7 +51,7 @@
 #define BINARY_MATH_TEST(func) { \
 	double err = 0.0, rel = 0.0; \
 	bool success = binary_test(#func, [&](half x, half y) -> bool { \
-		half a = func(x, y), b(std::func(static_cast<float>(x), static_cast<float>(y))); bool equal = comp(a, b); \
+		half a = func(x, y), b(std::func(static_cast<double>(x), static_cast<double>(y))); bool equal = comp(a, b); \
 		if(!equal) { double error = std::abs(static_cast<double>(a)-static_cast<double>(b)); \
 		err = std::max(err, error); rel = std::max(rel, error/std::min(std::abs(static_cast<double>(x)), std::abs(static_cast<double>(y)))); } return equal; }); \
 	if(err != 0.0 || rel != 0.0) std::cout << #func << " max error: " << err << " - max relative error: " << rel << '\n'; }
@@ -142,7 +142,9 @@ public:
 		simple_test("size", []() { return sizeof(half)*CHAR_BIT >= 16; });
 
 		//test conversion
-		unary_test("conversion", [](half arg) { return comp(static_cast<half>(static_cast<float>(arg)), arg); });
+		unary_test("float conversion", [](half arg) { return comp(static_cast<half>(static_cast<float>(arg)), arg); });
+		unary_test("double conversion", [](half arg) { return comp(static_cast<half>(static_cast<double>(arg)), arg); });
+		unary_test("long double conversion", [](half arg) { return comp(static_cast<half>(static_cast<long double>(arg)), arg); });
 
 		//test classification
 		class_test("fpclassify", [](half arg, int cls) { return fpclassify(arg) == cls; });
@@ -150,29 +152,29 @@ public:
 		class_test("isinf", [](half arg, int cls) { return isinf(arg) == (cls==FP_INFINITE); });
 		class_test("isnan", [](half arg, int cls) { return isnan(arg) == (cls==FP_NAN); });
 		class_test("isnormal", [](half arg, int cls) { return isnormal(arg) == (cls==FP_NORMAL); });
-		unary_test("signbit", [](half arg) -> bool { float f = arg; return isnan(arg) || f==0.0f || (signbit(arg)==(f<0.0f)); });
+		unary_test("signbit", [](half arg) -> bool { double f = arg; return isnan(arg) || f==0.0 || (signbit(arg)==(f<0.0)); });
 
 		//test operators
-		unary_test("prefix increment", [](half arg) -> bool { float f = static_cast<float>(arg); 
+		unary_test("prefix increment", [](half arg) -> bool { double f = static_cast<double>(arg); 
 			return comp(static_cast<half>(++f), ++arg) && comp(static_cast<half>(f), arg); });
-		unary_test("prefix decrement", [](half arg) -> bool { float f = static_cast<float>(arg); 
+		unary_test("prefix decrement", [](half arg) -> bool { double f = static_cast<double>(arg); 
 			return comp(static_cast<half>(--f), --arg) && comp(static_cast<half>(f), arg); });
-		unary_test("postfix increment", [](half arg) -> bool { float f = static_cast<float>(arg); 
+		unary_test("postfix increment", [](half arg) -> bool { double f = static_cast<double>(arg); 
 			return comp(static_cast<half>(f++), arg++) && comp(static_cast<half>(f), arg); });
-		unary_test("postfix decrement", [](half arg) -> bool { float f = static_cast<float>(arg); 
+		unary_test("postfix decrement", [](half arg) -> bool { double f = static_cast<double>(arg); 
 			return comp(static_cast<half>(f--), arg--) && comp(static_cast<half>(f), arg); });
 		unary_test("unary plus", [](half arg) { return comp(+arg, arg); });
-		unary_test("unary minus", [](half arg) { return comp(-arg, static_cast<half>(-static_cast<float>(arg))); });
-		binary_test("addition", [](half a, half b) { return comp(a+b, static_cast<half>(static_cast<float>(a)+static_cast<float>(b))); });
-		binary_test("subtraction", [](half a, half b) { return comp(a-b, static_cast<half>(static_cast<float>(a)-static_cast<float>(b))); });
-		binary_test("multiplication", [](half a, half b) { return comp(a*b, static_cast<half>(static_cast<float>(a)*static_cast<float>(b))); });
-		binary_test("division", [](half a, half b) { return comp(a/b, static_cast<half>(static_cast<float>(a)/static_cast<float>(b))); });
-		binary_test("equal", [](half a, half b) { return (a==b) == (static_cast<float>(a)==static_cast<float>(b)); });
-		binary_test("not equal", [](half a, half b) { return (a!=b) == (static_cast<float>(a)!=static_cast<float>(b)); });
-		binary_test("less", [](half a, half b) { return (a<b) == (static_cast<float>(a)<static_cast<float>(b)); });
-		binary_test("greater", [](half a, half b) { return (a>b) == (static_cast<float>(a)>static_cast<float>(b)); });
-		binary_test("less equal", [](half a, half b) { return (a<=b) == (static_cast<float>(a)<=static_cast<float>(b)); });
-		binary_test("greater equal", [](half a, half b) { return (a>=b) == (static_cast<float>(a)>=static_cast<float>(b)); });
+		unary_test("unary minus", [](half arg) { return comp(-arg, static_cast<half>(-static_cast<double>(arg))); });
+		binary_test("addition", [](half a, half b) { return comp(a+b, static_cast<half>(static_cast<double>(a)+static_cast<double>(b))); });
+		binary_test("subtraction", [](half a, half b) { return comp(a-b, static_cast<half>(static_cast<double>(a)-static_cast<double>(b))); });
+		binary_test("multiplication", [](half a, half b) { return comp(a*b, static_cast<half>(static_cast<double>(a)*static_cast<double>(b))); });
+		binary_test("division", [](half a, half b) { return comp(a/b, static_cast<half>(static_cast<double>(a)/static_cast<double>(b))); });
+		binary_test("equal", [](half a, half b) { return (a==b) == (static_cast<double>(a)==static_cast<double>(b)); });
+		binary_test("not equal", [](half a, half b) { return (a!=b) == (static_cast<double>(a)!=static_cast<double>(b)); });
+		binary_test("less", [](half a, half b) { return (a<b) == (static_cast<double>(a)<static_cast<double>(b)); });
+		binary_test("greater", [](half a, half b) { return (a>b) == (static_cast<double>(a)>static_cast<double>(b)); });
+		binary_test("less equal", [](half a, half b) { return (a<=b) == (static_cast<double>(a)<=static_cast<double>(b)); });
+		binary_test("greater equal", [](half a, half b) { return (a>=b) == (static_cast<double>(a)>=static_cast<double>(b)); });
 
 		//test basic functions
 		UNARY_MATH_TEST(abs);
@@ -209,25 +211,25 @@ public:
 		UNARY_MATH_TEST(floor);
 		unary_test("trunc", [](half arg) { return !isfinite(arg) || comp(trunc(arg), static_cast<half>(static_cast<int>(arg))); });
 		unary_test("round", [](half arg) { return !isfinite(arg) || comp(round(arg), 
-			static_cast<half>(static_cast<int>(static_cast<float>(arg)+(signbit(arg) ? -0.5f : 0.5f)))); });
+			static_cast<half>(static_cast<int>(static_cast<double>(arg)+(signbit(arg) ? -0.5 : 0.5)))); });
 		unary_test("lround", [](half arg) { return !isfinite(arg) || lround(arg) == 
-			static_cast<long>(static_cast<float>(arg)+(signbit(arg) ? -0.5f : 0.5f)); });
+			static_cast<long>(static_cast<double>(arg)+(signbit(arg) ? -0.5 : 0.5)); });
 		unary_test("nearbyint", [](half arg) { return !isfinite(arg) || comp(nearbyint(arg), static_cast<half>(half_cast<int>(arg))); });
 		unary_test("rint", [](half arg) { return !isfinite(arg) || comp(rint(arg), static_cast<half>(half_cast<int>(arg))); });
 		unary_test("lrint", [](half arg) { return !isfinite(arg) || lrint(arg) == half_cast<long>(arg); });
 #if HALF_ENABLE_CPP11_LONG_LONG
 		unary_test("llround", [](half arg) { return !isfinite(arg) || llround(arg) == 
-			static_cast<long long>(static_cast<float>(arg)+(signbit(arg) ? -0.5f : 0.5f)); });
+			static_cast<long long>(static_cast<double>(arg)+(signbit(arg) ? -0.5 : 0.5)); });
 		unary_test("llrint", [](half arg) { return !isfinite(arg) || llrint(arg) == half_cast<long long>(arg); });
 #endif
 
 		//test float functions
 		unary_test("frexp", [](half arg) -> bool { int eh, ef; bool eq = comp(frexp(arg, &eh), 
-			static_cast<half>(std::frexp(static_cast<float>(arg), &ef))); return eq && eh==ef; });
+			static_cast<half>(std::frexp(static_cast<double>(arg), &ef))); return eq && eh==ef; });
 		unary_test("ldexp", [](half arg) -> bool { unsigned int passed = 0; for(int i=-50; i<50; ++i) passed += 
-			comp(ldexp(arg, i), static_cast<half>(std::ldexp(static_cast<float>(arg), i))); return passed==100; });
-		unary_test("modf", [](half arg) -> bool { half h; float f; return comp(modf(arg, &h), static_cast<half>(
-			std::modf(static_cast<float>(arg), &f))) && comp(h, static_cast<half>(f)); });
+			comp(ldexp(arg, i), static_cast<half>(std::ldexp(static_cast<double>(arg), i))); return passed==100; });
+		unary_test("modf", [](half arg) -> bool { half h; double f; return comp(modf(arg, &h), static_cast<half>(
+			std::modf(static_cast<double>(arg), &f))) && comp(h, static_cast<half>(f)); });
 		binary_test("nextafter", [](half a, half b) -> bool { half c = nextafter(a, b); std::int16_t d = std::abs(
 			static_cast<std::int16_t>(h2b(a)-h2b(c))); return ((isnan(a) || isnan(b)) && isnan(c)) || 
 			(comp(a, b) && comp(b, c)) || ((d==1||d==0x7FFF) && (a<b)==(a<c)); });
@@ -241,7 +243,7 @@ public:
 		//test basic functions
 		BINARY_MATH_TEST(remainder);
 		binary_test("remquo", [](half a, half b) -> bool { int qh = 0, qf = 0; bool eq = comp(remquo(a, b, &qh), 
-			static_cast<half>(std::remquo(static_cast<float>(a), static_cast<float>(b), &qf))); return eq && (qh&7)==(qf&7); });
+			static_cast<half>(std::remquo(static_cast<double>(a), static_cast<double>(b), &qf))); return eq && (qh&7)==(qf&7); });
 		BINARY_MATH_TEST(fmin);
 		BINARY_MATH_TEST(fmax);
 		BINARY_MATH_TEST(fdim);
@@ -270,48 +272,48 @@ public:
 		//test round functions
 		UNARY_MATH_TEST(trunc);
 		UNARY_MATH_TEST(round);
-		unary_test("lround", [](half arg) { return lround(arg) == std::lround(static_cast<float>(arg)); });
-		unary_test("llround", [](half arg) { return llround(arg) == std::llround(static_cast<float>(arg)); });
+		unary_test("lround", [](half arg) { return lround(arg) == std::lround(static_cast<double>(arg)); });
+		unary_test("llround", [](half arg) { return llround(arg) == std::llround(static_cast<double>(arg)); });
 	#if HALF_ROUND_STYLE == 1 && HALF_ROUND_TIES_TO_EVEN == 1
 		UNARY_MATH_TEST(nearbyint);
 		UNARY_MATH_TEST(rint);
-		unary_test("lrint", [](half arg) { return lrint(arg) == std::lrint(static_cast<float>(arg)); });
-		unary_test("llrint", [](half arg) { return llrint(arg) == std::llrint(static_cast<float>(arg)); });
+		unary_test("lrint", [](half arg) { return lrint(arg) == std::lrint(static_cast<double>(arg)); });
+		unary_test("llrint", [](half arg) { return llrint(arg) == std::llrint(static_cast<double>(arg)); });
 	#endif
 
 		//test float functions
 		unary_test("scalbn", [](half arg) -> bool { unsigned int passed = 0; for(int i=-50; i<50; ++i) passed += 
-			comp(scalbn(arg, i), static_cast<half>(std::scalbn(static_cast<float>(arg), i))); return passed==100; });
+			comp(scalbn(arg, i), static_cast<half>(std::scalbn(static_cast<double>(arg), i))); return passed==100; });
 		unary_test("scalbln", [](half arg) -> bool { unsigned int passed = 0; for(long i=-50; i<50; ++i) passed += 
-			comp(scalbln(arg, i), static_cast<half>(std::scalbln(static_cast<float>(arg), i))); return passed==100; });
-		unary_test("ilogb", [](half arg) { return ilogb(arg) == std::ilogb(static_cast<float>(arg)); });
-		unary_test("logb", [](half arg) { return comp(logb(arg), static_cast<half>(std::logb(static_cast<float>(arg)))); });
+			comp(scalbln(arg, i), static_cast<half>(std::scalbln(static_cast<double>(arg), i))); return passed==100; });
+		unary_test("ilogb", [](half arg) { return ilogb(arg) == std::ilogb(static_cast<double>(arg)); });
+		unary_test("logb", [](half arg) { return comp(logb(arg), static_cast<half>(std::logb(static_cast<double>(arg)))); });
 		binary_test("copysign", [](half a, half b) { return comp(copysign(a, b), 
-			static_cast<half>(std::copysign(static_cast<float>(a), static_cast<float>(b)))); });
+			static_cast<half>(std::copysign(static_cast<double>(a), static_cast<double>(b)))); });
 
 		//test classification functions
 		unary_test("fpclassify", [](half arg) -> bool { int ch=fpclassify(arg), cf=std::fpclassify(
-			static_cast<float>(arg)); return ch==cf || (ch==FP_SUBNORMAL && cf==FP_NORMAL); });
-		unary_test("isfinite", [](half arg) { return isfinite(arg) == std::isfinite(static_cast<float>(arg)); });
-		unary_test("isinf", [](half arg) { return isinf(arg) == std::isinf(static_cast<float>(arg)); });
-		unary_test("isnan", [](half arg) { return isnan(arg) == std::isnan(static_cast<float>(arg)); });
-		unary_test("isnormal", [](half arg) { return isnormal(arg) == std::isnormal(static_cast<float>(arg)) || 
+			static_cast<double>(arg)); return ch==cf || (ch==FP_SUBNORMAL && cf==FP_NORMAL); });
+		unary_test("isfinite", [](half arg) { return isfinite(arg) == std::isfinite(static_cast<double>(arg)); });
+		unary_test("isinf", [](half arg) { return isinf(arg) == std::isinf(static_cast<double>(arg)); });
+		unary_test("isnan", [](half arg) { return isnan(arg) == std::isnan(static_cast<double>(arg)); });
+		unary_test("isnormal", [](half arg) { return isnormal(arg) == std::isnormal(static_cast<double>(arg)) || 
 			(!isnormal(arg) && fpclassify(arg)==FP_SUBNORMAL); });
-		unary_test("signbit", [](half arg) { return signbit(arg) == std::signbit(static_cast<float>(arg)); });
+		unary_test("signbit", [](half arg) { return signbit(arg) == std::signbit(static_cast<double>(arg)); });
 
 		//test comparison functions
 		binary_test("isgreater", [](half a, half b) { return isgreater(a, b) == 
-			std::isgreater(static_cast<float>(a), static_cast<float>(b)); });
+			std::isgreater(static_cast<double>(a), static_cast<double>(b)); });
 		binary_test("isgreaterequal", [](half a, half b) { return isgreaterequal(a, b) == 
-			std::isgreaterequal(static_cast<float>(a), static_cast<float>(b)); });
+			std::isgreaterequal(static_cast<double>(a), static_cast<double>(b)); });
 		binary_test("isless", [](half a, half b) { return isless(a, b) == 
-			std::isless(static_cast<float>(a), static_cast<float>(b)); });
+			std::isless(static_cast<double>(a), static_cast<double>(b)); });
 		binary_test("islessequal", [](half a, half b) { return islessequal(a, b) == 
-			std::islessequal(static_cast<float>(a), static_cast<float>(b)); });
+			std::islessequal(static_cast<double>(a), static_cast<double>(b)); });
 		binary_test("islessgreater", [](half a, half b) { return islessgreater(a, b) == 
-			std::islessgreater(static_cast<float>(a), static_cast<float>(b)); });
+			std::islessgreater(static_cast<double>(a), static_cast<double>(b)); });
 		binary_test("isunordered", [](half a, half b) { return isunordered(a, b) == 
-			std::isunordered(static_cast<float>(a), static_cast<float>(b)); });
+			std::isunordered(static_cast<double>(a), static_cast<double>(b)); });
 #endif
 
 		//test rounding
@@ -480,7 +482,7 @@ private:
 				++count;
 			}
 			else
-				log_ << (iterB->second.size()-passed) << " of " << iterB->second.size() << " failed\n";
+				log_ << (iterB->second.size()-passed) << " of " << iterB->second.size() << " FAILED\n";
 		}
 		log_ << '\n';
 		++tests_;
@@ -494,7 +496,7 @@ private:
 	{
 		log_ << "testing " << name << ": ";
 		bool passed = test();
-		log_ << (passed ? "passed" : "failed") << "\n\n";
+		log_ << (passed ? "passed" : "FAILED") << "\n\n";
 		++tests_;
 		if(!passed)
 			failed_.push_back(name);
@@ -517,7 +519,7 @@ private:
 				++count;
 			}
 			else
-				log_ << (iterB->second.size()-passed) << " of " << iterB->second.size() << " failed\n";
+				log_ << (iterB->second.size()-passed) << " of " << iterB->second.size() << " FAILED\n";
 		}
 		log_ << '\n';
 		++tests_;
@@ -551,7 +553,7 @@ private:
 			log_ << "all passed\n\n";
 		else
 		{
-			log_ << (tests-count) << " of " << tests << " failed\n\n";
+			log_ << (tests-count) << " of " << tests << " FAILED\n\n";
 			failed_.push_back(name);
 		}
 		++tests_;
