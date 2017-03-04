@@ -1,7 +1,7 @@
 Release Notes											{#changelog}
 =============
 
-1.12.0 release (2014-07-XX):
+1.12.0 release (2017-XX-XX):
 ----------------------------
 
 - Changed behaviour of `half_cast` to perform conversions to/from `double` 
@@ -9,6 +9,7 @@ Release Notes											{#changelog}
 - Added possibility for directly accessing `half`'s bit-representation in 
   IEEE 754 format by extending functionality of `half_cast`.
 - Fixed minor portability problem with `logb` and `ilogb`.
+- Tested and fixed for *VC++ 2015*.
 
 
 1.11.0 release (2013-11-16):
