@@ -62,12 +62,14 @@ using half_float::half_cast;
 
 half b2h(std::uint16_t bits)
 {
-	return half_cast<half,half_float::bitwise>(bits);
+	return *reinterpret_cast<half*>(&bits);
+//	return half_cast<half,half_float::bitwise>(bits);
 }
 
 std::uint16_t h2b(half h)
 {
-	return half_cast<std::uint16_t,half_float::bitwise>(h);
+	return *reinterpret_cast<std::uint16_t*>(&h);
+//	return half_cast<std::uint16_t,half_float::bitwise>(h);
 }
 
 bool comp(half a, half b)
@@ -207,15 +209,15 @@ public:
 		unary_test("nearbyint", [](half arg) { return !isfinite(arg) || comp(nearbyint(arg), static_cast<half>(half_cast<int>(arg))); });
 		unary_test("rint", [](half arg) { return !isfinite(arg) || comp(rint(arg), static_cast<half>(half_cast<int>(arg))); });
 		unary_test("lrint", [](half arg) { return !isfinite(arg) || lrint(arg) == half_cast<long>(arg); });
-#if HALF_ENABLE_CPP11_LONG_LONG
+	#if HALF_ENABLE_CPP11_LONG_LONG
 		unary_test("llround", [](half arg) { return !isfinite(arg) || llround(arg) == 
 			static_cast<long long>(static_cast<double>(arg)+(signbit(arg) ? -0.5 : 0.5)); });
 		unary_test("llrint", [](half arg) { return !isfinite(arg) || llrint(arg) == half_cast<long long>(arg); });
-#endif
+	#endif
 
 		//test float functions
 		unary_test("frexp", [](half arg) -> bool { int eh, ef; bool eq = comp(frexp(arg, &eh), 
-			static_cast<half>(std::frexp(static_cast<double>(arg), &ef))); return eq && eh==ef; });
+			static_cast<half>(std::frexp(static_cast<double>(arg), &ef))); return eq && (!isfinite(arg) || eh==ef); });
 		unary_test("ldexp", [](half arg) -> bool { unsigned int passed = 0; for(int i=-50; i<50; ++i) passed += 
 			comp(ldexp(arg, i), static_cast<half>(std::ldexp(static_cast<double>(arg), i))); return passed==100; });
 		unary_test("modf", [](half arg) -> bool { half h; double f; return comp(modf(arg, &h), static_cast<half>(
@@ -229,7 +231,7 @@ public:
 		binary_test("copysign", [](half a, half b) -> bool { half h = copysign(a, b); 
 			return comp(abs(h), abs(a)) && signbit(h)==signbit(b); });
 
-#if HALF_ENABLE_CPP11_CMATH
+	#if HALF_ENABLE_CPP11_CMATH
 		//test basic functions
 		BINARY_MATH_TEST(remainder);
 		binary_test("remquo", [](half a, half b) -> bool { int qh = 0, qf = 0; bool eq = comp(remquo(a, b, &qh), 
@@ -262,13 +264,13 @@ public:
 		//test round functions
 		UNARY_MATH_TEST(trunc);
 		UNARY_MATH_TEST(round);
-		unary_test("lround", [](half arg) { return lround(arg) == std::lround(static_cast<double>(arg)); });
-		unary_test("llround", [](half arg) { return llround(arg) == std::llround(static_cast<double>(arg)); });
+		unary_test("lround", [](half arg) { return !isfinite(arg) || lround(arg) == std::lround(static_cast<double>(arg)); });
+		unary_test("llround", [](half arg) { return !isfinite(arg) || llround(arg) == std::llround(static_cast<double>(arg)); });
 	#if HALF_ROUND_STYLE == 1 && HALF_ROUND_TIES_TO_EVEN == 1
 		UNARY_MATH_TEST(nearbyint);
 		UNARY_MATH_TEST(rint);
-		unary_test("lrint", [](half arg) { return lrint(arg) == std::lrint(static_cast<double>(arg)); });
-		unary_test("llrint", [](half arg) { return llrint(arg) == std::llrint(static_cast<double>(arg)); });
+		unary_test("lrint", [](half arg) { return !isfinite(arg) || half_float::lrint(arg) == std::lrint(static_cast<double>(arg)); });
+		unary_test("llrint", [](half arg) { return !isfinite(arg) || llrint(arg) == std::llrint(static_cast<double>(arg)); });
 	#endif
 
 		//test float functions
@@ -304,7 +306,7 @@ public:
 			std::islessgreater(static_cast<double>(a), static_cast<double>(b)); });
 		binary_test("isunordered", [](half a, half b) { return isunordered(a, b) == 
 			std::isunordered(static_cast<double>(a), static_cast<double>(b)); });
-#endif
+	#endif
 
 		//test rounding
 		float_test("round_to_nearest", [](float f) -> bool { half a = half_cast<half,std::round_indeterminate>(f), 
@@ -316,8 +318,7 @@ public:
 			#else
 				std::abs(f-af)>=std::abs(bf-f)
 			#endif
-			)||isinf(h))) ||
-			(std::abs(hf)<=std::abs(f)&&comp(h, a)&&((
+			)||isinf(h))) || (std::abs(hf)<=std::abs(f)&&comp(h, a)&&((
 			#if HALF_ROUND_TIES_TO_EVEN
 				std::abs(f-af)<std::abs(bf-f) || (std::abs(f-af)==std::abs(bf-f)&&!(h2b(h)&1))
 			#else
@@ -385,7 +386,26 @@ public:
 			*reinterpret_cast<std::uint64_t*>(&f) |= n&(m-1)&-isfinite(arg); return comp(half_cast<half,std::round_toward_neg_infinity>(f), 
 			(signbit(arg)&&(n&(m-1))) ? nextafter(arg, copysign(std::numeric_limits<half>::infinity(), arg)) : arg); });
 
-		//test int casting
+		//test casting to int
+	#if HALF_ENABLE_CPP11_CMATH
+		unary_test("half_cast<int>", [](half arg) -> bool { return !isfinite(arg) || half_cast<int>(arg) == static_cast<int>(nearbyint(arg)); });
+	#endif
+		unary_test("half_cast<int,round_to_nearest>", [](half arg) -> bool { float fi, ff = std::abs(std::modf(static_cast<float>(arg), &fi));
+			int i = static_cast<int>(fi); i += (-2*signbit(arg)+1) *
+			#if HALF_ROUND_TIES_TO_EVEN
+				(ff>0.5f || (ff==0.5f && i&1));
+			#else
+				(ff>=0.5f);
+			#endif
+			return !isfinite(arg) || half_cast<int,std::round_to_nearest>(arg) == i;
+		});
+		unary_test("half_cast<int,round_toward_zero>", [](half arg) -> bool { return !isfinite(arg) || half_cast<int,std::round_toward_zero>(arg) == static_cast<int>(arg); });
+		unary_test("half_cast<int,round_toward_infinity>", [](half arg) -> bool { float fi, ff = std::modf(static_cast<float>(arg), &fi);
+			return !isfinite(arg) || half_cast<int,std::round_toward_infinity>(arg) == (static_cast<int>(fi)+(ff>0.0f)); });
+		unary_test("half_cast<int,round_toward_neg_infinity>", [](half arg) -> bool { float fi, ff = std::modf(static_cast<float>(arg), &fi);
+			return !isfinite(arg) || half_cast<int,std::round_toward_neg_infinity>(arg) == (static_cast<int>(fi)-(ff<0.0f)); });
+
+		//test casting from int
 		int_test("half_cast<>(int)", [](int i) -> bool { return comp(half_cast<half>(i), half_cast<half>(static_cast<float>(i))); });
 		int_test("half_cast<round_to_nearest>(int)", [](int i) -> bool { 
 			return comp(half_cast<half,std::round_to_nearest>(i), half_cast<half,std::round_to_nearest>(static_cast<float>(i))); });
@@ -414,23 +434,23 @@ public:
 			static_cast<half>(c)))<=std::ldexp(static_cast<double>(std::numeric_limits<half>::round_error()), 
 			ilogb(static_cast<half>(c))-std::numeric_limits<half>::digits+1); });
 
-#if HALF_ENABLE_CPP11_HASH
+	#if HALF_ENABLE_CPP11_HASH
 		//test hash
 		binary_test("hash function", [](half a, half b) { return a != b || std::hash<half>()(a) == std::hash<half>()(b); });
 		struct { bool operator()(half a, half b) const { return h2b(a) == h2b(b); } } bincomp;
 		std::unordered_map<half,const half*,std::hash<half>,decltype(bincomp)> map(65536, std::hash<half>(), bincomp);
 		unary_test("hash insert", [&map](const half &arg) { return map.insert(std::make_pair(arg, &arg)).second; });
 		unary_test("hash retrieve", [&map](const half &arg) { return map[arg] == &arg; });
-#endif
+	#endif
 
-#if HALF_ENABLE_CPP11_USER_LITERALS
+	#if HALF_ENABLE_CPP11_USER_LITERALS
 		//test literals
 		simple_test("literals", []() -> bool { using namespace half_float::literal; return comp(0.0_h, half(0.0f)) && comp(-1.0_h, half(-1.0f)) && 
 			comp(+3.14159265359_h, half(3.14159265359f)) && comp(1e-2_h, half(1e-2f)) && comp(-4.2e3_h, half(-4.2e3f)); });
-#endif
+	#endif
 
 		if(failed_.empty())
-			log_ << "ALL TESTS PASSED\n";
+			log_ << "all tests passed\n";
 		else
 		{
 			log_ << (failed_.size()) << " OF " << tests_ << " FAILED:\n    ";
@@ -546,7 +566,7 @@ private:
 	{
 		auto rand32 = std::bind(std::uniform_int_distribution<std::uint32_t>(0, std::numeric_limits<std::uint32_t>::max()), std::default_random_engine());
 		unsigned long long count = 0, tests = fast_ ? 1e6 : (1ULL<<32);
-		log_ << "testing " << name << ":\n";
+		log_ << "testing " << name << ": ";
 		if(fast_)
 		{
 			for(unsigned long long i=0; i<tests; ++i)
@@ -573,9 +593,9 @@ private:
 	template<typename F> bool int_test(const std::string &name, F test)
 	{
 		unsigned int count = 0, tests = (1<<17) + 1;
-		log_ << "testing " << name << ":\n";
+		log_ << "testing " << name << ": ";
 		for(int i=-(1<<16); i<=(1<<16); ++i)
-			passed += test(i);
+			count += test(i);
 		bool passed = count == tests;
 		if(passed)
 			log_ << "all passed\n\n";
