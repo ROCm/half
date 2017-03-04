@@ -360,11 +360,11 @@ namespace half_float
 		{
 			/// Conversion constructor.
 			/// \param f single-precision value to convert
-			explicit HALF_CONSTEXPR expr(float f) : value_(f) {}
+			explicit HALF_CONSTEXPR expr(float f) HALF_NOEXCEPT : value_(f) {}
 
 			/// Conversion to single-precision.
 			/// \return single precision value representing expression value
-			HALF_CONSTEXPR operator float() const { return value_; }
+			HALF_CONSTEXPR operator float() const HALF_NOEXCEPT { return value_; }
 
 		private:
 			/// Internal expression value stored in single-precision.
