@@ -840,10 +840,10 @@ namespace half_float
 	{
 		/// Half literal.
 		/// While this returns an actual half-precision value, half literals can unfortunately not be constant expressions due 
-		/// to rather involved single-to-half conversion.
+		/// to rather involved conversions.
 		/// \param value literal value
 		/// \return half with given value (if representable)
-		half operator "" _h(long double value);
+		half operator""_h(long double value);
 	}
 }
 

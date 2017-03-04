@@ -262,6 +262,19 @@ namespace half_float
 {
 	class half;
 
+#if HALF_ENABLE_CPP11_USER_LITERALS
+	/// Library-defined half-precision literals.
+	/// Import this namespace to enable half-precision floating point literals:
+	/// ~~~~{.cpp}
+	/// using namespace half_float::literal;
+	/// half_float::half = 4.2_h;
+	/// ~~~~
+	namespace literal
+	{
+		half operator""_h(long double);
+	}
+#endif
+
 	/// Conversion mode for cast.
 	enum conversion_mode
 	{
@@ -447,7 +460,52 @@ namespace half_float
 		template<std::float_round_style R> uint16 float2half_impl(float value, true_type)
 		{
 			typedef bits<float>::type uint32;
-			static const uint16 base_table[512] = { 
+			uint32 bits;// = *reinterpret_cast<uint32*>(&value);		//violating strict aliasing!
+			std::memcpy(&bits, &value, sizeof(float));
+/*			uint16 hbits = (bits>>16) & 0x8000;
+			bits &= 0x7FFFFFFF;
+			int exp = bits >> 23;
+			if(exp == 255)
+				return hbits | 0x7C00 | (0x3FF&-static_cast<unsigned>((bits&0x7FFFFF)!=0));
+			if(exp > 142)
+			{
+				if(R == std::round_toward_infinity)
+					return hbits | 0x7C00 - (hbits>>15);
+				if(R == std::round_toward_neg_infinity)
+					return hbits | 0x7BFF + (hbits>>15);
+				return hbits | 0x7BFF + (R!=std::round_toward_zero);
+			}
+			int g, s;
+			if(exp > 112)
+			{
+				g = (bits>>12) & 1;
+				s = (bits&0xFFF) != 0;
+				hbits |= ((exp-112)<<10) | ((bits>>13)&0x3FF);
+			}
+			else if(exp > 101)
+			{
+				int i = 125 - exp;
+				bits = (bits&0x7FFFFF) | 0x800000;
+				g = (bits>>i) & 1;
+				s = (bits&((1L<<i)-1)) != 0;
+				hbits |= bits >> (i+1);
+			}
+			else
+			{
+				g = 0;
+				s = bits != 0;
+			}
+			if(R == std::round_to_nearest)
+				#if HALF_ROUND_TIES_TO_EVEN
+					hbits += g & (s|hbits);
+				#else
+					hbits += g;
+				#endif
+			else if(R == std::round_toward_infinity)
+				hbits += ~(hbits>>15) & (s|g);
+			else if(R == std::round_toward_neg_infinity)
+				hbits += (hbits>>15) & (g|s);
+*/			static const uint16 base_table[512] = { 
 				0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
 				0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
 				0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
@@ -497,8 +555,6 @@ namespace half_float
 				24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 
 				24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 
 				24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 13 };
-			uint32 bits;// = *reinterpret_cast<uint32*>(&value);		//violating strict aliasing!
-			std::memcpy(&bits, &value, sizeof(float));
 			uint16 hbits = base_table[bits>>23] + static_cast<uint16>((bits&0x7FFFFF)>>shift_table[bits>>23]);
 			if(R == std::round_to_nearest)
 				hbits += (((bits&0x7FFFFF)>>(shift_table[bits>>23]-1))|(((bits>>23)&0xFF)==102)) & ((hbits&0x7C00)!=0x7C00)
@@ -528,56 +584,50 @@ namespace half_float
 			uint64 bits;// = *reinterpret_cast<uint64*>(&value);		//violating strict aliasing!
 			std::memcpy(&bits, &value, sizeof(double));
 			uint32 hi = bits >> 32, lo = bits & 0xFFFFFFFF;
-			uint16 out = (hi>>16) & 0x8000;
+			uint16 hbits = (hi>>16) & 0x8000;
 			hi &= 0x7FFFFFFF;
 			int exp = hi >> 20;
 			if(exp == 2047)
-				out |= 0x7C00 | (0x3FF&-static_cast<unsigned>((bits&0xFFFFFFFFFFFFF)!=0));
-			else if(exp > 1038)
+				return hbits | 0x7C00 | (0x3FF&-static_cast<unsigned>((bits&0xFFFFFFFFFFFFF)!=0));
+			if(exp > 1038)
 			{
-				if(R == std::round_toward_zero)
-					out |= 0x7BFF;
-				else if(R == std::round_toward_infinity)
-					out |= 0x7C00 - (out>>15);
-				else if(R == std::round_toward_neg_infinity)
-					out |= 0x7BFF + (out>>15);
-				else
-					out |= 0x7C00;
+				if(R == std::round_toward_infinity)
+					return hbits | 0x7C00 - (hbits>>15);
+				if(R == std::round_toward_neg_infinity)
+					return hbits | 0x7BFF + (hbits>>15);
+				return hbits | 0x7BFF + (R!=std::round_toward_zero);
+			}
+			int g, s = lo != 0;
+			if(exp > 1008)
+			{
+				g = (hi>>9) & 1;
+				s |= (hi&0x1FF) != 0;
+				hbits |= ((exp-1008)<<10) | ((hi>>10)&0x3FF);
+			}
+			else if(exp > 997)
+			{
+				int i = 1018 - exp;
+				hi = (hi&0xFFFFF) | 0x100000;
+				g = (hi>>i) & 1;
+				s |= (hi&((1L<<i)-1)) != 0;
+				hbits |= hi >> (i+1);
 			}
 			else
 			{
-				int g, s = lo != 0;
-				if(exp > 1008)
-				{
-					g = (hi>>9) & 1;
-					s |= (hi&0x1FF) != 0;
-					out |= ((exp-1008)<<10) | ((hi>>10)&0x3FF);
-				}
-				else if(exp > 997)
-				{
-					int i = 1018 - exp;
-					hi = (hi&0xFFFFF) | 0x100000;
-					g = (hi>>i) & 1;
-					s |= (hi&((1L<<i)-1)) != 0;
-					out |= hi >> (i+1);
-				}
-				else
-				{
-					g = 0;
-					s |= hi != 0;
-				}
-				if(R == std::round_to_nearest)
-					#if HALF_ROUND_TIES_TO_EVEN
-						out += g & (s|out);
-					#else
-						out += g;
-					#endif
-				else if(R == std::round_toward_infinity)
-					out += ~(out>>15) & (s|g);
-				else if(R == std::round_toward_neg_infinity)
-					out += (out>>15) & (g|s);
+				g = 0;
+				s |= hi != 0;
 			}
-			return out;
+			if(R == std::round_to_nearest)
+				#if HALF_ROUND_TIES_TO_EVEN
+					hbits += g & (s|hbits);
+				#else
+					hbits += g;
+				#endif
+			else if(R == std::round_toward_infinity)
+				hbits += ~(hbits>>15) & (s|g);
+			else if(R == std::round_toward_neg_infinity)
+				hbits += (hbits>>15) & (g|s);
+			return hbits;
 		}
 
 		/// Convert non-IEEE floating point to half-precision.
@@ -1039,12 +1089,15 @@ namespace half_float
 	#if HALF_ENABLE_CPP11_HASH
 		friend struct std::hash<half>;
 	#endif
+	#if HALF_ENABLE_CPP11_USER_LITERALS
+		friend half literal::operator""_h(long double);
+	#endif
 
 	public:
 		/// Default constructor.
 		/// This initializes the half to 0. Although this does not match the builtin types' default-initialization semantics 
 		/// and may be less efficient than no initialization, it is needed to provide proper value-initialization semantics.
-		HALF_CONSTEXPR half() /*HALF_NOEXCEPT*/ : data_() {}
+		HALF_CONSTEXPR half() HALF_NOEXCEPT : data_() {}
 
 		/// Copy constructor.
 		/// \tparam T type of concrete half expression
@@ -1136,27 +1189,21 @@ namespace half_float
 
 		/// Constructor.
 		/// \param bits binary representation to set half to
-		HALF_CONSTEXPR half(detail::binary_t, detail::uint16 bits) /*HALF_NOEXCEPT*/ : data_(bits) {}
+		HALF_CONSTEXPR half(detail::binary_t, detail::uint16 bits) HALF_NOEXCEPT : data_(bits) {}
 
 		/// Internal binary representation
 		detail::uint16 data_;
 	};
 
 #if HALF_ENABLE_CPP11_USER_LITERALS
-	/// Library-defined half-precision literals.
-	/// Import this namespace to enable half-precision floating point literals:
-	/// ~~~~{.cpp}
-	/// using namespace half_float::literal;
-	/// half_float::half = 4.2_h;
-	/// ~~~~
 	namespace literal
 	{
 		/// Half literal.
 		/// While this returns an actual half-precision value, half literals can unfortunately not be constant expressions due 
-		/// to rather involved single-to-half conversion.
+		/// to rather involved conversions.
 		/// \param value literal value
 		/// \return half with given value (if representable)
-		inline half operator "" _h(long double value) { return half(static_cast<float>(value)); }
+		inline half operator""_h(long double value) { return half(detail::binary, detail::float2half<half::round_style>(value)); }
 	}
 #endif
 
