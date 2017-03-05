@@ -1,6 +1,6 @@
 // half - IEEE 754-based half-precision floating point library.
 //
-// Copyright (c) 2012-2014 Christian Rau <rauy@users.sourceforge.net>
+// Copyright (c) 2012-2017 Christian Rau <rauy@users.sourceforge.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
 // files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
@@ -95,7 +95,7 @@ namespace half_float
 		/// Default constructor.
 		/// This initializes the half to 0. Although this does not match the builtin types' default-initialization semantics 
 		/// and may be less efficient than no initialization, it is needed to provide proper value-initialization semantics.
-		constexpr half();
+		constexpr half() noexcept;
 
 		/// Conversion constructor.
 		/// \param rhs float to convert
@@ -190,13 +190,6 @@ namespace half_float
 		/// \return non-decremented half value
 		half operator--(int);
 		/// \}
-	};
-
-	/// Conversion mode for cast.
-	enum conversion_mode
-	{
-		arithmetic,									///< Arithmetic conversion.
-		bitwise										///< Bitwise reinterpretation.
 	};
 
 
@@ -811,21 +804,6 @@ namespace half_float
 	/// \param arg value to cast
 	/// \return \a arg converted to destination type
 	template<typename T,std::float_round_style R,typename U> T half_cast(const U &arg);
-
-	/// Cast to or from half-precision floating point number.
-	/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. The values are converted 
-	/// either arithmetically (with [arithmetic](\ref half_float::arithmetic)) using the default rounding mode or bitwise 
-	/// (with [bitwise](\ref half_float::bitwise), for integral types only).
-	///
-	/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types 
-	/// not being a built-in arithmetic type (for arithmetic cast) or not being a builtin integral type (for bitwise cast) 
-	/// results in a compiler error and casting between [half](\ref half_float::half)s is just a no-op.
-	/// \tparam T destination type (half or built-in arithmetic type)
-	/// \tparam C type of conversion (see [conversion_mode](\ref half_float::conversion_mode))
-	/// \tparam U source type (half or built-in arithmetic type)
-	/// \param arg value to cast
-	/// \return \a arg converted to destination type
-	template<typename T,conversion_mode C,typename U> T half_cast(U arg);
 	/// \}
 
 

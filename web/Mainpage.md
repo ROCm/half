@@ -48,7 +48,7 @@ sized integer types from `<cstdint>` | more flexible type sizes           | *VC+
 certain new `<cmath>` functions      | corresponding half implementations | *VC++ 2013*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_CMATH`
 `std::hash` from `<functional>`      | hash function for halfs            | *VC++ 2010*, *libstdc++ 4.3*, <i>libc++</i> | `HALF_ENABLE_CPP11_HASH`
 
-The library has been tested successfully with *Visual C++ 2005* - *2013*, *gcc 4.4* - *4.8* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
+The library has been tested successfully with *Visual C++ 2005* - *2015*, *gcc 4.4* - *4.8* and *clang 3.1*. Please [contact me](#contact) if you have any problems, suggestions or even just success testing it on other platforms.
 
 
 -------------
@@ -125,14 +125,6 @@ When using round to nearest (either as default or through half_cast()) ties are 
 ...
 assert( half_cast<int,std::round_to_nearest>(3.5_h) 
      == half_cast<int,std::round_to_nearest>(4.5_h) );
-~~~~
-
-While this should rarely ever be necessary, you can also access a [half](\ref half_float::half)'s bitwise representation in IEEE 754 format in a perfectly standard-conformant way, without the need for a `reinterpret_cast`. This can be achieved by using a different form of half_cast(), supplying the additional [bitwise](\ref half_float::bitwise) parameter. But note that this only works for converting between [half](\ref half_float::half) and any builtin integral type.
-
-~~~~{.cpp}
-using half_float::bitwise;
-std::uint16_t bits = half_cast<std::uint16_t,bitwise>(1.0_h);
-half two = half_cast<half,bitwise>(bits + 0x400);
 ~~~~
 
 Implementation												{#implementation}

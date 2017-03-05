@@ -29,14 +29,15 @@ or when a feature should be explicitly disabled:
   - Static assertions for extended compile-time checks (enabled for VC++ 2010, 
     gcc 4.3, clang 2.9 and newer, overridable with 'HALF_ENABLE_CPP11_STATIC_ASSERT').
 
-  - Generalized constant expressions (enabled for gcc 4.6, clang 3.1 and newer, 
-    overridable with 'HALF_ENABLE_CPP11_CONSTEXPR').
+  - Generalized constant expressions (enabled for VC++ 2015, gcc 4.6, clang 3.1 
+    and newer, overridable with 'HALF_ENABLE_CPP11_CONSTEXPR').
 
-  - noexcept exception specifications (enabled for gcc 4.6, clang 3.0 and newer, 
-    overridable with 'HALF_ENABLE_CPP11_NOEXCEPT').
+  - noexcept exception specifications (enabled for VC++ 2015, gcc 4.6, clang 3.0 
+    and newer, overridable with 'HALF_ENABLE_CPP11_NOEXCEPT').
 
   - User-defined literals for half-precision literals to work (enabled for 
-    gcc 4.7, clang 3.1 and newer, overridable with 'HALF_ENABLE_CPP11_USER_LITERALS').
+    VC++ 2015, gcc 4.7, clang 3.1 and newer, overridable with 
+    'HALF_ENABLE_CPP11_USER_LITERALS').
 
   - Type traits and template meta-programming features from <type_traits> 
     (enabled for VC++ 2010, libstdc++ 4.3, libc++ and newer, overridable with 
@@ -53,7 +54,7 @@ or when a feature should be explicitly disabled:
   - Hash functor 'std::hash' from <functional> (enabled for VC++ 2010, 
     libstdc++ 4.3, libc++ and newer, overridable with 'HALF_ENABLE_CPP11_HASH').
 
-The library has been tested successfully with Visual C++ 2005-2013, gcc 4.4-4.8 
+The library has been tested successfully with Visual C++ 2005-2015, gcc 4.4-4.8 
 and clang 3.1. Please contact me if you have any problems, suggestions or even 
 just success testing it on other platforms.
 
@@ -184,17 +185,6 @@ IEEE-conformant behaviour of rounding half-way cases to the nearest even value.
     ...
     assert( half_cast<int,std::round_to_nearest>(3.5_h) 
          == half_cast<int,std::round_to_nearest>(4.5_h) );
-
-While this should rarely ever be necessary, you can also access a half's 
-bitwise representation in IEEE 754 format in a perfectly standard-conformant 
-way, without the need for a 'reinterpret_cast'. This can be achieved by using 
-a different form of 'half_cast', supplying the additional 'bitwise' parameter.
-But note that this only works for converting between half and any builtin 
-integral type.
-
-    using half_float::bitwise;
-    std::uint16_t bits = half_cast<std::uint16_t,bitwise>(1.0_h);
-    half two = half_cast<half,bitwise>(bits + 0x400);
 
 IMPLEMENTATION
 

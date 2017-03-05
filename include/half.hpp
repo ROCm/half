@@ -1,6 +1,6 @@
 // half - IEEE 754-based half-precision floating point library.
 //
-// Copyright (c) 2012-2014 Christian Rau <rauy@users.sourceforge.net>
+// Copyright (c) 2012-2017 Christian Rau <rauy@users.sourceforge.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
 // files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
@@ -274,13 +274,6 @@ namespace half_float
 		half operator""_h(long double);
 	}
 #endif
-
-	/// Conversion mode for cast.
-	enum conversion_mode
-	{
-		arithmetic,									///< Arithmetic conversion.
-		bitwise										///< Bitwise reinterpretation.
-	};
 
 	/// \internal
 	/// \brief Implementation details.
@@ -1056,7 +1049,7 @@ namespace half_float
 		struct functions;
 		template<typename> struct unary_specialized;
 		template<typename,typename> struct binary_specialized;
-		template<typename,typename,conversion_mode,std::float_round_style> struct half_caster;
+		template<typename,typename,std::float_round_style> struct half_caster;
 	}
 
 	/// Half-precision floating point type.
@@ -1084,7 +1077,7 @@ namespace half_float
 		friend struct detail::functions;
 		friend struct detail::unary_specialized<half>;
 		friend struct detail::binary_specialized<half,half>;
-		template<typename,typename,conversion_mode,std::float_round_style> friend struct detail::half_caster;
+		template<typename,typename,std::float_round_style> friend struct detail::half_caster;
 		friend class std::numeric_limits<half>;
 	#if HALF_ENABLE_CPP11_HASH
 		friend struct std::hash<half>;
@@ -1366,7 +1359,7 @@ namespace half_float
 
 			/// Get NaN.
 			/// \return Half-precision quiet NaN
-			static half nanh(const char*) { return half(binary, 0x7FFF); }
+			static half nanh() { return half(binary, 0x7FFF); }
 
 			/// Exponential implementation.
 			/// \param arg function argument
@@ -2070,75 +2063,49 @@ namespace half_float
 		/// function and a corresponding `type` member denoting its return type.
 		/// \tparam T destination type
 		/// \tparam U source type
-		/// \tparam C conversion mode to use (arithmetic vs. binary)
 		/// \tparam R rounding mode to use
-		template<typename T,typename U,conversion_mode C=arithmetic,std::float_round_style R=(std::float_round_style)(HALF_ROUND_STYLE)> struct half_caster {};
-		template<typename U,std::float_round_style R> struct half_caster<half,U,arithmetic,R>
+		template<typename T,typename U,std::float_round_style R=(std::float_round_style)(HALF_ROUND_STYLE)> struct half_caster {};
+		template<typename U,std::float_round_style R> struct half_caster<half,U,R>
 		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
 			static_assert(std::is_arithmetic<U>::value, "half_cast from non-arithmetic type unsupported");
 		#endif
 
-			typedef half type;
 			static half cast(U arg) { return cast_impl(arg, is_float<U>()); };
 
 		private:
 			static half cast_impl(U arg, true_type) { return half(binary, float2half<R>(arg)); }
 			static half cast_impl(U arg, false_type) { return half(binary, int2half<R>(arg)); }
 		};
-		template<typename T,std::float_round_style R> struct half_caster<T,half,arithmetic,R>
+		template<typename T,std::float_round_style R> struct half_caster<T,half,R>
 		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
 			static_assert(std::is_arithmetic<T>::value, "half_cast to non-arithmetic type unsupported");
 		#endif
 
-			typedef T type;
 			static T cast(half arg) { return cast_impl(arg, is_float<T>()); }
 
 		private:
 			static T cast_impl(half arg, true_type) { return half2float<T>(arg.data_); }
 			static T cast_impl(half arg, false_type) { return half2int<R,T>(arg.data_); }
 		};
-		template<typename T,std::float_round_style R> struct half_caster<T,expr,arithmetic,R>
+		template<typename T,std::float_round_style R> struct half_caster<T,expr,R>
 		{
 		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
 			static_assert(std::is_arithmetic<T>::value, "half_cast to non-arithmetic type unsupported");
 		#endif
 
-			typedef T type;
 			static T cast(expr arg) { return cast_impl(arg, is_float<T>()); }
 
 		private:
 			static T cast_impl(float arg, true_type) { return static_cast<T>(arg); }
 			static T cast_impl(half arg, false_type) { return half2int<R,T>(arg.data_); }
 		};
-		template<std::float_round_style R> struct half_caster<half,half,arithmetic,R>
+		template<std::float_round_style R> struct half_caster<half,half,R>
 		{
-			typedef half type;
 			static half cast(half arg) { return arg; }
 		};
-		template<std::float_round_style R> struct half_caster<half,expr,arithmetic,R> : half_caster<half,half,arithmetic,R> {};
-		template<typename U,std::float_round_style R> struct half_caster<half,U,bitwise,R>
-		{
-		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
-			static_assert(std::is_integral<U>::value, "bitwise half_cast from non-integral type unsupported");
-		#endif
-
-			typedef half type;
-			static half cast(U arg) { return half(binary, static_cast<uint16>(arg)); };
-		};
-		template<typename T,std::float_round_style R> struct half_caster<T,half,bitwise,R>
-		{
-		#if HALF_ENABLE_CPP11_STATIC_ASSERT && HALF_ENABLE_CPP11_TYPE_TRAITS
-			static_assert(std::is_integral<T>::value, "bitwise half_cast to non-integral type unsupported");
-		#endif
-
-			typedef T type;
-			static T cast(half arg) { return static_cast<T>(arg.data_); }
-		};
-		template<typename T,std::float_round_style R> struct half_caster<T,expr,bitwise,R> : half_caster<T,half,bitwise,R> {};
-		template<std::float_round_style R> struct half_caster<half,half,bitwise,R> : half_caster<half,half,arithmetic,R> {};
-		template<std::float_round_style R> struct half_caster<half,expr,bitwise,R> : half_caster<half,half,bitwise,R> {};
+		template<std::float_round_style R> struct half_caster<half,expr,R> : half_caster<half,half,R> {};
 
 		/// \name Comparison operators
 		/// \{
@@ -2336,9 +2303,8 @@ namespace half_float
 		inline expr fdim(expr x, expr y) { return functions::fdim(x, y); }
 
 		/// Get NaN value.
-		/// \param arg descriptive string (ignored)
 		/// \return quiet NaN
-		inline half nanh(const char *arg) { return functions::nanh(arg); }
+		inline half nanh(const char*) { return functions::nanh(); }
 
 		/// \}
 		/// \name Exponential functions
@@ -2870,7 +2836,7 @@ namespace half_float
 		/// \tparam U source type (half or built-in arithmetic type)
 		/// \param arg value to cast
 		/// \return \a arg converted to destination type
-		template<typename T,typename U> typename half_caster<T,U>::type half_cast(U arg) { return half_caster<T,U>::cast(arg); }
+		template<typename T,typename U> T half_cast(U arg) { return half_caster<T,U>::cast(arg); }
 
 		/// Cast to or from half-precision floating point number.
 		/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. The values are converted 
@@ -2884,24 +2850,7 @@ namespace half_float
 		/// \tparam U source type (half or built-in arithmetic type)
 		/// \param arg value to cast
 		/// \return \a arg converted to destination type
-		template<typename T,std::float_round_style R,typename U> typename half_caster<T,U,arithmetic,R>::type half_cast(U arg)
-			{ return half_caster<T,U,arithmetic,R>::cast(arg); }
-
-		/// Cast to or from half-precision floating point number.
-		/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. The values are converted 
-		/// either arithmetically (with [arithmetic](\ref half_float::arithmetic)) using the default rounding mode or bitwise 
-		/// (with [bitwise](\ref half_float::bitwise), for integral types only).
-		///
-		/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types 
-		/// not being a built-in arithmetic type (for arithmetic cast) or not being a builtin integral type (for bitwise cast) 
-		/// results in a compiler error and casting between [half](\ref half_float::half)s is just a no-op.
-		/// \tparam T destination type (half or built-in arithmetic type)
-		/// \tparam C type of conversion (see [conversion_mode](\ref half_float::conversion_mode))
-		/// \tparam U source type (half or built-in arithmetic type)
-		/// \param arg value to cast
-		/// \return \a arg converted to destination type
-		template<typename T,conversion_mode C,typename U> typename half_caster<T,U,C>::type half_cast(U arg)
-			{ return half_caster<T,U,C>::cast(arg); }
+		template<typename T,std::float_round_style R,typename U> T half_cast(U arg) { return half_caster<T,U,R>::cast(arg); }
 		/// \}
 	}
 

@@ -1,6 +1,6 @@
 // test - Test application for half-precision floating point functionality.
 //
-// Copyright (c) 2012-2014 Christian Rau <rauy@users.sourceforge.net>
+// Copyright (c) 2012-2017 Christian Rau <rauy@users.sourceforge.net>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
 // files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, 
@@ -63,13 +63,11 @@ using half_float::half_cast;
 half b2h(std::uint16_t bits)
 {
 	return *reinterpret_cast<half*>(&bits);
-//	return half_cast<half,half_float::bitwise>(bits);
 }
 
 std::uint16_t h2b(half h)
 {
 	return *reinterpret_cast<std::uint16_t*>(&h);
-//	return half_cast<std::uint16_t,half_float::bitwise>(h);
 }
 
 bool comp(half a, half b)
@@ -615,7 +613,7 @@ private:
 	std::ostream &log_;
 	bool fast_;
 };
-
+/*
 #include <chrono>
 struct timer
 {
@@ -625,17 +623,17 @@ struct timer
 private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> start_;
 };
-
+*/
 
 int main(int argc, char *argv[])
 {
-/*	half pi = half_cast<half,std::round_to_nearest>(3.1415926535897932384626433832795L);
+	half pi = half_cast<half,std::round_to_nearest>(3.1415926535897932384626433832795L);
 	std::cout << "Pi: " << pi << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(pi) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(pi))).to_string() << std::endl;
-	half e = half_cast<half,std::round_to_nearest>(std::exp(1.0L)) * logb(pi);
+	half e = half_cast<half,std::round_to_nearest>(std::exp(1.0L));
 	std::cout << "e:  " << e << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(e) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(e))).to_string() << std::endl;
-*/
+
 	std::vector<std::string> args(argv, argv+argc);
 	std::unique_ptr<std::ostream> file;
 	bool fast = false;
