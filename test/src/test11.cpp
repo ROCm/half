@@ -132,9 +132,9 @@ public:
 		simple_test("size", []() { return sizeof(half)*CHAR_BIT >= 16; });
 
 		//test conversion
-		unary_test("float conversion", [](half arg) { return comp(static_cast<half>(static_cast<float>(arg)), arg); });
-		unary_test("double conversion", [](half arg) { return comp(static_cast<half>(static_cast<double>(arg)), arg); });
-		unary_test("long double conversion", [](half arg) { return comp(static_cast<half>(static_cast<long double>(arg)), arg); });
+		unary_test("float conversion", [](half arg) { return comp(half_cast<half>(half_cast<float>(arg)), arg); });
+		unary_test("double conversion", [](half arg) { return comp(half_cast<half>(half_cast<double>(arg)), arg); });
+		unary_test("long double conversion", [](half arg) { return comp(half_cast<half>(half_cast<long double>(arg)), arg); });
 
 		//test classification
 		class_test("fpclassify", [](half arg, int cls) { return fpclassify(arg) == cls; });

@@ -891,7 +891,6 @@ namespace half_float
 				   0, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 
 				   0, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024 };
 			uint32 bits = mantissa_table[offset_table[value>>10]+(value&0x3FF)] + exponent_table[value>>10];
-//			uint32 bits = mantissa_table[(((value&0x7C00)!=0)<<10)+(value&0x3FF)] + exponent_table[value>>10];
 //			return *reinterpret_cast<float*>(&bits);			//violating strict aliasing!
 			float out;
 			std::memcpy(&out, &bits, sizeof(float));
