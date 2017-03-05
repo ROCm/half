@@ -749,7 +749,7 @@ namespace half_float
 			int abs = value & 0x7FFF;
 			if(abs)
 			{
-				bits |= 0x38000000 << (abs>=0x7C00);
+				bits |= 0x38000000 << static_cast<unsigned>(abs>=0x7C00);
 				for(; abs<0x400; abs<<=1,bits-=0x800000) ;
 				bits += static_cast<uint32>(abs) << 13;
 			}
@@ -909,7 +909,7 @@ namespace half_float
 			int abs = value & 0x7FFF;
 			if(abs)
 			{
-				hi |= 0x3F000000 << (abs>=0x7C00);
+				hi |= 0x3F000000 << static_cast<unsigned>(abs>=0x7C00);
 				for(; abs<0x400; abs<<=1,hi-=0x100000) ;
 				hi += static_cast<uint32>(abs) << 10;
 			}

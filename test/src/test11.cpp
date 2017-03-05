@@ -613,7 +613,7 @@ private:
 	std::ostream &log_;
 	bool fast_;
 };
-/*
+
 #include <chrono>
 struct timer
 {
@@ -623,10 +623,26 @@ struct timer
 private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> start_;
 };
-*/
 
 int main(int argc, char *argv[])
 {
+/*	auto rand_abs = std::bind(std::uniform_int_distribution<std::uint32_t>(0x00000000, 0x7F100000), std::default_random_engine());
+	auto rand_sign = std::bind(std::uniform_int_distribution<std::uint32_t>(0, 1), std::default_random_engine());
+	std::vector<float> floats;
+	for(unsigned int i=0; i<1e8; ++i)
+	{
+		auto bits = rand_abs() | (rand_sign()<<31);
+		floats.push_back(*reinterpret_cast<float*>(&bits));
+	}
+	std::shuffle(floats.begin(), floats.end(), std::default_random_engine());
+	std::vector<half> halfs(floats.size());
+	{
+		timer time;
+		for(std::size_t i=0; i<floats.size(); ++i)
+			halfs[i] = half_cast<half,std::round_to_nearest>(floats[i]);
+	}
+	return 0;
+*/
 	half pi = half_cast<half,std::round_to_nearest>(3.1415926535897932384626433832795L);
 	std::cout << "Pi: " << pi << " - 0x" << std::hex << std::setfill('0') << std::setw(4) << h2b(pi) << std::dec 
 		<< " - " << std::bitset<16>(static_cast<unsigned long long>(h2b(pi))).to_string() << std::endl;
@@ -646,6 +662,6 @@ int main(int argc, char *argv[])
 	}
 	half_test test(file ? *file : std::cout, fast);
 
-//	timer time;
+	timer time;
 	return test.test();
 }
