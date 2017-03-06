@@ -1,7 +1,7 @@
 News														{#news}
 ====
 
-XXX XX, 2017 - Release 1.12.0
+March 6, 2017 - Release 1.12.0
 ------------------------------
 
 [Version 1.12.0](http://sourceforge.net/projects/half/files/half/1.12.0) of the library has been released. It changes the behaviour of half_cast() when casting to/from builtin floating point types. Previously those were performed by an explicit intermediary cast to/from `float`. But this could lead to imprecise results, since the rounding from `double`/`long double` to `float` was not controlled by the rounding mode of the half_cast(). Now each half_cast() always rounds directly to/from the specified type using the given rounding mode and thus guarantees exact compliance to this rounding mode. Furthermore, a minor portability issue with logb() and ilogb() has been fixed, that could cause trouble on non-twos-complement implementations (if there are any at all). It was also tested for *MS Visual C++ 2015*.

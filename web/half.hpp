@@ -934,5 +934,3 @@ namespace std
 		std::size_t operator()(half_float::half arg) const;
 	};
 }
-
-#endif
