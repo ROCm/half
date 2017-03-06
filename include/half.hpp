@@ -182,6 +182,7 @@
 #include <climits>
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
 #if HALF_ENABLE_CPP11_TYPE_TRAITS
 	#include <type_traits>
 #endif
