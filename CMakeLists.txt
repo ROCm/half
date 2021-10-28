@@ -20,7 +20,7 @@ include(ROCMCreatePackage)
 
 rocm_setup_version(VERSION 1.12.0 NO_GIT_TAG_VERSION)
 
-install(FILES include/half.hpp DESTINATION include)
+install(FILES include/half.hpp DESTINATION include/half)
 
 rocm_create_package(
     NAME half
