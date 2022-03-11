@@ -15,12 +15,28 @@ endif()
 
 project(half)
 find_package(ROCM REQUIRED)
+
 include(ROCMSetupVersion)
 include(ROCMCreatePackage)
 
+# FOR HANDLING ENABLE/DISABLE OPTIONAL BACKWARD COMPATIBILITY for FILE/FOLDER REORG
+option(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY "Build with file/folder reorg with backward compatibility enabled" ON)
+
 rocm_setup_version(VERSION 1.12.0 NO_GIT_TAG_VERSION)
 
-install(FILES include/half.hpp DESTINATION include)
+install(FILES include/half.hpp DESTINATION include/half)
+
+if(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY)
+ install(
+	      CODE"
+	        set(PREFIX \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX})
+	        set(INPUT_FILE \${PREFIX}/include/half/half.hpp)
+	        set(SYMLINK_LOCATION \${PREFIX}/include)
+	        execute_process(COMMAND ln -sfr \${INPUT_FILE} \${SYMLINK_LOCATION})
+	        message(STATUS \"Created symlink in \${SYMLINK_LOCATION} to \${INPUT_FILE}.\")
+	        "
+	    )
+endif()
 
 rocm_create_package(
     NAME half
