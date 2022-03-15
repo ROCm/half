@@ -27,15 +27,19 @@ rocm_setup_version(VERSION 1.12.0 NO_GIT_TAG_VERSION)
 install(FILES include/half.hpp DESTINATION include/half)
 
 if(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY)
- install(
-	      CODE"
-	        set(PREFIX \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX})
-	        set(INPUT_FILE \${PREFIX}/include/half/half.hpp)
-	        set(SYMLINK_LOCATION \${PREFIX}/include)
-	        execute_process(COMMAND ln -sfr \${INPUT_FILE} \${SYMLINK_LOCATION})
-	        message(STATUS \"Created symlink in \${SYMLINK_LOCATION} to \${INPUT_FILE}.\")
-	        "
-	    )
+#Generate header template file
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/wrapper/header.hpp.in "/* \nCopyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.\n*/
+    \n\n#ifndef @include_guard@\n#define @include_guard@
+    \n\n#pragma message(\"This file is deprecated. Use file from include path /opt/rocm-ver/include and prefix with half\")
+    \n@include_statements@ \n\n#endif")
+
+#use header template file and generate wrapper header file
+  set(include_guard "HALF_WRAPPER_INC_HALF_HPP")
+  set(include_statements "#include \"half/half.hpp\"\n")
+
+  configure_file( ${CMAKE_CURRENT_BINARY_DIR}/wrapper/header.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/wrapper/half.hpp)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/wrapper/half.hpp DESTINATION include)
+
 endif()
 
 rocm_create_package(
