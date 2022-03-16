@@ -24,22 +24,18 @@ option(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY "Build with file/folder reorg wit
 
 rocm_setup_version(VERSION 1.12.0 NO_GIT_TAG_VERSION)
 
-install(FILES include/half.hpp DESTINATION include/half)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/half.hpp DESTINATION include/half)
 
 if(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY)
-#Generate header template file
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/wrapper/header.hpp.in "/* \nCopyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.\n*/
-    \n\n#ifndef @include_guard@\n#define @include_guard@
-    \n\n#pragma message(\"This file is deprecated. Use file from include path /opt/rocm-ver/include and prefix with half\")
-    \n@include_statements@ \n\n#endif")
+  include(ROCMHeaderWrapper)
+  rocm_wrap_header_file(
+    half.hpp
+    GUARDS WRAPPER
+    WRAPPER_LOCATIONS include
+  )
 
-#use header template file and generate wrapper header file
-  set(include_guard "HALF_WRAPPER_INC_HALF_HPP")
-  set(include_statements "#include \"half/half.hpp\"\n")
-
-  configure_file( ${CMAKE_CURRENT_BINARY_DIR}/wrapper/header.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/wrapper/half.hpp)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/wrapper/half.hpp DESTINATION include)
-
+  #Install Wrapper for backward compatibility
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/half.hpp DESTINATION include)
 endif()
 
 rocm_create_package(
