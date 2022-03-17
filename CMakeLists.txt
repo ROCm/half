@@ -15,12 +15,28 @@ endif()
 
 project(half)
 find_package(ROCM REQUIRED)
+
 include(ROCMSetupVersion)
 include(ROCMCreatePackage)
 
+# FOR HANDLING ENABLE/DISABLE OPTIONAL BACKWARD COMPATIBILITY for FILE/FOLDER REORG
+option(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY "Build with file/folder reorg with backward compatibility enabled" ON)
+
 rocm_setup_version(VERSION 1.12.0 NO_GIT_TAG_VERSION)
 
-install(FILES include/half.hpp DESTINATION include)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/half.hpp DESTINATION include/half)
+
+if(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY)
+  include(ROCMHeaderWrapper)
+  rocm_wrap_header_file(
+    half.hpp
+    GUARDS WRAPPER
+    WRAPPER_LOCATIONS include
+  )
+
+  #Install Wrapper for backward compatibility
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/half.hpp DESTINATION include)
+endif()
 
 rocm_create_package(
     NAME half
