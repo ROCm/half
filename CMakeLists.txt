@@ -35,7 +35,7 @@ if(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY)
   )
 
   #Install Wrapper for backward compatibility
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/half.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR}/half.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
 rocm_create_package(
