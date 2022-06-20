@@ -24,18 +24,18 @@ option(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY "Build with file/folder reorg wit
 
 rocm_setup_version(VERSION 1.12.0 NO_GIT_TAG_VERSION)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/half.hpp DESTINATION include/half)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/half.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/half)
 
 if(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY)
   include(ROCMHeaderWrapper)
   rocm_wrap_header_file(
     half.hpp
     GUARDS WRAPPER
-    WRAPPER_LOCATIONS include
+    WRAPPER_LOCATIONS ${CMAKE_INSTALL_INCLUDEDIR}
   )
 
   #Install Wrapper for backward compatibility
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/half.hpp DESTINATION include)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR}/half.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
 rocm_create_package(
