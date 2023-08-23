@@ -20,7 +20,7 @@ include(ROCMSetupVersion)
 include(ROCMCreatePackage)
 
 # FOR HANDLING ENABLE/DISABLE OPTIONAL BACKWARD COMPATIBILITY for FILE/FOLDER REORG
-option(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY "Build with file/folder reorg with backward compatibility enabled" ON)
+option(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY "Build with file/folder reorg with backward compatibility enabled" OFF)
 
 rocm_setup_version(VERSION 1.12.0 NO_GIT_TAG_VERSION)
 
