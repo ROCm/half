@@ -1,13 +1,38 @@
-# Anywhere {branch} is used, the branch name will be substituted.
-# These comments will also be removed.
 defaults:
   numbered: False
-  maxdepth: 6
 root: index
 subtrees:
-  - caption: API Reference
-    entries:
-      - file: doxygen/html/index
-  - caption: About
-    entries:
-      - file: license
+- caption: Install
+  entries:
+  - file: install/install.md
+    title: Half installation 
+
+
+- caption: How to
+  entries:
+   - file: how-to/use-half.rst
+     title: Use Half
+   - file: how-to/implement.rst
+     title: Implement Half
+   - file: how-to/convert-round.rst
+     title: Convert and Round Half
+
+- caption: API Reference
+  entries:
+   - file: reference/half-api.rst
+     title: Half API      
+ 
+- caption: Conceptual
+  entries:
+  - file: conceptual/understand-half.rst
+    title: Understand Half
+
+- caption: Tutorials
+  entries:
+  - url: https://github.com/ROCm/half/tree/rocm
+    title: GitHub samples
+
+
+- caption: About
+  entries:
+  - file: license.md
